@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tipstablån – film- och serietips</title>
+<meta name="description" content="Tio filmer och tio serier från Netflix, Apple TV+, HBO Max, Prime Video och Disney+. Nyast överst, IMDb 7,0 och uppåt.">
+<meta name="theme-color" content="#08080D">
+<meta property="og:title" content="Tipstablån">
+<meta property="og:description" content="Tio filmer och tio serier värda kvällen. Nyast överst.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2308080D'/><rect x='18' y='30' width='64' height='40' fill='%23FFD666'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --ink:#08080D; --panel:#17181F; --line:#42445C;
+  --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A;
+  --txt:#FFFFFF; --dim:#C7C9DE;
+  --display:'Oswald','Arial Narrow',Impact,sans-serif;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  color-scheme: dark;
+}
+html{background:var(--ink)}
+html,body{margin:0;padding:0}
+body{background:var(--ink);color:var(--txt);font-family:var(--body);
+  min-height:100vh;padding-bottom:56px;-webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px}
+
+.bar{background:var(--film);color:var(--ink);padding:10px 16px;
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.bar h1{font-family:var(--display);font-weight:700;font-size:26px;
+  letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1}
+.page{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em}
+.today{font-family:var(--mono);font-size:11px;margin-left:auto;letter-spacing:.1em}
+.sub{font-family:var(--mono);font-size:11px;color:var(--dim);
+  letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
+
+.tabs{display:flex;gap:2px;margin:16px 0 12px}
+.tab{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);
+  font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
+  padding:11px 6px;cursor:pointer;border-radius:0;transition:.16s}
+.tab:hover{color:var(--txt)}
+.tab[data-on="film"]{background:var(--film);color:var(--ink);border-color:var(--film)}
+.tab[data-on="serie"]{background:var(--serie);color:var(--ink);border-color:var(--serie)}
+.tab[data-on="favorit"]{background:var(--fav);color:var(--ink);border-color:var(--fav)}
+.tab b{font-family:var(--mono);font-size:11px;font-weight:700;margin-left:6px}
+
+.ctrl{border:1px solid var(--line);background:var(--panel);padding:12px;margin-bottom:18px}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);
+  text-transform:uppercase;display:block;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:6px 10px;border:1px solid var(--line);background:transparent;color:var(--dim);
+  cursor:pointer;transition:.16s}
+.chip[data-on="1"]{background:var(--txt);color:var(--ink);border-color:var(--txt)}
+.row2{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.btn{font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
+  background:var(--film);color:var(--ink);border:none;padding:11px 18px;cursor:pointer}
+.btn:active{transform:translateY(1px)}
+.chip:focus-visible,.tab:focus-visible,.btn:focus-visible,.heart:focus-visible,
+.title a:focus-visible{outline:2px solid var(--film);outline-offset:2px}
+
+.item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.rail{width:52px;flex:0 0 52px;text-align:right;font-family:var(--mono);
+  position:relative;padding-right:14px}
+.rail:after{content:'';position:absolute;right:0;top:6px;bottom:-16px;width:1px;background:var(--line)}
+.dot{position:absolute;right:-3px;top:6px;width:7px;height:7px;background:var(--film)}
+.item[data-kind="serie"] .dot{background:var(--serie)}
+.yr{font-size:15px;font-weight:700;line-height:1}
+.md{font-size:10px;color:var(--dim);letter-spacing:.08em;margin-top:4px}
+.body{flex:1;min-width:0}
+.head{display:flex;gap:10px;align-items:flex-start}
+.title{font-family:var(--display);font-size:21px;font-weight:600;line-height:1.15;
+  letter-spacing:.01em;margin:0;flex:1}
+.title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+.title a:hover{border-bottom-color:var(--film)}
+.meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin:7px 0 0;
+  letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.svc{color:var(--ink);background:var(--film);padding:2px 6px;font-weight:700}
+.item[data-kind="serie"] .svc{background:var(--serie)}
+.imdb{color:var(--film);font-weight:700}
+.nytt{color:var(--ink);background:var(--fav);padding:2px 6px;font-weight:700}
+.desc{font-size:14px;line-height:1.55;color:#E7E8F5;margin:8px 0 0}
+.heart{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
+  width:38px;height:38px;flex:0 0 38px;font-size:17px;line-height:1;transition:.16s}
+.heart:hover{color:var(--fav);border-color:var(--fav)}
+.heart[data-on="1"]{color:var(--fav);border-color:var(--fav);background:rgba(255,107,138,.12)}
+
+.empty{border:1px dashed var(--line);padding:28px 20px;text-align:center}
+.empty p{margin:0 0 6px;font-family:var(--display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
+.empty span{font-size:13px;color:var(--dim)}
+.foot{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;
+  text-align:center;padding-top:26px;line-height:1.9}
+.fade{animation:in .32s ease both}
+@keyframes in{from{opacity:0;transform:translateY(7px)}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none!important}}
+@media (max-width:520px){
+  .title{font-size:18px}
+  .rail{width:44px;flex:0 0 44px;padding-right:11px}
+  .bar h1{font-size:21px}
+  .btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <h1>Tipstablån</h1>
+  <span class="page">SIDA 101</span>
+  <span class="today" id="today"></span>
+</header>
+
+<div class="wrap">
+  <p class="sub">Max fem år gammalt · IMDb 7,0+ · Nyast överst</p>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="ctrl">
+    <span class="lbl">Mina tjänster</span>
+    <div class="chips" id="chips"></div>
+    <div class="row2">
+      <button class="chip" id="onlyRated" data-on="0">Endast titlar med IMDb-betyg</button>
+      <button class="btn" id="refresh">⟳ Hämta nya tips</button>
+    </div>
+  </div>
+
+  <div id="list"></div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script>
+(function () {
+  var SERVICES = ["Netflix", "Apple TV+", "HBO Max", "Prime Video", "Disney+"];
+  var NOW = new Date();
+  var MONTHS = ["JAN","FEB","MAR","APR","MAJ","JUN","JUL","AUG","SEP","OKT","NOV","DEC"];
+  var FAV_KEY = "tipstablan:favoriter";
+  var SEEN_KEY = "tipstablan:visade";
+
+  /* ============ TITELBANKEN ============
+     f = film, s = serie
+     [titel, datum, tjänst, imdb (0 = betyg ej satt än), genre, längd, beskrivning]
+  ==================================== */
+
+  var FILM = [
+    ["Wake Up Dead Man: A Knives Out Mystery","2025-12-12","Netflix",7.2,"Mysterium","2 tim 19 min","Benoit Blanc löser ett omöjligt mord i en liten kyrkstad."],
+    ["F1","2025-12-12","Apple TV+",7.8,"Sport/Drama","2 tim 36 min","Åldrad förare gör comeback i formel 1 – bullrig och snygg."],
+    ["Train Dreams","2025-11-21","Netflix",7.4,"Drama","1 tim 42 min","Stillsamt porträtt av en rallare i 1900-talets amerikanska vildmark."],
+    ["Frankenstein","2025-11-07","Netflix",7.3,"Skräck/Drama","2 tim 29 min","Del Toros påkostade version av klassikern om skaparen och monstret."],
+    ["Predator: Badlands","2025-11-07","Disney+",7.2,"Sci-fi/Action","1 tim 47 min","En ung predator jagar sitt livs byte på en dödlig planet."],
+    ["Superman","2025-09-19","HBO Max",7.2,"Superhjälte","2 tim 09 min","Gunns ljusa omstart – mer hoppfull än de senaste DC-filmerna."],
+    ["Sinners","2025-07-04","HBO Max",7.6,"Skräck/Drama","2 tim 17 min","Tvillingbröder öppnar bluesklubb i 30-talets Mississippi. Sen blir det blodigt."],
+    ["KPop Demon Hunters","2025-06-20","Netflix",7.7,"Animerat/Musik","1 tim 36 min","Popgrupp som i hemlighet jagar demoner. Bättre än det låter."],
+    ["A Real Pain","2024-11-01","Disney+",7.0,"Drama/Komedi","1 tim 30 min","Två kusiner reser till Polen och skaver mot varandra hela vägen."],
+    ["Rebel Ridge","2024-09-06","Netflix",7.1,"Thriller","2 tim 11 min","Exmarinsoldat mot korrupt småstadspolis. Spänd utan att bli dum."],
+    ["Alien: Romulus","2024-08-16","Disney+",7.1,"Skräck/Sci-fi","1 tim 59 min","Unga rymdkolonister hittar fel sorts last på en övergiven station."],
+    ["Deadpool & Wolverine","2024-07-26","Disney+",7.6,"Action/Komedi","2 tim 08 min","Två motvilliga hjältar, oräkneliga skämt och rejält med blod."],
+    ["Kingdom of the Planet of the Apes","2024-05-10","Disney+",7.0,"Sci-fi","2 tim 25 min","Generationer efter Caesar söker en ung apa svar om människorna."],
+    ["Challengers","2024-04-26","Prime Video",7.1,"Drama","2 tim 11 min","Triangeldrama på tennisbanan, klippt som en actionfilm."],
+    ["Society of the Snow","2024-01-04","Netflix",7.8,"Drama","2 tim 24 min","Flygkraschen i Anderna, berättad med respekt för de överlevande."],
+    ["Saltburn","2023-12-22","Prime Video",7.0,"Thriller","2 tim 11 min","Stipendiat charmar sig in i en brittisk överklassfamilj. Obehagligt bra."],
+    ["Wonka","2023-12-15","HBO Max",7.0,"Familj/Musikal","1 tim 56 min","Chokladfabrikörens ursprung som varm musikal. Funkar för hela soffan."],
+    ["Poor Things","2023-12-08","Disney+",7.7,"Drama/Komedi","2 tim 21 min","Återuppväckt kvinna upptäcker världen på egna villkor. Egensinnig och rolig."],
+    ["Killers of the Flower Moon","2023-10-20","Apple TV+",7.6,"Drama/Kriminal","3 tim 26 min","Scorsese om morden på oljerika Osage-indianer på 1920-talet."],
+    ["The Burial","2023-10-13","Prime Video",7.2,"Drama","2 tim 06 min","Advokat tar strid mot en begravningskoncern. Jamie Foxx i toppform."],
+    ["Nimona","2023-06-30","Netflix",7.5,"Animerat","1 tim 41 min","Formskiftande buse hjälper anklagad riddare. Snabb, snygg och varm."],
+    ["Guardians of the Galaxy Vol. 3","2023-05-05","Disney+",7.9,"Action/Sci-fi","2 tim 30 min","Avskedet till gänget, med Rockets bakgrund som ovanligt tung kärna."],
+    ["Air","2023-04-05","Prime Video",7.4,"Drama","1 tim 52 min","Nike jagar Michael Jordan 1984. Bara snack – och riktigt underhållande."],
+    ["Tetris","2023-03-31","Apple TV+",7.0,"Thriller/Drama","1 tim 58 min","Kampen om spelrättigheterna bakom järnridån blir oväntat nervig."],
+    ["Glass Onion","2022-12-23","Netflix",7.1,"Mysterium","2 tim 19 min","Mordgåta på grekisk privatö bland löjligt rika vänner."],
+    ["Avatar: The Way of Water","2022-12-16","Disney+",7.5,"Sci-fi","3 tim 12 min","Pandoras hav i bild efter bild man vill pausa på."],
+    ["Guillermo del Toros Pinocchio","2022-12-09","Netflix",7.6,"Animerat","1 tim 57 min","Mörkare Pinocchio i stop motion, satt i fascismens Italien."],
+    ["The Menu","2022-11-18","Disney+",7.2,"Skräckkomedi","1 tim 47 min","Exklusiv provsmakning där kockens meny har en obehaglig avslutning."],
+    ["All Quiet on the Western Front","2022-10-28","Netflix",7.8,"Krig","2 tim 28 min","Tysk skyttegravsskildring, kompromisslös och tekniskt överlägsen."],
+    ["Barbarian","2022-10-28","Disney+",7.0,"Skräck","1 tim 42 min","Dubbelbokad hyresbostad visar sig dölja betydligt värre saker."],
+    ["The Banshees of Inisherin","2022-10-21","Disney+",7.7,"Drama/Komedi","1 tim 54 min","En vänskap tar plötsligt slut på en irländsk ö. Bittert roligt."],
+    ["Prey","2022-08-05","Disney+",7.1,"Action/Sci-fi","1 tim 39 min","Comanchekrigare mot predator på 1700-talet. Seriens bästa på år."],
+    ["The Sea Beast","2022-07-08","Netflix",7.0,"Animerat","1 tim 55 min","Sjömonsterjägare får sällskap av en envis fripassagerare."],
+    ["Elvis","2022-06-24","HBO Max",7.2,"Biografi/Musik","2 tim 39 min","Luhrmanns yviga version av Presleys liv, sedd genom managern."],
+    ["Turning Red","2022-03-11","Disney+",7.0,"Animerat","1 tim 40 min","Trettonåring förvandlas till jättepanda när känslorna svämmar över."],
+    ["The Batman","2022-03-04","HBO Max",7.8,"Action/Kriminal","2 tim 56 min","Regnig detektivnoir där Batman faktiskt får lösa ett fall."],
+    ["Don't Look Up","2021-12-24","Netflix",7.2,"Satir","2 tim 18 min","Komet på väg mot jorden, och ingen orkar bry sig."],
+    ["Encanto","2021-11-24","Disney+",7.2,"Animerat","1 tim 42 min","Colombiansk familj med magiska gåvor – utom en. Låtarna sitter kvar."],
+    ["tick, tick... BOOM!","2021-11-19","Netflix",7.4,"Musikal","2 tim 01 min","Ung musikalskribent fyller snart trettio och har inget färdigt."],
+    ["Dune","2021-10-22","HBO Max",8.0,"Sci-fi","2 tim 35 min","Ökenplaneten Arrakis i monumentalt format. Se den stort."],
+    ["Dune: Part Two","2024-03-01","HBO Max",8.5,"Sci-fi","2 tim 46 min","Paul går samman med fremen. Ännu större än ettan."],
+    ["CODA","2021-08-13","Apple TV+",8.0,"Drama","1 tim 51 min","Hörande dotter i döv familj vill söka till musikhögskola."]
+  ];
+
+  var SERIE = [
+    ["Ted Lasso","2026-08-05","Apple TV+",0,"Komedi","Säsong 4","Lasso är tillbaka, nu som tränare för damlaget i Richmond."],
+    ["The Beauty","2026-06","Disney+",0,"Drama/Skräck","1 säsong","Ett virus gör folk vackra – till ett fruktansvärt pris."],
+    ["Legends","2026-06","Netflix",0,"Kriminaldrama","1 säsong","Brittiska tulltjänstemän infiltrerar knarkligorna på nittiotalet. Verklighetsbaserat."],
+    ["Margo's Got Money Troubles","2026-05","Apple TV+",0,"Dramakomedi","1 säsong","Ung ensamstående mamma försörjer sig på Onlyfans. Elle Fanning briljerar."],
+    ["Harry Hole","2026-05","Netflix",0,"Deckare","1 säsong","Nesbøs alkoholiserade kommissarie, med Joel Kinnaman i huvudrollen."],
+    ["DTF St. Louis","2026-05","HBO Max",0,"Kriminaldrama","Miniserie","Triangeldrama som slutar med ett dödsfall. Udda och gripande."],
+    ["Something Very Bad Is Going to Happen","2026-04","Netflix",0,"Skräck","Miniserie","Hon möter svärföräldrarna. Något är fel från första sekunden."],
+    ["Maximum Pleasure Guaranteed","2026-04","Apple TV+",0,"Thriller/Mysterium","1 säsong","Ensamstående mamma utpressas och dras in i en konspiration."],
+    ["Young Sherlock","2026-04","Prime Video",0,"Deckare","1 säsong","Den unge Holmes löser sitt första fall vid Oxford."],
+    ["Widow's Bay","2026-03","Apple TV+",0,"Skräckkomedi","1 säsong","Förbannad ö där ett nytt monster dyker upp varje avsnitt."],
+    ["The Boroughs","2026-03","Netflix",0,"Mysterium/Fantasy","1 säsong","Pensionärer i öknen tar sig an något som inte borde finnas."],
+    ["Half Man","2026-02","HBO Max",0,"Drama","Miniserie","Två plastbröder över flera decennier. Mörkt av Baby Reindeer-skaparen."],
+    ["Wonder Man","2026-01","Disney+",0,"Komedi/Superhjälte","1 säsong","Stuntman jagar rollen som superhjälte i ett Hollywood som skrattar."],
+    ["Spider-Noir","2026-01","Prime Video",0,"Superhjälte/Noir","1 säsong","Nicolas Cage som spindelhjälte i 30-talets New York. Finns i svartvitt."],
+    ["A Knight of the Seven Kingdoms","2026-01-18","HBO Max",0,"Fantasy","1 säsong","Westeros hundra år före Game of Thrones, ur vanligt folks perspektiv."],
+    ["Task","2025-09-07","HBO Max",8.1,"Kriminaldrama","1 säsong","FBI-agent jagar rånarliga i Philadelphia. Från Mare of Easttown-skaparen."],
+    ["Peacemaker","2025-08-21","HBO Max",8.3,"Action/Komedi","Säsong 2","Grovt olämplig antihjälte, förvånansvärt mycket känsla under skämten."],
+    ["Alien: Earth","2025-08-12","Disney+",7.4,"Sci-fi","1 säsong","Xenomorferna når jorden. Snyggt och obehagligt i lika delar."],
+    ["Dept. Q","2025-05-29","Netflix",8.0,"Deckare","1 säsong","Skottland får sin egen avdelning för kalla fall. Adler-Olsen i ny tappning."],
+    ["Andor","2025-04-22","Disney+",8.7,"Sci-fi","Säsong 2","Star Wars för vuxna: uppror, byråkrati och riktigt bra dialog."],
+    ["The Rehearsal","2025-04-20","HBO Max",8.4,"Komedi","Säsong 2","Nathan Fielder repeterar verkligheten. Inget annat är i närheten."],
+    ["Your Friends & Neighbors","2025-04-11","Apple TV+",7.5,"Drama","1 säsong","Sparkad hedgefondchef börjar stjäla från grannarna i förorten."],
+    ["The Studio","2025-03-26","Apple TV+",8.2,"Komedi","1 säsong","Nytillsatt filmbosschef går från katastrof till katastrof. Filmad i långa tagningar."],
+    ["Adolescence","2025-03-13","Netflix",8.1,"Drama","Miniserie","Trettonåring anhållen för mord. Varje avsnitt i en enda tagning."],
+    ["Daredevil: Born Again","2025-03-04","Disney+",7.6,"Action","1 säsong","Murdock mot Fisk igen, mörkare än de flesta Marvelserier."],
+    ["The White Lotus","2025-02-16","HBO Max",8.0,"Drama/Satir","Säsong 3","Rika gäster, thailändskt lyxhotell och minst ett lik."],
+    ["Severance","2025-01-17","Apple TV+",8.7,"Sci-fi/Thriller","Säsong 2","Anställda med delade minnen börjar nysta i vad företaget egentligen gör."],
+    ["The Pitt","2025-01-09","HBO Max",8.8,"Sjukhusdrama","1 säsong","Ett akutpass i realtid, avsnitt för avsnitt. Bäst i klassen."],
+    ["Senna","2024-11-29","Netflix",7.7,"Biografi/Sport","Miniserie","Ayrton Sennas väg till tre VM-titlar, som dramaserie."],
+    ["A Man on the Inside","2024-11-21","Netflix",7.9,"Komedi","1 säsong","Pensionerad professor blir spion på äldreboende. Varm och rolig."],
+    ["Say Nothing","2024-11-14","Disney+",8.0,"Drama","Miniserie","Nordirlands konflikt genom några som var mitt i den."],
+    ["Nobody Wants This","2024-09-26","Netflix",7.9,"Romantisk komedi","1 säsong","Podcastare och rabbin blir ihop. Ovanligt välskrivet."],
+    ["The Penguin","2024-09-19","HBO Max",8.4,"Kriminaldrama","Miniserie","Gotham utan Batman. Colin Farrell är oigenkännlig och lysande."],
+    ["Fallout","2024-04-10","Prime Video",8.3,"Sci-fi","1 säsong","Efter kärnvapenkriget kliver en valvbo upp till ytan."],
+    ["Ripley","2024-04-04","Netflix",8.0,"Thriller","Miniserie","Bedragare i femtiotalets Italien, filmad i praktfull svartvitt."],
+    ["X-Men '97","2024-03-20","Disney+",8.5,"Animerat","1 säsong","Nittiotalsserien fortsätter, och den är bättre än väntat."],
+    ["The Gentlemen","2024-03-07","Netflix",8.1,"Kriminalkomedi","1 säsong","Lord ärver gods med cannabisodling i källaren. Ritchie i sitt esse."],
+    ["Shōgun","2024-02-27","Disney+",8.6,"Historiskt drama","1 säsong","Maktkamp i 1600-talets Japan. Årets serie när den kom."],
+    ["Mr. & Mrs. Smith","2024-02-02","Prime Video",7.1,"Action/Komedi","1 säsong","Två främlingar spelar gift par – och jobbar som spioner."],
+    ["Slow Horses","2023-11-29","Apple TV+",8.2,"Spionthriller","Säsong 3","MI5:s misslyckade agenter, ledda av en osnygg Gary Oldman."],
+    ["Loki","2023-10-06","Disney+",8.2,"Sci-fi","Säsong 2","Tidsresor och multiversum, men med känsla för karaktärerna."],
+    ["Gen V","2023-09-29","Prime Video",7.9,"Superhjälte","1 säsong","Superhjältehögskola med samma svarta humor som The Boys."],
+    ["One Piece","2023-08-31","Netflix",8.2,"Äventyr","1 säsong","Piratäventyr med hjärta. Fungerar även utan att ha läst mangan."],
+    ["Silo","2023-05-05","Apple TV+",8.0,"Sci-fi","1 säsong","Tiotusen människor lever nedgrävda. Ingen får fråga varför."],
+    ["The Diplomat","2023-04-20","Netflix",8.0,"Politisk thriller","1 säsong","Nyutnämnd USA-ambassadör i London hanterar kris efter kris."],
+    ["Beef","2023-04-06","Netflix",8.0,"Dramakomedi","Miniserie","En parkeringsincident eskalerar till livslångt krig."],
+    ["Shrinking","2023-01-27","Apple TV+",8.2,"Dramakomedi","1 säsong","Terapeut i sorg börjar säga precis vad han tycker till klienterna."],
+    ["The Last of Us","2023-01-15","HBO Max",8.7,"Drama/Skräck","1 säsong","Smugglare eskorterar ung flicka genom ett sönderfallet USA."],
+    ["Wednesday","2022-11-23","Netflix",8.1,"Mysteriekomedi","1 säsong","Familjen Addams dotter löser mord på internat för utstötta."],
+    ["House of the Dragon","2022-08-21","HBO Max",8.3,"Fantasy","1 säsong","Targaryen mot Targaryen, med drakar. Bäst sedan Game of Thrones."],
+    ["Bad Sisters","2022-08-19","Apple TV+",8.2,"Svart komedi","1 säsong","Fyra systrar planerar att göra sig av med svågern."],
+    ["The Bear","2022-06-23","Disney+",8.6,"Dramakomedi","1 säsong","Stjärnkock tar över familjens smörgåsbar i Chicago. Stressigt och strålande."],
+    ["Pachinko","2022-03-25","Apple TV+",8.4,"Historiskt drama","1 säsong","Fyra generationer koreaner i Japan. Vackert filmat familjeepos."],
+    ["Reacher","2022-02-04","Prime Video",8.1,"Action","1 säsong","Väldigt stor man löser brott i småstad. Precis så bra som det låter."],
+    ["Arcane","2021-11-06","Netflix",9.0,"Animerat","1 säsong","Systrar på var sin sida i en klasskonflikt. Animation i världsklass."],
+    ["Squid Game","2021-09-17","Netflix",8.0,"Thriller","1 säsong","Skuldsatta spelar barnlekar om livet. Fenomenet som startade allt."],
+    ["Only Murders in the Building","2021-08-31","Disney+",8.1,"Mysteriekomedi","1 säsong","Tre poddande grannar utreder ett mord i sitt eget hus."],
+    ["Hacks","2021-05-13","HBO Max",8.2,"Komedi","1 säsong","Åldrande Vegaskomiker och ung manusförfattare avskyr varandra. Först."],
+    ["Invincible","2021-03-25","Prime Video",8.7,"Animerat","1 säsong","Tonårshjälte upptäcker sanningen om sin far. Långt blodigare än väntat."]
+  ];
+
+  function toObj(row, kind) {
+    return { title: row[0], date: row[1], service: row[2], imdb: row[3],
+             genre: row[4], length: row[5], desc: row[6], kind: kind };
+  }
+  var POOL = {
+    film: FILM.map(function (r) { return toObj(r, "film"); }),
+    serie: SERIE.map(function (r) { return toObj(r, "serie"); })
+  };
+
+  /* ============ hjälpare ============ */
+
+  var store = {
+    get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  function parseDate(it) {
+    var s = it.date;
+    var d = new Date(s.length === 7 ? s + "-01" : s);
+    return isNaN(d.getTime()) ? new Date("2021-01-01") : d;
+  }
+  function newestFirst(a, b) { return parseDate(b) - parseDate(a); }
+  function keyOf(it) { return it.kind + ":" + it.title + ":" + it.date; }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var state = {
+    tab: "film",
+    active: SERVICES.slice(),
+    onlyRated: false,
+    favorites: store.get(FAV_KEY) || [],
+    seen: store.get(SEEN_KEY) || [],
+    shown: { film: [], serie: [] }
+  };
+
+  document.getElementById("today").textContent =
+    String(NOW.getDate()).padStart(2, "0") + " " + MONTHS[NOW.getMonth()] + " " + NOW.getFullYear();
+
+  /* ============ urval ============ */
+
+  function draw(kind) {
+    var pool = POOL[kind].filter(function (it) {
+      if (state.active.indexOf(it.service) === -1) return false;
+      if (state.onlyRated && !it.imdb) return false;
+      return true;
+    }).sort(newestFirst);
+
+    if (pool.length <= 10) return pool;
+
+    // De fyra färskaste följer alltid med, resten roteras.
+    var head = pool.slice(0, 4);
+    var tail = pool.slice(4);
+    var fresh = tail.filter(function (it) { return state.seen.indexOf(keyOf(it)) === -1; });
+    if (fresh.length < 6) fresh = tail.slice();
+
+    for (var i = fresh.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = fresh[i]; fresh[i] = fresh[j]; fresh[j] = t;
+    }
+    var picked = fresh.slice(0, 6);
+    state.seen = state.seen.concat(picked.map(keyOf)).slice(-34);
+    return head.concat(picked).sort(newestFirst);
+  }
+
+  function drawAll() {
+    state.shown.film = draw("film");
+    state.shown.serie = draw("serie");
+    store.set(SEEN_KEY, state.seen);
+  }
+
+  /* ============ rendering ============ */
+
+  function isFav(it) {
+    var k = keyOf(it);
+    return state.favorites.some(function (f) { return keyOf(f) === k; });
+  }
+
+  function renderTabs() {
+    var defs = [["film", "Filmer", state.shown.film.length],
+                ["serie", "Serier", state.shown.serie.length],
+                ["favorit", "Favoriter", state.favorites.length]];
+    document.getElementById("tabs").innerHTML = defs.map(function (d) {
+      return '<button class="tab" data-tab="' + d[0] + '"' +
+        (state.tab === d[0] ? ' data-on="' + d[0] + '"' : "") +
+        ' aria-pressed="' + (state.tab === d[0]) + '">' + d[1] + "<b>" + d[2] + "</b></button>";
+    }).join("");
+  }
+
+  function renderChips() {
+    document.getElementById("chips").innerHTML = SERVICES.map(function (s) {
+      var on = state.active.indexOf(s) !== -1;
+      return '<button class="chip" data-svc="' + esc(s) + '" data-on="' + (on ? 1 : 0) +
+        '" aria-pressed="' + on + '">' + esc(s) + "</button>";
+    }).join("");
+    var o = document.getElementById("onlyRated");
+    o.setAttribute("data-on", state.onlyRated ? "1" : "0");
+    o.setAttribute("aria-pressed", state.onlyRated);
+  }
+
+  function card(it, i) {
+    var d = parseDate(it);
+    var hasDay = it.date.length >= 10;
+    var rest = hasDay ? String(d.getDate()).padStart(2, "0") + " " + MONTHS[d.getMonth()] : MONTHS[d.getMonth()];
+    var fav = isFav(it);
+    var link = "https://www.justwatch.com/se/sok?q=" + encodeURIComponent(it.title);
+    return '<article class="item fade" data-kind="' + it.kind + '" style="animation-delay:' +
+      Math.min(i * 40, 400) + 'ms">' +
+      '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
+      '</div><div class="md">' + rest + "</div></div>" +
+      '<div class="body"><div class="head"><h2 class="title">' +
+      '<a href="' + link + '" target="_blank" rel="noopener">' + esc(it.title) + "</a></h2>" +
+      '<button class="heart" data-fav="' + esc(keyOf(it)) + '" data-on="' + (fav ? 1 : 0) +
+      '" aria-pressed="' + fav + '" aria-label="' +
+      (fav ? "Ta bort " + esc(it.title) + " från favoriter" : "Spara " + esc(it.title) + " som favorit") +
+      '">' + (fav ? "&hearts;" : "&#9825;") + "</button></div>" +
+      '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
+      (it.imdb ? '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>"
+               : '<span class="nytt">NYTT</span>') +
+      "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
+      (state.tab === "favorit" ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
+      '</div><p class="desc">' + esc(it.desc) + "</p></div></article>";
+  }
+
+  function render() {
+    renderTabs();
+    renderChips();
+
+    var list;
+    if (state.tab === "favorit") list = state.favorites.slice().sort(newestFirst);
+    else list = state.shown[state.tab];
+
+    var el = document.getElementById("list");
+    if (!list.length) {
+      el.innerHTML = '<div class="empty"><p>' +
+        (state.tab === "favorit" ? "Inga favoriter än" : "Inga tips i listan") + "</p><span>" +
+        (state.tab === "favorit"
+          ? "Tryck på hjärtat vid ett tips så hamnar det här."
+          : "Markera minst en av tjänsterna ovan.") + "</span></div>";
+    } else {
+      el.innerHTML = list.map(card).join("");
+    }
+
+    document.getElementById("foot").innerHTML =
+      "Titelbanken innehåller " + (FILM.length + SERIE.length) +
+      " titlar. Ladda om sidan för nya tips.<br>" +
+      "NYTT = 2026-premiär utan stabilt IMDb-betyg än. Klicka på titeln för att se var den går.";
+  }
+
+  /* ============ händelser ============ */
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("button");
+    if (!t) return;
+
+    if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
+
+    if (t.dataset.svc) {
+      var s = t.dataset.svc;
+      var i = state.active.indexOf(s);
+      if (i === -1) state.active.push(s); else state.active.splice(i, 1);
+      drawAll(); render(); return;
+    }
+
+    if (t.dataset.fav) {
+      var k = t.dataset.fav;
+      var all = state.shown.film.concat(state.shown.serie, state.favorites);
+      var item = all.filter(function (x) { return keyOf(x) === k; })[0];
+      if (!item) return;
+      state.favorites = isFav(item)
+        ? state.favorites.filter(function (f) { return keyOf(f) !== k; })
+        : [item].concat(state.favorites);
+      store.set(FAV_KEY, state.favorites);
+      render(); return;
+    }
+
+    if (t.id === "onlyRated") { state.onlyRated = !state.onlyRated; drawAll(); render(); return; }
+
+    if (t.id === "refresh") {
+      drawAll();
+      if (state.tab === "favorit") state.tab = "film";
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+
+  drawAll();
+  render();
+})();
+</script>
+</body>
+</html>
