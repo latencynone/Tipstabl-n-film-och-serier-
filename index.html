@@ -12,18 +12,52 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2308080D'/><rect x='18' y='30' width='64' height='40' fill='%23FFD666'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script>
+// Sätter valt utseende innan sidan målas upp, så det inte flimrar till fel tema.
+(function () {
+  try {
+    var t = JSON.parse(localStorage.getItem("tipstablan:tema"));
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+})();
+</script>
 <style>
 *{box-sizing:border-box}
 :root{
   --ink:#08080D; --panel:#17181F; --line:#42445C;
-  --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A; --sett:#7CFF9B;
+  --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A; --sett:#7CFF9B; --want:#FFA94D;
   --rt:#FF6B4A; --mc:#8FD3FF; --mine:#C9A6FF;
-  --txt:#FFFFFF; --dim:#C7C9DE;
+  --txt:#FFFFFF; --dim:#C7C9DE; --on-accent:var(--ink);
   --display:'Oswald','Arial Narrow',Impact,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --radius:0; --shadow:none;
   color-scheme: dark;
+}
+
+/* ---- Modern: mörk, ren app-känsla, dova accentfärger, rundade ytor ---- */
+[data-theme="modern"]{
+  --ink:#0B0D12; --panel:#151821; --line:#262B38;
+  --film:#8FB3FF; --serie:#5EEAD4; --fav:#FDA4AF; --sett:#6EE7B7; --want:#FBBF66;
+  --rt:#FCA5A5; --mc:#7DD3FC; --mine:#C4B5FD;
+  --txt:#F3F4F8; --dim:#8B93A7; --on-accent:var(--ink);
+  --display:'Manrope','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+  --radius:10px; --shadow:0 8px 24px -14px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+/* ---- Mjuk: ljus, varm, rundad designhus-känsla, djupare dova accenter ---- */
+[data-theme="soft"]{
+  --ink:#FBF4EA; --panel:#FFFDF9; --line:#E9DFCE;
+  --film:#B8862E; --serie:#3E7E74; --fav:#B84E64; --sett:#5A8F5E; --want:#BD7530;
+  --rt:#BC5240; --mc:#4C77A6; --mine:#7E5FA6;
+  --txt:#2E2620; --dim:#8A7C6A; --on-accent:#FFFCF6;
+  --display:'Fraunces','Georgia',serif;
+  --body:'Nunito',system-ui,-apple-system,sans-serif;
+  --radius:20px; --shadow:0 2px 10px rgba(70,50,20,.06),0 16px 34px -20px rgba(70,50,20,.22);
+  color-scheme: light;
 }
 html{background:var(--ink)}
 html,body{margin:0;padding:0}
@@ -32,33 +66,35 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   -webkit-text-size-adjust:100%}
 .wrap{max-width:880px;margin:0 auto;padding:0 16px}
 
-.bar{background:var(--film);color:var(--ink);padding:10px 16px;
+.bar{background:var(--film);color:var(--on-accent);padding:10px 16px;
   display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .bar h1{font-family:var(--display);font-weight:700;font-size:26px;
   letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1}
 .today{font-family:var(--mono);font-size:11px;margin-left:auto;letter-spacing:.1em}
 .sub{font-family:var(--mono);font-size:11px;color:var(--dim);
   letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
+.theme-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
 
 .tabs{display:flex;gap:2px;margin:16px 0 12px}
 .tab{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);
   font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
-  padding:11px 6px;cursor:pointer;border-radius:0;transition:.16s}
+  padding:11px 6px;cursor:pointer;border-radius:var(--radius);transition:.16s}
 .tab:hover{color:var(--txt)}
-.tab[data-on="film"]{background:var(--film);color:var(--ink);border-color:var(--film)}
-.tab[data-on="serie"]{background:var(--serie);color:var(--ink);border-color:var(--serie)}
-.tab[data-on="favorit"]{background:var(--fav);color:var(--ink);border-color:var(--fav)}
-.tab[data-on="sett"]{background:var(--sett);color:var(--ink);border-color:var(--sett)}
+.tab[data-on="film"]{background:var(--film);color:var(--on-accent);border-color:var(--film)}
+.tab[data-on="serie"]{background:var(--serie);color:var(--on-accent);border-color:var(--serie)}
+.tab[data-on="favorit"]{background:var(--fav);color:var(--on-accent);border-color:var(--fav)}
+.tab[data-on="sett"]{background:var(--sett);color:var(--on-accent);border-color:var(--sett)}
+.tab[data-on="villse"]{background:var(--want);color:var(--on-accent);border-color:var(--want)}
 .tab b{font-family:var(--mono);font-size:11px;font-weight:700;margin-left:6px}
 
-.ctrl{border:1px solid var(--line);background:var(--panel);padding:12px;margin-bottom:18px}
+.ctrl{border:1px solid var(--line);background:var(--panel);padding:12px;margin-bottom:18px;border-radius:var(--radius)}
 .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);
   text-transform:uppercase;display:block;margin-bottom:8px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
   padding:6px 10px;border:1px solid var(--line);background:transparent;color:var(--dim);
-  cursor:pointer;transition:.16s}
-.chip[data-on="1"]{background:var(--txt);color:var(--ink);border-color:var(--txt)}
+  cursor:pointer;transition:.16s;border-radius:var(--radius)}
+.chip[data-on="1"]{background:var(--film);color:var(--on-accent);border-color:var(--film)}
 .row2{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
 .fetch-status{font-family:var(--mono);font-size:11px;color:var(--dim);
   letter-spacing:.03em;margin:10px 0 0;line-height:1.5}
@@ -66,14 +102,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .fetch-status.is-new{color:var(--sett)}
 .fetch-status.is-new b{color:var(--sett)}
 .btn{font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
-  background:var(--film);color:var(--ink);border:none;padding:11px 18px;cursor:pointer}
+  background:var(--film);color:var(--on-accent);border:none;padding:11px 18px;cursor:pointer;border-radius:var(--radius)}
 .btn:active{transform:translateY(1px)}
 .select-wrap{position:relative;flex:1 1 160px}
 .select-wrap:after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);
   color:var(--dim);pointer-events:none;font-size:11px}
 .gsel{appearance:none;-webkit-appearance:none;width:100%;background:var(--ink);
   border:1px solid var(--line);color:var(--txt);font-family:var(--mono);font-size:12px;
-  padding:10px 28px 10px 10px;cursor:pointer}
+  padding:10px 28px 10px 10px;cursor:pointer;border-radius:var(--radius)}
 .chip:focus-visible,.tab:focus-visible,.btn:focus-visible,.heart:focus-visible,
 .watch:focus-visible,.trash:focus-visible,.gsel:focus-visible,.rm-restore:focus-visible,
 .title a:focus-visible{outline:2px solid var(--film);outline-offset:2px}
@@ -94,36 +130,39 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .title a:hover{border-bottom-color:var(--film)}
 .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin:7px 0 0;
   letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.svc{color:var(--ink);background:var(--film);padding:2px 6px;font-weight:700}
+.svc{color:var(--on-accent);background:var(--film);padding:2px 6px;font-weight:700;border-radius:calc(var(--radius) * .4)}
 .item[data-kind="serie"] .svc{background:var(--serie)}
 .imdb{color:var(--film);font-weight:700}
 .rt{color:var(--rt);font-weight:700}
 .mc{color:var(--mc);font-weight:700}
 .rate-sel{background:transparent;border:1px solid var(--line);color:var(--mine);
   font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 5px;
-  border-radius:0;-webkit-appearance:none;appearance:none;cursor:pointer}
+  border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
 .rate-sel:hover{border-color:var(--mine)}
 .rate-sel[data-rated="1"]{border-color:var(--mine);background:rgba(201,166,255,.14)}
 .rate-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 .desc{font-size:14px;line-height:1.55;color:#E7E8F5;margin:8px 0 0}
 .actions{display:flex;gap:6px;flex-shrink:0}
-.heart,.watch,.trash{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
-  width:38px;height:38px;flex:0 0 38px;font-size:17px;line-height:1;transition:.16s}
+.heart,.watch,.trash,.star{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
+  width:38px;height:38px;flex:0 0 38px;font-size:17px;line-height:1;transition:.16s;border-radius:var(--radius)}
 .heart:hover{color:var(--fav);border-color:var(--fav)}
 .heart[data-on="1"]{color:var(--fav);border-color:var(--fav);background:rgba(255,127,154,.12)}
 .watch:hover{color:var(--sett);border-color:var(--sett)}
 .watch[data-on="1"]{color:var(--sett);border-color:var(--sett);background:rgba(124,255,155,.12)}
-.trash:hover{color:#FF6259;border-color:#FF6259}
+.star:hover{color:var(--want);border-color:var(--want)}
+.star[data-on="1"]{color:var(--want);border-color:var(--want);background:rgba(255,169,77,.14)}
+.trash{color:#FF6259;border-color:rgba(255,98,89,.4)}
+.trash:hover{color:#FF3B2E;border-color:#FF3B2E;background:rgba(255,98,89,.12)}
 
 #removedPanel:empty{display:none}
-#removedPanel{border:1px dashed var(--line);padding:4px 12px;margin:-6px 0 18px;font-family:var(--mono);font-size:12px}
+#removedPanel{border:1px dashed var(--line);padding:4px 12px;margin:-6px 0 18px;font-family:var(--mono);font-size:12px;border-radius:var(--radius)}
 .rm-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
 .rm-row:last-child{border-bottom:none}
 .rm-restore{background:none;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);
-  font-size:11px;padding:5px 9px;cursor:pointer}
+  font-size:11px;padding:5px 9px;cursor:pointer;border-radius:var(--radius)}
 .rm-restore:hover{color:var(--txt);border-color:var(--txt)}
 
-.empty{border:1px dashed var(--line);padding:28px 20px;text-align:center}
+.empty{border:1px dashed var(--line);padding:28px 20px;text-align:center;border-radius:var(--radius)}
 .empty p{margin:0 0 6px;font-family:var(--display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
 .empty span{font-size:13px;color:var(--dim)}
 .foot{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;
@@ -136,9 +175,47 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   .rail{width:44px;flex:0 0 44px;padding-right:11px}
   .bar h1{font-size:21px}
   .btn,.select-wrap{width:100%;flex:1 1 100%}
-  .heart,.watch,.trash{width:34px;height:34px;flex:0 0 34px;font-size:15px}
-  .actions{gap:4px}
+  .heart,.watch,.trash,.star{width:31px;height:31px;flex:0 0 31px;font-size:14px}
+  .actions{gap:3px}
+  .tab{font-size:11px;padding:9px 2px}
+  .tab b{margin-left:3px}
 }
+
+/* ---- Strukturella skillnader för Modern och Mjuk ----
+   Samma HTML, men versaler/spärrning stängs av och korten blir
+   fristående rutor med kant, radie och skugga istället för en
+   löpande text-tv-lista med tidslinje. ---- */
+[data-theme="modern"] .bar h1, [data-theme="soft"] .bar h1,
+[data-theme="modern"] .sub, [data-theme="soft"] .sub,
+[data-theme="modern"] .tab, [data-theme="soft"] .tab,
+[data-theme="modern"] .lbl, [data-theme="soft"] .lbl,
+[data-theme="modern"] .btn, [data-theme="soft"] .btn,
+[data-theme="modern"] .empty p, [data-theme="soft"] .empty p{
+  text-transform:none; letter-spacing:normal;
+}
+[data-theme="soft"] .bar h1{font-style:italic}
+
+[data-theme="modern"] .ctrl, [data-theme="soft"] .ctrl,
+[data-theme="modern"] .btn, [data-theme="soft"] .btn,
+[data-theme="modern"] #removedPanel, [data-theme="soft"] #removedPanel{
+  box-shadow:var(--shadow);
+}
+
+[data-theme="modern"] .rail:after, [data-theme="soft"] .rail:after,
+[data-theme="modern"] .dot, [data-theme="soft"] .dot{ display:none; }
+
+[data-theme="modern"] .item, [data-theme="soft"] .item{
+  border:1px solid var(--line); border-bottom:1px solid var(--line);
+  border-radius:var(--radius); background:var(--panel);
+  padding:16px; margin-bottom:12px; box-shadow:var(--shadow);
+}
+[data-theme="modern"] .rail, [data-theme="soft"] .rail{
+  width:auto; flex:0 0 auto; padding-right:16px; text-align:left;
+}
+[data-theme="modern"] .heart[data-on="1"], [data-theme="soft"] .heart[data-on="1"]{background:color-mix(in srgb, var(--fav) 16%, transparent)}
+[data-theme="modern"] .watch[data-on="1"], [data-theme="soft"] .watch[data-on="1"]{background:color-mix(in srgb, var(--sett) 16%, transparent)}
+[data-theme="modern"] .star[data-on="1"], [data-theme="soft"] .star[data-on="1"]{background:color-mix(in srgb, var(--want) 16%, transparent)}
+[data-theme="modern"] .rate-sel[data-rated="1"], [data-theme="soft"] .rate-sel[data-rated="1"]{background:color-mix(in srgb, var(--mine) 16%, transparent)}
 </style>
 </head>
 <body>
@@ -150,6 +227,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
 <div class="wrap">
   <p class="sub">Max fem år gammalt · IMDb 7,0+ · Nyast överst</p>
+
+  <div class="theme-row">
+    <span class="lbl" style="margin:0">Utseende</span>
+    <div class="select-wrap" style="flex:0 1 170px">
+      <select class="gsel" id="themeSelect" aria-label="Välj utseende">
+        <option value="retro">Text-TV (nuvarande)</option>
+        <option value="modern">Modern</option>
+        <option value="soft">Mjuk</option>
+      </select>
+    </div>
+  </div>
 
   <div class="tabs" id="tabs"></div>
 
@@ -183,8 +271,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var FAV_KEY = "tipstablan:favoriter";
   var SEEN_KEY = "tipstablan:visade";
   var WATCHED_KEY = "tipstablan:sett";
+  var WANT_KEY = "tipstablan:vill-se";
   var REMOVED_KEY = "tipstablan:borttagna";
   var RATING_KEY = "tipstablan:betyg";
+  var THEME_KEY = "tipstablan:tema";
 
   /* ============ TITELBANKEN ============
      Alla titlar har ett IMDb-betyg. RT/MC anges där de finns
@@ -352,10 +442,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   var state = {
     tab: "film",
+    theme: store.get(THEME_KEY) || "retro",
     active: SERVICES.slice(),
     genre: "",
     favorites: normalizeKeys(store.get(FAV_KEY)),
     watched: normalizeKeys(store.get(WATCHED_KEY)),
+    wantToSee: normalizeKeys(store.get(WANT_KEY)),
     removed: normalizeKeys(store.get(REMOVED_KEY)),
     ratings: store.get(RATING_KEY) || {},
     seen: store.get(SEEN_KEY) || [],
@@ -428,16 +520,18 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   function isFav(it) { return state.favorites.indexOf(keyOf(it)) !== -1; }
   function isWatched(it) { return state.watched.indexOf(keyOf(it)) !== -1; }
+  function isWantToSee(it) { return state.wantToSee.indexOf(keyOf(it)) !== -1; }
 
   function renderTabs() {
-    var defs = [["film", "Filmer", state.shown.film.length],
-                ["serie", "Serier", state.shown.serie.length],
-                ["sett", "Sett", state.watched.length],
-                ["favorit", "Favoriter", state.favorites.length]];
+    var defs = [["film", "Filmer", state.shown.film.length, ""],
+                ["serie", "Serier", state.shown.serie.length, ""],
+                ["villse", "Vill se", state.wantToSee.length, "&#9733; "],
+                ["sett", "Sett", state.watched.length, "&#10004; "],
+                ["favorit", "Favoriter", state.favorites.length, "&hearts; "]];
     document.getElementById("tabs").innerHTML = defs.map(function (d) {
       return '<button class="tab" data-tab="' + d[0] + '"' +
         (state.tab === d[0] ? ' data-on="' + d[0] + '"' : "") +
-        ' aria-pressed="' + (state.tab === d[0]) + '">' + d[1] + "<b>" + d[2] + "</b></button>";
+        ' aria-pressed="' + (state.tab === d[0]) + '">' + d[3] + d[1] + "<b>" + d[2] + "</b></button>";
     }).join("");
   }
 
@@ -486,6 +580,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var rest = hasDay ? String(d.getDate()).padStart(2, "0") + " " + MONTHS[d.getMonth()] : MONTHS[d.getMonth()];
     var fav = isFav(it);
     var watched = isWatched(it);
+    var want = isWantToSee(it);
     var k = keyOf(it);
     var myRating = state.ratings[k] || "";
     var rateOpts = '<option value="">Betygsätt</option>';
@@ -503,6 +598,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<div class="body"><div class="head"><h2 class="title">' +
       '<a href="' + link + '" target="_blank" rel="noopener">' + esc(it.title) + "</a></h2>" +
       '<div class="actions">' +
+      '<button class="star" data-want="' + esc(k) + '" data-on="' + (want ? 1 : 0) +
+      '" aria-pressed="' + want + '" aria-label="' +
+      (want ? "Ta bort " + esc(it.title) + " från vill se" : "Lägg " + esc(it.title) + " i vill se") +
+      '">' + (want ? "&#9733;" : "&#9734;") + "</button>" +
       '<button class="watch" data-watch="' + esc(k) + '" data-on="' + (watched ? 1 : 0) +
       '" aria-pressed="' + watched + '" aria-label="' +
       (watched ? "Lägg tillbaka " + esc(it.title) + " bland tipsen" : "Markera " + esc(it.title) + " som sedd") +
@@ -521,7 +620,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
       '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
-      ((state.tab === "favorit" || state.tab === "sett") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
+      ((state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       '</div><p class="desc">' + esc(it.desc) + "</p></div></article>";
   }
 
@@ -538,15 +637,18 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var list;
     if (state.tab === "favorit") list = resolveList(state.favorites);
     else if (state.tab === "sett") list = resolveList(state.watched);
+    else if (state.tab === "villse") list = resolveList(state.wantToSee);
     else list = state.shown[state.tab];
 
     var el = document.getElementById("list");
     if (!list.length) {
       var msg = { film: "Inga tips i listan", serie: "Inga tips i listan",
-                  sett: "Inget markerat som sett", favorit: "Inga favoriter än" }[state.tab];
+                  sett: "Inget markerat som sett", villse: "Inget i Vill se än",
+                  favorit: "Inga favoriter än" }[state.tab];
       var hint = { film: "Markera minst en av tjänsterna ovan.",
                    serie: "Markera minst en av tjänsterna ovan.",
                    sett: "Tryck på bocken vid ett tips för att lägga det här.",
+                   villse: "Tryck på stjärnan vid ett tips för att lägga det här.",
                    favorit: "Tryck på hjärtat vid ett tips så hamnar det här." }[state.tab];
       el.innerHTML = '<div class="empty"><p>' + msg + "</p><span>" + hint + "</span></div>";
     } else {
@@ -568,7 +670,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.getElementById("foot").innerHTML =
       "Titelbanken innehåller " + (FILM.length + SERIE.length) +
       " titlar, alla med IMDb-betyg. Ladda om sidan för nya tips.<br>" +
-      "☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
+      "☆ Vill se · ☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
       "RT = Rotten Tomatoes, MC = Metacritic (visas när de finns). \"Du\" är ditt eget betyg (1–10), sparas bara i den här webbläsaren.<br>" +
       "Klicka på titeln för att öppna den på IMDb.";
   }
@@ -606,14 +708,25 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       drawAll(); render(); return;
     }
 
+    if (t.dataset.want) {
+      var vk = t.dataset.want;
+      state.wantToSee = state.wantToSee.indexOf(vk) !== -1
+        ? state.wantToSee.filter(function (w) { return w !== vk; })
+        : [vk].concat(state.wantToSee);
+      store.set(WANT_KEY, state.wantToSee);
+      render(); return;
+    }
+
     if (t.dataset.remove) {
       var rk = t.dataset.remove;
       if (state.removed.indexOf(rk) === -1) state.removed = [rk].concat(state.removed);
       state.favorites = state.favorites.filter(function (f) { return f !== rk; });
       state.watched = state.watched.filter(function (w) { return w !== rk; });
+      state.wantToSee = state.wantToSee.filter(function (w) { return w !== rk; });
       store.set(REMOVED_KEY, state.removed);
       store.set(FAV_KEY, state.favorites);
       store.set(WATCHED_KEY, state.watched);
+      store.set(WANT_KEY, state.wantToSee);
       drawAll(); render(); return;
     }
 
@@ -630,7 +743,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var prevKeys = state.shown.film.concat(state.shown.serie).map(keyOf);
       drawAll();
       checkFetchResult(prevKeys);
-      if (state.tab === "favorit" || state.tab === "sett") state.tab = "film";
+      if (state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") state.tab = "film";
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -651,6 +764,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     store.set(RATING_KEY, state.ratings);
     render();
   });
+
+  document.getElementById("themeSelect").addEventListener("change", function (e) {
+    state.theme = e.target.value;
+    document.documentElement.setAttribute("data-theme", state.theme);
+    store.set(THEME_KEY, state.theme);
+  });
+  document.getElementById("themeSelect").value = state.theme;
+  document.documentElement.setAttribute("data-theme", state.theme);
 
   drawAll();
   checkFetchResult([]);
