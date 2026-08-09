@@ -429,7 +429,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var fav = isFav(it);
     var watched = isWatched(it);
     var k = keyOf(it);
-    var link = "https://www.justwatch.com/se/sok?q=" + encodeURIComponent(it.title);
+    var link = "https://www.imdb.com/find/?q=" + encodeURIComponent(it.title) + "&s=tt";
     return '<article class="item fade" data-kind="' + it.kind + '" style="animation-delay:' +
       Math.min(i * 40, 400) + 'ms">' +
       '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
@@ -500,7 +500,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "Titelbanken innehåller " + (FILM.length + SERIE.length) +
       " titlar. Ladda om sidan för nya tips.<br>" +
       "☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
-      "NYTT = 2026-premiär utan stabilt IMDb-betyg än. Klicka på titeln för att se var den går.";
+      "NYTT = 2026-premiär utan stabilt IMDb-betyg än. Klicka på titeln för att öppna den på IMDb.";
   }
 
   /* ============ händelser ============ */
