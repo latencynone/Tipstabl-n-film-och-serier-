@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Film- och serietips</title>
+<title>Tipstablån – film- och serietips</title>
 <meta name="description" content="Tio filmer och tio serier från Netflix, Apple TV+, HBO Max, Prime Video och Disney+. Nyast överst, IMDb 7,0 och uppåt.">
 <meta name="theme-color" content="#08080D">
 <meta property="og:title" content="Tipstablån">
@@ -17,7 +17,7 @@
 *{box-sizing:border-box}
 :root{
   --ink:#08080D; --panel:#17181F; --line:#42445C;
-  --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A;
+  --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A; --sett:#7CFF9B;
   --txt:#FFFFFF; --dim:#C7C9DE;
   --display:'Oswald','Arial Narrow',Impact,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
@@ -48,6 +48,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .tab[data-on="film"]{background:var(--film);color:var(--ink);border-color:var(--film)}
 .tab[data-on="serie"]{background:var(--serie);color:var(--ink);border-color:var(--serie)}
 .tab[data-on="favorit"]{background:var(--fav);color:var(--ink);border-color:var(--fav)}
+.tab[data-on="sett"]{background:var(--sett);color:var(--ink);border-color:var(--sett)}
 .tab b{font-family:var(--mono);font-size:11px;font-weight:700;margin-left:6px}
 
 .ctrl{border:1px solid var(--line);background:var(--panel);padding:12px;margin-bottom:18px}
@@ -62,7 +63,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .btn{font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
   background:var(--film);color:var(--ink);border:none;padding:11px 18px;cursor:pointer}
 .btn:active{transform:translateY(1px)}
+.select-wrap{position:relative;flex:1 1 160px}
+.select-wrap:after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  color:var(--dim);pointer-events:none;font-size:11px}
+.gsel{appearance:none;-webkit-appearance:none;width:100%;background:var(--ink);
+  border:1px solid var(--line);color:var(--txt);font-family:var(--mono);font-size:12px;
+  padding:10px 28px 10px 10px;cursor:pointer}
 .chip:focus-visible,.tab:focus-visible,.btn:focus-visible,.heart:focus-visible,
+.watch:focus-visible,.trash:focus-visible,.gsel:focus-visible,.rm-restore:focus-visible,
 .title a:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 
 .item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
@@ -86,10 +94,22 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .imdb{color:var(--film);font-weight:700}
 .nytt{color:var(--ink);background:var(--fav);padding:2px 6px;font-weight:700}
 .desc{font-size:14px;line-height:1.55;color:#E7E8F5;margin:8px 0 0}
-.heart{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
+.actions{display:flex;gap:6px;flex-shrink:0}
+.heart,.watch,.trash{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
   width:38px;height:38px;flex:0 0 38px;font-size:17px;line-height:1;transition:.16s}
 .heart:hover{color:var(--fav);border-color:var(--fav)}
-.heart[data-on="1"]{color:var(--fav);border-color:var(--fav);background:rgba(255,107,138,.12)}
+.heart[data-on="1"]{color:var(--fav);border-color:var(--fav);background:rgba(255,127,154,.12)}
+.watch:hover{color:var(--sett);border-color:var(--sett)}
+.watch[data-on="1"]{color:var(--sett);border-color:var(--sett);background:rgba(124,255,155,.12)}
+.trash:hover{color:#FF6259;border-color:#FF6259}
+
+#removedPanel:empty{display:none}
+#removedPanel{border:1px dashed var(--line);padding:4px 12px;margin:-6px 0 18px;font-family:var(--mono);font-size:12px}
+.rm-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.rm-row:last-child{border-bottom:none}
+.rm-restore{background:none;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);
+  font-size:11px;padding:5px 9px;cursor:pointer}
+.rm-restore:hover{color:var(--txt);border-color:var(--txt)}
 
 .empty{border:1px dashed var(--line);padding:28px 20px;text-align:center}
 .empty p{margin:0 0 6px;font-family:var(--display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
@@ -103,7 +123,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   .title{font-size:18px}
   .rail{width:44px;flex:0 0 44px;padding-right:11px}
   .bar h1{font-size:21px}
-  .btn{width:100%}
+  .btn,.select-wrap{width:100%;flex:1 1 100%}
+  .heart,.watch,.trash{width:34px;height:34px;flex:0 0 34px;font-size:15px}
+  .actions{gap:4px}
 }
 </style>
 </head>
@@ -125,9 +147,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     <div class="chips" id="chips"></div>
     <div class="row2">
       <button class="chip" id="onlyRated" data-on="0">Endast titlar med IMDb-betyg</button>
+      <div class="select-wrap">
+        <select class="gsel" id="genreSelect" aria-label="Filtrera på genre">
+          <option value="">Alla genrer</option>
+        </select>
+      </div>
+      <button class="chip" id="toggleRemoved" data-on="0">Borttagna (0)</button>
       <button class="btn" id="refresh">⟳ Hämta nya tips</button>
     </div>
   </div>
+
+  <div id="removedPanel"></div>
 
   <div id="list"></div>
 
@@ -141,6 +171,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var MONTHS = ["JAN","FEB","MAR","APR","MAJ","JUN","JUL","AUG","SEP","OKT","NOV","DEC"];
   var FAV_KEY = "tipstablan:favoriter";
   var SEEN_KEY = "tipstablan:visade";
+  var WATCHED_KEY = "tipstablan:sett";
+  var REMOVED_KEY = "tipstablan:borttagna";
 
   /* ============ TITELBANKEN ============
      f = film, s = serie
@@ -262,6 +294,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     film: FILM.map(function (r) { return toObj(r, "film"); }),
     serie: SERIE.map(function (r) { return toObj(r, "serie"); })
   };
+  var ALL_ITEMS = POOL.film.concat(POOL.serie);
+  var BY_KEY = {};
+  ALL_ITEMS.forEach(function (it) { BY_KEY[keyOf(it)] = it; });
+  var GENRES = Array.from(new Set(ALL_ITEMS.map(function (it) { return it.genre; })))
+    .sort(function (a, b) { return a.localeCompare(b, "sv"); });
 
   /* ============ hjälpare ============ */
 
@@ -282,13 +319,26 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+  // Äldre versioner sparade hela objekt som favoriter; gör om till nycklar.
+  function normalizeKeys(list) {
+    if (!Array.isArray(list)) return [];
+    return list.map(function (x) {
+      if (typeof x === "string") return x;
+      if (x && x.kind && x.title) return keyOf(x);
+      return null;
+    }).filter(Boolean);
+  }
 
   var state = {
     tab: "film",
     active: SERVICES.slice(),
     onlyRated: false,
-    favorites: store.get(FAV_KEY) || [],
+    genre: "",
+    favorites: normalizeKeys(store.get(FAV_KEY)),
+    watched: normalizeKeys(store.get(WATCHED_KEY)),
+    removed: normalizeKeys(store.get(REMOVED_KEY)),
     seen: store.get(SEEN_KEY) || [],
+    showRemoved: false,
     shown: { film: [], serie: [] }
   };
 
@@ -301,6 +351,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var pool = POOL[kind].filter(function (it) {
       if (state.active.indexOf(it.service) === -1) return false;
       if (state.onlyRated && !it.imdb) return false;
+      if (state.genre && it.genre !== state.genre) return false;
+      if (state.removed.indexOf(keyOf(it)) !== -1) return false;
+      if (state.watched.indexOf(keyOf(it)) !== -1) return false;
       return true;
     }).sort(newestFirst);
 
@@ -329,14 +382,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   /* ============ rendering ============ */
 
-  function isFav(it) {
-    var k = keyOf(it);
-    return state.favorites.some(function (f) { return keyOf(f) === k; });
-  }
+  function isFav(it) { return state.favorites.indexOf(keyOf(it)) !== -1; }
+  function isWatched(it) { return state.watched.indexOf(keyOf(it)) !== -1; }
 
   function renderTabs() {
     var defs = [["film", "Filmer", state.shown.film.length],
                 ["serie", "Serier", state.shown.serie.length],
+                ["sett", "Sett", state.watched.length],
                 ["favorit", "Favoriter", state.favorites.length]];
     document.getElementById("tabs").innerHTML = defs.map(function (d) {
       return '<button class="tab" data-tab="' + d[0] + '"' +
@@ -354,6 +406,20 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var o = document.getElementById("onlyRated");
     o.setAttribute("data-on", state.onlyRated ? "1" : "0");
     o.setAttribute("aria-pressed", state.onlyRated);
+
+    var sel = document.getElementById("genreSelect");
+    if (sel.options.length <= 1) {
+      GENRES.forEach(function (g) {
+        var opt = document.createElement("option");
+        opt.value = g; opt.textContent = g;
+        sel.appendChild(opt);
+      });
+    }
+    sel.value = state.genre;
+
+    var rm = document.getElementById("toggleRemoved");
+    rm.textContent = "Borttagna (" + state.removed.length + ")";
+    rm.setAttribute("data-on", state.showRemoved ? "1" : "0");
   }
 
   function card(it, i) {
@@ -361,6 +427,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var hasDay = it.date.length >= 10;
     var rest = hasDay ? String(d.getDate()).padStart(2, "0") + " " + MONTHS[d.getMonth()] : MONTHS[d.getMonth()];
     var fav = isFav(it);
+    var watched = isWatched(it);
+    var k = keyOf(it);
     var link = "https://www.justwatch.com/se/sok?q=" + encodeURIComponent(it.title);
     return '<article class="item fade" data-kind="' + it.kind + '" style="animation-delay:' +
       Math.min(i * 40, 400) + 'ms">' +
@@ -368,16 +436,30 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '</div><div class="md">' + rest + "</div></div>" +
       '<div class="body"><div class="head"><h2 class="title">' +
       '<a href="' + link + '" target="_blank" rel="noopener">' + esc(it.title) + "</a></h2>" +
-      '<button class="heart" data-fav="' + esc(keyOf(it)) + '" data-on="' + (fav ? 1 : 0) +
+      '<div class="actions">' +
+      '<button class="watch" data-watch="' + esc(k) + '" data-on="' + (watched ? 1 : 0) +
+      '" aria-pressed="' + watched + '" aria-label="' +
+      (watched ? "Lägg tillbaka " + esc(it.title) + " bland tipsen" : "Markera " + esc(it.title) + " som sedd") +
+      '">' + (watched ? "&#10004;" : "&#9633;") + "</button>" +
+      '<button class="heart" data-fav="' + esc(k) + '" data-on="' + (fav ? 1 : 0) +
       '" aria-pressed="' + fav + '" aria-label="' +
       (fav ? "Ta bort " + esc(it.title) + " från favoriter" : "Spara " + esc(it.title) + " som favorit") +
-      '">' + (fav ? "&hearts;" : "&#9825;") + "</button></div>" +
+      '">' + (fav ? "&hearts;" : "&#9825;") + "</button>" +
+      '<button class="trash" data-remove="' + esc(k) + '" aria-label="Ta bort ' + esc(it.title) +
+      ' från tipsen">&#10005;</button>' +
+      "</div></div>" +
       '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
       (it.imdb ? '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>"
                : '<span class="nytt">NYTT</span>') +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
-      (state.tab === "favorit" ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
+      ((state.tab === "favorit" || state.tab === "sett") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       '</div><p class="desc">' + esc(it.desc) + "</p></div></article>";
+  }
+
+  function resolveList(keys) {
+    return keys.map(function (k) { return BY_KEY[k]; })
+      .filter(function (it) { return it && (!state.genre || it.genre === state.genre); })
+      .sort(newestFirst);
   }
 
   function render() {
@@ -385,23 +467,39 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     renderChips();
 
     var list;
-    if (state.tab === "favorit") list = state.favorites.slice().sort(newestFirst);
+    if (state.tab === "favorit") list = resolveList(state.favorites);
+    else if (state.tab === "sett") list = resolveList(state.watched);
     else list = state.shown[state.tab];
 
     var el = document.getElementById("list");
     if (!list.length) {
-      el.innerHTML = '<div class="empty"><p>' +
-        (state.tab === "favorit" ? "Inga favoriter än" : "Inga tips i listan") + "</p><span>" +
-        (state.tab === "favorit"
-          ? "Tryck på hjärtat vid ett tips så hamnar det här."
-          : "Markera minst en av tjänsterna ovan.") + "</span></div>";
+      var msg = { film: "Inga tips i listan", serie: "Inga tips i listan",
+                  sett: "Inget markerat som sett", favorit: "Inga favoriter än" }[state.tab];
+      var hint = { film: "Markera minst en av tjänsterna ovan.",
+                   serie: "Markera minst en av tjänsterna ovan.",
+                   sett: "Tryck på bocken vid ett tips för att lägga det här.",
+                   favorit: "Tryck på hjärtat vid ett tips så hamnar det här." }[state.tab];
+      el.innerHTML = '<div class="empty"><p>' + msg + "</p><span>" + hint + "</span></div>";
     } else {
       el.innerHTML = list.map(card).join("");
+    }
+
+    var rp = document.getElementById("removedPanel");
+    if (state.showRemoved && state.removed.length) {
+      rp.innerHTML = state.removed.map(function (k) {
+        var it = BY_KEY[k];
+        if (!it) return "";
+        return '<div class="rm-row"><span>' + esc(it.title) + " (" + (it.kind === "film" ? "film" : "serie") + ")</span>" +
+          '<button class="rm-restore" data-restore="' + esc(k) + '">Återställ</button></div>';
+      }).join("");
+    } else {
+      rp.innerHTML = "";
     }
 
     document.getElementById("foot").innerHTML =
       "Titelbanken innehåller " + (FILM.length + SERIE.length) +
       " titlar. Ladda om sidan för nya tips.<br>" +
+      "☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
       "NYTT = 2026-premiär utan stabilt IMDb-betyg än. Klicka på titeln för att se var den går.";
   }
 
@@ -422,24 +520,55 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     if (t.dataset.fav) {
       var k = t.dataset.fav;
-      var all = state.shown.film.concat(state.shown.serie, state.favorites);
-      var item = all.filter(function (x) { return keyOf(x) === k; })[0];
-      if (!item) return;
-      state.favorites = isFav(item)
-        ? state.favorites.filter(function (f) { return keyOf(f) !== k; })
-        : [item].concat(state.favorites);
+      state.favorites = state.favorites.indexOf(k) !== -1
+        ? state.favorites.filter(function (f) { return f !== k; })
+        : [k].concat(state.favorites);
       store.set(FAV_KEY, state.favorites);
       render(); return;
     }
+
+    if (t.dataset.watch) {
+      var wk = t.dataset.watch;
+      state.watched = state.watched.indexOf(wk) !== -1
+        ? state.watched.filter(function (w) { return w !== wk; })
+        : [wk].concat(state.watched);
+      store.set(WATCHED_KEY, state.watched);
+      drawAll(); render(); return;
+    }
+
+    if (t.dataset.remove) {
+      var rk = t.dataset.remove;
+      if (state.removed.indexOf(rk) === -1) state.removed = [rk].concat(state.removed);
+      state.favorites = state.favorites.filter(function (f) { return f !== rk; });
+      state.watched = state.watched.filter(function (w) { return w !== rk; });
+      store.set(REMOVED_KEY, state.removed);
+      store.set(FAV_KEY, state.favorites);
+      store.set(WATCHED_KEY, state.watched);
+      drawAll(); render(); return;
+    }
+
+    if (t.dataset.restore) {
+      var rsk = t.dataset.restore;
+      state.removed = state.removed.filter(function (x) { return x !== rsk; });
+      store.set(REMOVED_KEY, state.removed);
+      drawAll(); render(); return;
+    }
+
+    if (t.id === "toggleRemoved") { state.showRemoved = !state.showRemoved; render(); return; }
 
     if (t.id === "onlyRated") { state.onlyRated = !state.onlyRated; drawAll(); render(); return; }
 
     if (t.id === "refresh") {
       drawAll();
-      if (state.tab === "favorit") state.tab = "film";
+      if (state.tab === "favorit" || state.tab === "sett") state.tab = "film";
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  });
+
+  document.getElementById("genreSelect").addEventListener("change", function (e) {
+    state.genre = e.target.value;
+    drawAll(); render();
   });
 
   drawAll();
