@@ -18,7 +18,7 @@
 :root{
   --ink:#08080D; --panel:#17181F; --line:#42445C;
   --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A; --sett:#7CFF9B;
-  --rt:#FF6B4A; --mc:#8FD3FF;
+  --rt:#FF6B4A; --mc:#8FD3FF; --mine:#C9A6FF;
   --txt:#FFFFFF; --dim:#C7C9DE;
   --display:'Oswald','Arial Narrow',Impact,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
@@ -99,6 +99,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .imdb{color:var(--film);font-weight:700}
 .rt{color:var(--rt);font-weight:700}
 .mc{color:var(--mc);font-weight:700}
+.rate-sel{background:transparent;border:1px solid var(--line);color:var(--mine);
+  font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 5px;
+  border-radius:0;-webkit-appearance:none;appearance:none;cursor:pointer}
+.rate-sel:hover{border-color:var(--mine)}
+.rate-sel[data-rated="1"]{border-color:var(--mine);background:rgba(201,166,255,.14)}
+.rate-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 .desc{font-size:14px;line-height:1.55;color:#E7E8F5;margin:8px 0 0}
 .actions{display:flex;gap:6px;flex-shrink:0}
 .heart,.watch,.trash{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
@@ -178,6 +184,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var SEEN_KEY = "tipstablan:visade";
   var WATCHED_KEY = "tipstablan:sett";
   var REMOVED_KEY = "tipstablan:borttagna";
+  var RATING_KEY = "tipstablan:betyg";
 
   /* ============ TITELBANKEN ============
      Alla titlar har ett IMDb-betyg. RT/MC anges där de finns
@@ -327,6 +334,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     favorites: normalizeKeys(store.get(FAV_KEY)),
     watched: normalizeKeys(store.get(WATCHED_KEY)),
     removed: normalizeKeys(store.get(REMOVED_KEY)),
+    ratings: store.get(RATING_KEY) || {},
     seen: store.get(SEEN_KEY) || [],
     showRemoved: false,
     lastFetchedTitle: null,
@@ -456,6 +464,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var fav = isFav(it);
     var watched = isWatched(it);
     var k = keyOf(it);
+    var myRating = state.ratings[k] || "";
+    var rateOpts = '<option value="">Betygsätt</option>';
+    for (var r = 1; r <= 10; r++) {
+      rateOpts += '<option value="' + r + '"' + (myRating === r ? ' selected' : '') + '>Du ' + r + '</option>';
+    }
     var link = it.id
       ? "https://www.imdb.com/title/" + it.id + "/"
       : "https://www.imdb.com/search/title/?title=" + encodeURIComponent(it.title) +
@@ -482,6 +495,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>" +
       (it.rt ? '<span class="rt">RT ' + it.rt + "%</span>" : "") +
       (it.mc ? '<span class="mc">MC ' + it.mc + "</span>" : "") +
+      '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
+      '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       ((state.tab === "favorit" || state.tab === "sett") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       '</div><p class="desc">' + esc(it.desc) + "</p></div></article>";
@@ -531,7 +546,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "Titelbanken innehåller " + (FILM.length + SERIE.length) +
       " titlar, alla med IMDb-betyg. Ladda om sidan för nya tips.<br>" +
       "☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
-      "RT = Rotten Tomatoes, MC = Metacritic (visas när de finns). Klicka på titeln för att öppna den på IMDb.";
+      "RT = Rotten Tomatoes, MC = Metacritic (visas när de finns). \"Du\" är ditt eget betyg (1–10), sparas bara i den här webbläsaren.<br>" +
+      "Klicka på titeln för att öppna den på IMDb.";
   }
 
   /* ============ händelser ============ */
@@ -600,6 +616,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   document.getElementById("genreSelect").addEventListener("change", function (e) {
     state.genre = e.target.value;
     drawAll(); render();
+  });
+
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (!t.classList || !t.classList.contains("rate-sel")) return;
+    var k = t.dataset.rate;
+    var v = t.value;
+    if (v) state.ratings[k] = parseInt(v, 10);
+    else delete state.ratings[k];
+    store.set(RATING_KEY, state.ratings);
+    render();
   });
 
   drawAll();
