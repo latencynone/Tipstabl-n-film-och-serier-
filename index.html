@@ -295,7 +295,30 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var ALL_ITEMS = POOL.film.concat(POOL.serie);
   var BY_KEY = {};
   ALL_ITEMS.forEach(function (it) { BY_KEY[keyOf(it)] = it; });
-  var GENRES = Array.from(new Set(ALL_ITEMS.map(function (it) { return it.genre; })))
+
+  // Slår ihop de ~43 specifika genre-strängarna i titelbanken till 10
+  // bredare huvudkategorier, bara för filtret. Kortens egen genre-tagg
+  // (t.ex. "Sci-fi/Action") visas fortfarande oförändrad.
+  var GENRE_GROUPS = {
+    "Drama": "Drama", "Historiskt drama": "Drama", "Krig": "Drama", "Sjukhusdrama": "Drama",
+    "Komedi": "Komedi", "Drama/Komedi": "Komedi", "Action/Komedi": "Komedi", "Dramakomedi": "Komedi",
+    "Mysteriekomedi": "Komedi", "Skräckkomedi": "Komedi", "Satir": "Komedi", "Drama/Satir": "Komedi",
+    "Romantisk komedi": "Komedi", "Kriminalkomedi": "Komedi", "Svart komedi": "Komedi",
+    "Superhjälte": "Action & Äventyr", "Action/Sci-fi": "Action & Äventyr", "Action": "Action & Äventyr",
+    "Action/Kriminal": "Action & Äventyr", "Äventyr": "Action & Äventyr",
+    "Sci-fi": "Sci-fi & Fantasy", "Sci-fi/Action": "Sci-fi & Fantasy", "Sci-fi/Thriller": "Sci-fi & Fantasy",
+    "Fantasy": "Sci-fi & Fantasy",
+    "Skräck/Drama": "Skräck", "Skräck/Sci-fi": "Skräck", "Skräck": "Skräck", "Drama/Skräck": "Skräck",
+    "Thriller": "Thriller", "Thriller/Drama": "Thriller", "Spionthriller": "Thriller", "Politisk thriller": "Thriller",
+    "Mysterium": "Kriminal & Mysterium", "Kriminaldrama": "Kriminal & Mysterium",
+    "Drama/Kriminal": "Kriminal & Mysterium", "Deckare": "Kriminal & Mysterium",
+    "Animerat": "Animerat", "Animerat/Musik": "Animerat",
+    "Familj/Musikal": "Musik & Musikal", "Biografi/Musik": "Musik & Musikal", "Musikal": "Musik & Musikal",
+    "Sport/Drama": "Biografi & Sport", "Biografi/Sport": "Biografi & Sport"
+  };
+  function genreBucket(g) { return GENRE_GROUPS[g] || g; }
+
+  var GENRES = Array.from(new Set(ALL_ITEMS.map(function (it) { return genreBucket(it.genre); })))
     .sort(function (a, b) { return a.localeCompare(b, "sv"); });
 
   /* ============ hjälpare ============ */
@@ -352,7 +375,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function draw(kind) {
     var pool = POOL[kind].filter(function (it) {
       if (state.active.indexOf(it.service) === -1) return false;
-      if (state.genre && it.genre !== state.genre) return false;
+      if (state.genre && genreBucket(it.genre) !== state.genre) return false;
       if (state.removed.indexOf(keyOf(it)) !== -1) return false;
       if (state.watched.indexOf(keyOf(it)) !== -1) return false;
       return true;
@@ -504,7 +527,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   function resolveList(keys) {
     return keys.map(function (k) { return BY_KEY[k]; })
-      .filter(function (it) { return it && (!state.genre || it.genre === state.genre); })
+      .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); })
       .sort(newestFirst);
   }
 
