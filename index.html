@@ -141,8 +141,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .svc{color:var(--on-accent);background:var(--film);padding:2px 6px;font-weight:700;border-radius:calc(var(--radius) * .4)}
 .item[data-kind="serie"] .svc{background:var(--serie)}
 .imdb{color:var(--film);font-weight:700}
-.rt{color:var(--rt);font-weight:700}
-.mc{color:var(--mc);font-weight:700}
+.rt{color:var(--rt);font-weight:700;text-decoration:none}
+.rt:hover{text-decoration:underline}
+.mc{color:var(--mc);font-weight:700;text-decoration:none}
+.mc:hover{text-decoration:underline}
 .rate-sel{background:transparent;border:1px solid var(--line);color:var(--mine);
   font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 5px;
   border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
@@ -356,100 +358,101 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   ==================================== */
 
   var FILM = [
-    ["Wake Up Dead Man: A Knives Out Mystery","2025-12-12","Netflix",7.2,83,68,"Mysterium","2 tim 19 min","Benoit Blanc löser ett omöjligt mord i en liten kyrkstad.","tt14364480"],
-    ["F1","2025-12-12","Apple TV+",7.8,84,64,"Sport/Drama","2 tim 36 min","Åldrad förare gör comeback i formel 1 – bullrig och snygg.","tt16311594"],
-    ["Train Dreams","2025-11-21","Netflix",7.4,92,85,"Drama","1 tim 42 min","Stillsamt porträtt av en rallare i 1900-talets amerikanska vildmark.","tt29768334"],
-    ["Frankenstein","2025-11-07","Netflix",7.3,85,75,"Skräck/Drama","2 tim 29 min","Del Toros påkostade version av klassikern om skaparen och monstret.","tt1312221"],
-    ["Predator: Badlands","2025-11-07","Disney+",7.2,86,71,"Sci-fi/Action","1 tim 47 min","En ung predator jagar sitt livs byte på en dödlig planet.","tt31227572"],
-    ["Superman","2025-09-19","HBO Max",7.2,83,67,"Superhjälte","2 tim 09 min","Gunns ljusa omstart – mer hoppfull än de senaste DC-filmerna.","tt5950044"],
-    ["Sinners","2025-07-04","HBO Max",7.6,97,84,"Skräck/Drama","2 tim 17 min","Tvillingbröder öppnar bluesklubb i 30-talets Mississippi. Sen blir det blodigt.","tt31193180"],
-    ["KPop Demon Hunters","2025-06-20","Netflix",7.7,92,77,"Animerat/Musik","1 tim 36 min","Popgrupp som i hemlighet jagar demoner. Bättre än det låter.","tt14205554"],
-    ["A Real Pain","2024-11-01","Disney+",7.0,95,87,"Drama/Komedi","1 tim 30 min","Två kusiner reser till Polen och skaver mot varandra hela vägen.","tt21823606"],
-    ["Rebel Ridge","2024-09-06","Netflix",7.1,96,76,"Thriller","2 tim 11 min","Exmarinsoldat mot korrupt småstadspolis. Spänd utan att bli dum.","tt11301886"],
-    ["Alien: Romulus","2024-08-16","Disney+",7.1,80,68,"Skräck/Sci-fi","1 tim 59 min","Unga rymdkolonister hittar fel sorts last på en övergiven station.","tt18412256"],
-    ["Deadpool & Wolverine","2024-07-26","Disney+",7.6,79,58,"Action/Komedi","2 tim 08 min","Två motvilliga hjältar, oräkneliga skämt och rejält med blod.","tt6263850"],
-    ["Kingdom of the Planet of the Apes","2024-05-10","Disney+",7.0,81,66,"Sci-fi","2 tim 25 min","Generationer efter Caesar söker en ung apa svar om människorna.","tt11389872"],
-    ["Challengers","2024-04-26","Prime Video",7.1,88,82,"Drama","2 tim 11 min","Triangeldrama på tennisbanan, klippt som en actionfilm.","tt16426418"],
-    ["Society of the Snow","2024-01-04","Netflix",7.8,92,74,"Drama","2 tim 24 min","Flygkraschen i Anderna, berättad med respekt för de överlevande.","tt16277242"],
-    ["Saltburn","2023-12-22","Prime Video",7.0,71,63,"Thriller","2 tim 11 min","Stipendiat charmar sig in i en brittisk överklassfamilj. Obehagligt bra.","tt17351924"],
-    ["Wonka","2023-12-15","HBO Max",7.0,83,66,"Familj/Musikal","1 tim 56 min","Chokladfabrikörens ursprung som varm musikal. Funkar för hela soffan.","tt6166392"],
-    ["Poor Things","2023-12-08","Disney+",7.7,92,86,"Drama/Komedi","2 tim 21 min","Återuppväckt kvinna upptäcker världen på egna villkor. Egensinnig och rolig.","tt14230458"],
-    ["Killers of the Flower Moon","2023-10-20","Apple TV+",7.6,93,89,"Drama/Kriminal","3 tim 26 min","Scorsese om morden på oljerika Osage-indianer på 1920-talet.","tt5537002"],
-    ["The Burial","2023-10-13","Prime Video",7.2,92,68,"Drama","2 tim 06 min","Advokat tar strid mot en begravningskoncern. Jamie Foxx i toppform.","tt5648882"],
-    ["Nimona","2023-06-30","Netflix",7.5,96,78,"Animerat","1 tim 41 min","Formskiftande buse hjälper anklagad riddare. Snabb, snygg och varm.","tt19500164"],
-    ["Guardians of the Galaxy Vol. 3","2023-05-05","Disney+",7.9,82,64,"Action/Sci-fi","2 tim 30 min","Avskedet till gänget, med Rockets bakgrund som ovanligt tung kärna.","tt6791350"],
-    ["Air","2023-04-05","Prime Video",7.4,93,73,"Drama","1 tim 52 min","Nike jagar Michael Jordan 1984. Bara snack – och riktigt underhållande.","tt16419074"],
-    ["Tetris","2023-03-31","Apple TV+",7.0,83,68,"Thriller/Drama","1 tim 58 min","Kampen om spelrättigheterna bakom järnridån blir oväntat nervig.","tt12758060"],
-    ["Glass Onion","2022-12-23","Netflix",7.1,92,81,"Mysterium","2 tim 19 min","Mordgåta på grekisk privatö bland löjligt rika vänner.","tt11564570"],
-    ["Avatar: The Way of Water","2022-12-16","Disney+",7.5,76,67,"Sci-fi","3 tim 12 min","Pandoras hav i bild efter bild man vill pausa på.","tt1630029"],
-    ["Guillermo del Toros Pinocchio","2022-12-09","Netflix",7.6,97,82,"Animerat","1 tim 57 min","Mörkare Pinocchio i stop motion, satt i fascismens Italien.","tt1488589"],
-    ["The Menu","2022-11-18","Disney+",7.2,88,72,"Skräckkomedi","1 tim 47 min","Exklusiv provsmakning där kockens meny har en obehaglig avslutning.","tt9764362"],
-    ["All Quiet on the Western Front","2022-10-28","Netflix",7.8,91,76,"Krig","2 tim 28 min","Tysk skyttegravsskildring, kompromisslös och tekniskt överlägsen.","tt1016150"],
-    ["Barbarian","2022-10-28","Disney+",7.0,92,71,"Skräck","1 tim 42 min","Dubbelbokad hyresbostad visar sig dölja betydligt värre saker.","tt15791034"],
-    ["The Banshees of Inisherin","2022-10-21","Disney+",7.7,96,87,"Drama/Komedi","1 tim 54 min","En vänskap tar plötsligt slut på en irländsk ö. Bittert roligt.","tt11813216"],
-    ["Prey","2022-08-05","Disney+",7.1,93,71,"Action/Sci-fi","1 tim 39 min","Comanchekrigare mot predator på 1700-talet. Seriens bästa på år.","tt11866324"],
-    ["The Sea Beast","2022-07-08","Netflix",7.0,89,68,"Animerat","1 tim 55 min","Sjömonsterjägare får sällskap av en envis fripassagerare.","tt9288046"],
-    ["Elvis","2022-06-24","HBO Max",7.2,77,64,"Biografi/Musik","2 tim 39 min","Luhrmanns yviga version av Presleys liv, sedd genom managern.","tt3704428"],
-    ["Turning Red","2022-03-11","Disney+",7.0,95,83,"Animerat","1 tim 40 min","Trettonåring förvandlas till jättepanda när känslorna svämmar över.","tt8097030"],
-    ["The Batman","2022-03-04","HBO Max",7.8,85,72,"Action/Kriminal","2 tim 56 min","Regnig detektivnoir där Batman faktiskt får lösa ett fall.","tt1877830"],
-    ["Don't Look Up","2021-12-24","Netflix",7.2,55,49,"Satir","2 tim 18 min","Komet på väg mot jorden, och ingen orkar bry sig.","tt11286314"],
-    ["Encanto","2021-11-24","Disney+",7.2,91,71,"Animerat","1 tim 42 min","Colombiansk familj med magiska gåvor – utom en. Låtarna sitter kvar.","tt2953050"],
-    ["tick, tick... BOOM!","2021-11-19","Netflix",7.4,89,76,"Musikal","2 tim 01 min","Ung musikalskribent fyller snart trettio och har inget färdigt.","tt8721424"],
-    ["Dune","2021-10-22","HBO Max",8.0,83,74,"Sci-fi","2 tim 35 min","Ökenplaneten Arrakis i monumentalt format. Se den stort.","tt1160419"],
-    ["Dune: Part Two","2024-03-01","HBO Max",8.5,92,79,"Sci-fi","2 tim 46 min","Paul går samman med fremen. Ännu större än ettan.","tt15239678"],
-    ["CODA","2021-08-13","Apple TV+",8.0,94,72,"Drama","1 tim 51 min","Hörande dotter i döv familj vill söka till musikhögskola.","tt10366460"]
+    ["Wake Up Dead Man: A Knives Out Mystery","2025-12-12","Netflix",7.2,83,68,"Mysterium","2 tim 19 min","Benoit Blanc löser ett omöjligt mord i en liten kyrkstad.","tt14364480","wake_up_dead_man_a_knives_out_mystery","wake-up-dead-man-a-knives-out-mystery"],
+    ["F1","2025-12-12","Apple TV+",7.8,84,64,"Sport/Drama","2 tim 36 min","Åldrad förare gör comeback i formel 1 – bullrig och snygg.","tt16311594","f1_the_movie","f1-the-movie"],
+    ["Train Dreams","2025-11-21","Netflix",7.4,92,85,"Drama","1 tim 42 min","Stillsamt porträtt av en rallare i 1900-talets amerikanska vildmark.","tt29768334","train_dreams","train-dreams"],
+    ["Frankenstein","2025-11-07","Netflix",7.3,85,75,"Skräck/Drama","2 tim 29 min","Del Toros påkostade version av klassikern om skaparen och monstret.","tt1312221","frankenstein_2025","frankenstein-2025"],
+    ["Predator: Badlands","2025-11-07","Disney+",7.2,86,71,"Sci-fi/Action","1 tim 47 min","En ung predator jagar sitt livs byte på en dödlig planet.","tt31227572","predator_badlands","predator-badlands"],
+    ["Superman","2025-09-19","HBO Max",7.2,83,67,"Superhjälte","2 tim 09 min","Gunns ljusa omstart – mer hoppfull än de senaste DC-filmerna.","tt5950044","superman_2025","superman-2025"],
+    ["Sinners","2025-07-04","HBO Max",7.6,97,84,"Skräck/Drama","2 tim 17 min","Tvillingbröder öppnar bluesklubb i 30-talets Mississippi. Sen blir det blodigt.","tt31193180","sinners_2025","sinners"],
+    ["KPop Demon Hunters","2025-06-20","Netflix",7.7,92,77,"Animerat/Musik","1 tim 36 min","Popgrupp som i hemlighet jagar demoner. Bättre än det låter.","tt14205554","kpop_demon_hunters","kpop-demon-hunters"],
+    ["A Real Pain","2024-11-01","Disney+",7.0,95,87,"Drama/Komedi","1 tim 30 min","Två kusiner reser till Polen och skaver mot varandra hela vägen.","tt21823606","a_real_pain","a-real-pain"],
+    ["Rebel Ridge","2024-09-06","Netflix",7.1,96,76,"Thriller","2 tim 11 min","Exmarinsoldat mot korrupt småstadspolis. Spänd utan att bli dum.","tt11301886","rebel_ridge","rebel-ridge"],
+    ["Alien: Romulus","2024-08-16","Disney+",7.1,80,68,"Skräck/Sci-fi","1 tim 59 min","Unga rymdkolonister hittar fel sorts last på en övergiven station.","tt18412256","alien_romulus","alien-romulus"],
+    ["Deadpool & Wolverine","2024-07-26","Disney+",7.6,79,58,"Action/Komedi","2 tim 08 min","Två motvilliga hjältar, oräkneliga skämt och rejält med blod.","tt6263850","deadpool_and_wolverine","deadpool-and-wolverine"],
+    ["Kingdom of the Planet of the Apes","2024-05-10","Disney+",7.0,81,66,"Sci-fi","2 tim 25 min","Generationer efter Caesar söker en ung apa svar om människorna.","tt11389872","kingdom_of_the_planet_of_the_apes","kingdom-of-the-planet-of-the-apes"],
+    ["Challengers","2024-04-26","Prime Video",7.1,88,82,"Drama","2 tim 11 min","Triangeldrama på tennisbanan, klippt som en actionfilm.","tt16426418","challengers","challengers"],
+    ["Society of the Snow","2024-01-04","Netflix",7.8,92,74,"Drama","2 tim 24 min","Flygkraschen i Anderna, berättad med respekt för de överlevande.","tt16277242","society_of_the_snow","society-of-the-snow"],
+    ["Saltburn","2023-12-22","Prime Video",7.0,71,63,"Thriller","2 tim 11 min","Stipendiat charmar sig in i en brittisk överklassfamilj. Obehagligt bra.","tt17351924","saltburn","saltburn"],
+    ["Wonka","2023-12-15","HBO Max",7.0,83,66,"Familj/Musikal","1 tim 56 min","Chokladfabrikörens ursprung som varm musikal. Funkar för hela soffan.","tt6166392","wonka","wonka"],
+    ["Poor Things","2023-12-08","Disney+",7.7,92,86,"Drama/Komedi","2 tim 21 min","Återuppväckt kvinna upptäcker världen på egna villkor. Egensinnig och rolig.","tt14230458","poor_things","poor-things"],
+    ["Killers of the Flower Moon","2023-10-20","Apple TV+",7.6,93,89,"Drama/Kriminal","3 tim 26 min","Scorsese om morden på oljerika Osage-indianer på 1920-talet.","tt5537002","killers_of_the_flower_moon","killers-of-the-flower-moon"],
+    ["The Burial","2023-10-13","Prime Video",7.2,92,68,"Drama","2 tim 06 min","Advokat tar strid mot en begravningskoncern. Jamie Foxx i toppform.","tt5648882","the_burial_2023","the-burial"],
+    ["Nimona","2023-06-30","Netflix",7.5,96,78,"Animerat","1 tim 41 min","Formskiftande buse hjälper anklagad riddare. Snabb, snygg och varm.","tt19500164","nimona","nimona"],
+    ["Guardians of the Galaxy Vol. 3","2023-05-05","Disney+",7.9,82,64,"Action/Sci-fi","2 tim 30 min","Avskedet till gänget, med Rockets bakgrund som ovanligt tung kärna.","tt6791350","guardians_of_the_galaxy_vol_3","guardians-of-the-galaxy-vol-3"],
+    ["Air","2023-04-05","Prime Video",7.4,93,73,"Drama","1 tim 52 min","Nike jagar Michael Jordan 1984. Bara snack – och riktigt underhållande.","tt16419074","air_2023","air-2023"],
+    ["Tetris","2023-03-31","Apple TV+",7.0,83,68,"Thriller/Drama","1 tim 58 min","Kampen om spelrättigheterna bakom järnridån blir oväntat nervig.","tt12758060","tetris","tetris"],
+    ["Glass Onion","2022-12-23","Netflix",7.1,92,81,"Mysterium","2 tim 19 min","Mordgåta på grekisk privatö bland löjligt rika vänner.","tt11564570","glass_onion_a_knives_out_mystery","glass-onion-a-knives-out-mystery"],
+    ["Avatar: The Way of Water","2022-12-16","Disney+",7.5,76,67,"Sci-fi","3 tim 12 min","Pandoras hav i bild efter bild man vill pausa på.","tt1630029","avatar_the_way_of_water","avatar-the-way-of-water"],
+    ["Guillermo del Toros Pinocchio","2022-12-09","Netflix",7.6,97,82,"Animerat","1 tim 57 min","Mörkare Pinocchio i stop motion, satt i fascismens Italien.","tt1488589","guillermo_del_toros_pinocchio","guillermo-del-toros-pinocchio"],
+    ["The Menu","2022-11-18","Disney+",7.2,88,72,"Skräckkomedi","1 tim 47 min","Exklusiv provsmakning där kockens meny har en obehaglig avslutning.","tt9764362","the_menu","the-menu"],
+    ["All Quiet on the Western Front","2022-10-28","Netflix",7.8,91,76,"Krig","2 tim 28 min","Tysk skyttegravsskildring, kompromisslös och tekniskt överlägsen.","tt1016150","all_quiet_on_the_western_front_2022","all-quiet-on-the-western-front"],
+    ["Barbarian","2022-10-28","Disney+",7.0,92,71,"Skräck","1 tim 42 min","Dubbelbokad hyresbostad visar sig dölja betydligt värre saker.","tt15791034","barbarian_2022","barbarian"],
+    ["The Banshees of Inisherin","2022-10-21","Disney+",7.7,96,87,"Drama/Komedi","1 tim 54 min","En vänskap tar plötsligt slut på en irländsk ö. Bittert roligt.","tt11813216","the_banshees_of_inisherin","the-banshees-of-inisherin"],
+    ["Prey","2022-08-05","Disney+",7.1,93,71,"Action/Sci-fi","1 tim 39 min","Comanchekrigare mot predator på 1700-talet. Seriens bästa på år.","tt11866324","prey_2022","prey-2022"],
+    ["The Sea Beast","2022-07-08","Netflix",7.0,89,68,"Animerat","1 tim 55 min","Sjömonsterjägare får sällskap av en envis fripassagerare.","tt9288046","the_sea_beast","the-sea-beast"],
+    ["Elvis","2022-06-24","HBO Max",7.2,77,64,"Biografi/Musik","2 tim 39 min","Luhrmanns yviga version av Presleys liv, sedd genom managern.","tt3704428","elvis","elvis"],
+    ["Turning Red","2022-03-11","Disney+",7.0,95,83,"Animerat","1 tim 40 min","Trettonåring förvandlas till jättepanda när känslorna svämmar över.","tt8097030","turning_red","turning-red"],
+    ["The Batman","2022-03-04","HBO Max",7.8,85,72,"Action/Kriminal","2 tim 56 min","Regnig detektivnoir där Batman faktiskt får lösa ett fall.","tt1877830","the_batman","the-batman"],
+    ["Don't Look Up","2021-12-24","Netflix",7.2,55,49,"Satir","2 tim 18 min","Komet på väg mot jorden, och ingen orkar bry sig.","tt11286314","dont_look_up","dont-look-up"],
+    ["Encanto","2021-11-24","Disney+",7.2,91,71,"Animerat","1 tim 42 min","Colombiansk familj med magiska gåvor – utom en. Låtarna sitter kvar.","tt2953050","encanto","encanto"],
+    ["tick, tick... BOOM!","2021-11-19","Netflix",7.4,89,76,"Musikal","2 tim 01 min","Ung musikalskribent fyller snart trettio och har inget färdigt.","tt8721424","tick_tick_boom","tick-tickboom!"],
+    ["Dune","2021-10-22","HBO Max",8.0,83,74,"Sci-fi","2 tim 35 min","Ökenplaneten Arrakis i monumentalt format. Se den stort.","tt1160419","dune_2021","dune-part-one"],
+    ["Dune: Part Two","2024-03-01","HBO Max",8.5,92,79,"Sci-fi","2 tim 46 min","Paul går samman med fremen. Ännu större än ettan.","tt15239678","dune_part_two","dune-part-two"],
+    ["CODA","2021-08-13","Apple TV+",8.0,94,72,"Drama","1 tim 51 min","Hörande dotter i döv familj vill söka till musikhögskola.","tt10366460","coda_2021","coda-2021"]
   ];
 
   var SERIE = [
-    ["Task","2025-09-07","HBO Max",8.1,92,76,"Kriminaldrama","1 säsong","FBI-agent jagar rånarliga i Philadelphia. Från Mare of Easttown-skaparen.","tt28013708"],
-    ["Peacemaker","2025-08-21","HBO Max",8.3,91,74,"Action/Komedi","Säsong 2","Grovt olämplig antihjälte, förvånansvärt mycket känsla under skämten.","tt13146488"],
-    ["Alien: Earth","2025-08-12","Disney+",7.4,87,74,"Sci-fi","1 säsong","Xenomorferna når jorden. Snyggt och obehagligt i lika delar.","tt13623632"],
-    ["Dept. Q","2025-05-29","Netflix",8.0,89,71,"Deckare","1 säsong","Skottland får sin egen avdelning för kalla fall. Adler-Olsen i ny tappning.","tt27995114"],
-    ["Andor","2025-04-22","Disney+",8.7,97,89,"Sci-fi","Säsong 2","Star Wars för vuxna: uppror, byråkrati och riktigt bra dialog.","tt9253284"],
-    ["The Rehearsal","2025-04-20","HBO Max",8.4,96,84,"Komedi","Säsong 2","Nathan Fielder repeterar verkligheten. Inget annat är i närheten.","tt10802170"],
-    ["Your Friends & Neighbors","2025-04-11","Apple TV+",7.5,78,66,"Drama","1 säsong","Sparkad hedgefondchef börjar stjäla från grannarna i förorten.","tt30459041"],
-    ["The Studio","2025-03-26","Apple TV+",8.2,97,91,"Komedi","1 säsong","Nytillsatt filmbosschef går från katastrof till katastrof. Filmad i långa tagningar.","tt23649128"],
-    ["Adolescence","2025-03-13","Netflix",8.1,99,91,"Drama","Miniserie","Trettonåring anhållen för mord. Varje avsnitt i en enda tagning.","tt31806037"],
-    ["Daredevil: Born Again","2025-03-04","Disney+",7.6,83,66,"Action","1 säsong","Murdock mot Fisk igen, mörkare än de flesta Marvelserier.","tt18923754"],
-    ["The White Lotus","2025-02-16","HBO Max",8.0,91,76,"Drama/Satir","Säsong 3","Rika gäster, thailändskt lyxhotell och minst ett lik.","tt13406094"],
-    ["Severance","2025-01-17","Apple TV+",8.7,97,88,"Sci-fi/Thriller","Säsong 2","Anställda med delade minnen börjar nysta i vad företaget egentligen gör.","tt11280740"],
-    ["The Pitt","2025-01-09","HBO Max",8.8,96,87,"Sjukhusdrama","1 säsong","Ett akutpass i realtid, avsnitt för avsnitt. Bäst i klassen.","tt31938062"],
-    ["Senna","2024-11-29","Netflix",7.7,100,78,"Biografi/Sport","Miniserie","Ayrton Sennas väg till tre VM-titlar, som dramaserie.","tt9145758"],
-    ["A Man on the Inside","2024-11-21","Netflix",7.9,96,71,"Komedi","1 säsong","Pensionerad professor blir spion på äldreboende. Varm och rolig.","tt26670955"],
-    ["Say Nothing","2024-11-14","Disney+",8.0,99,89,"Drama","Miniserie","Nordirlands konflikt genom några som var mitt i den.","tt31122777"],
-    ["Nobody Wants This","2024-09-26","Netflix",7.9,94,71,"Romantisk komedi","1 säsong","Podcastare och rabbin blir ihop. Ovanligt välskrivet.","tt26933824"],
-    ["The Penguin","2024-09-19","HBO Max",8.4,96,82,"Kriminaldrama","Miniserie","Gotham utan Batman. Colin Farrell är oigenkännlig och lysande.","tt15435876"],
-    ["Fallout","2024-04-10","Prime Video",8.3,93,79,"Sci-fi","1 säsong","Efter kärnvapenkriget kliver en valvbo upp till ytan.","tt12637874"],
-    ["Ripley","2024-04-04","Netflix",8.0,94,82,"Thriller","Miniserie","Bedragare i femtiotalets Italien, filmad i praktfull svartvitt.","tt11016042"],
-    ["X-Men '97","2024-03-20","Disney+",8.5,97,84,"Animerat","1 säsong","Nittiotalsserien fortsätter, och den är bättre än väntat.","tt16026746"],
-    ["The Gentlemen","2024-03-07","Netflix",8.1,84,66,"Kriminalkomedi","1 säsong","Lord ärver gods med cannabisodling i källaren. Ritchie i sitt esse.","tt13210838"],
-    ["Shōgun","2024-02-27","Disney+",8.6,99,92,"Historiskt drama","1 säsong","Maktkamp i 1600-talets Japan. Årets serie när den kom.","tt2788316"],
-    ["Mr. & Mrs. Smith","2024-02-02","Prime Video",7.1,79,68,"Action/Komedi","1 säsong","Två främlingar spelar gift par – och jobbar som spioner.","tt14044212"],
-    ["Slow Horses","2023-11-29","Apple TV+",8.2,98,84,"Spionthriller","Säsong 3","MI5:s misslyckade agenter, ledda av en osnygg Gary Oldman.","tt5875444"],
-    ["Loki","2023-10-06","Disney+",8.2,92,71,"Sci-fi","Säsong 2","Tidsresor och multiversum, men med känsla för karaktärerna.","tt9140554"],
-    ["Gen V","2023-09-29","Prime Video",7.9,92,74,"Superhjälte","1 säsong","Superhjältehögskola med samma svarta humor som The Boys.","tt13159924"],
-    ["One Piece","2023-08-31","Netflix",8.2,92,76,"Äventyr","1 säsong","Piratäventyr med hjärta. Fungerar även utan att ha läst mangan.","tt11737520"],
-    ["Silo","2023-05-05","Apple TV+",8.0,92,75,"Sci-fi","1 säsong","Tiotusen människor lever nedgrävda. Ingen får fråga varför.","tt14688458"],
-    ["The Diplomat","2023-04-20","Netflix",8.0,91,72,"Politisk thriller","1 säsong","Nyutnämnd USA-ambassadör i London hanterar kris efter kris.","tt17491088"],
-    ["Beef","2023-04-06","Netflix",8.0,98,88,"Dramakomedi","Miniserie","En parkeringsincident eskalerar till livslångt krig.","tt14403178"],
-    ["Shrinking","2023-01-27","Apple TV+",8.2,93,74,"Dramakomedi","1 säsong","Terapeut i sorg börjar säga precis vad han tycker till klienterna.","tt15677150"],
-    ["The Last of Us","2023-01-15","HBO Max",8.7,96,88,"Drama/Skräck","1 säsong","Smugglare eskorterar ung flicka genom ett sönderfallet USA.","tt3581920"],
-    ["Wednesday","2022-11-23","Netflix",8.1,84,66,"Mysteriekomedi","1 säsong","Familjen Addams dotter löser mord på internat för utstötta.","tt13443470"],
-    ["House of the Dragon","2022-08-21","HBO Max",8.3,84,68,"Fantasy","1 säsong","Targaryen mot Targaryen, med drakar. Bäst sedan Game of Thrones.","tt11198330"],
-    ["Bad Sisters","2022-08-19","Apple TV+",8.2,98,83,"Svart komedi","1 säsong","Fyra systrar planerar att göra sig av med svågern.","tt15469618"],
-    ["The Bear","2022-06-23","Disney+",8.6,100,94,"Dramakomedi","1 säsong","Stjärnkock tar över familjens smörgåsbar i Chicago. Stressigt och strålande.","tt14452776"],
-    ["Pachinko","2022-03-25","Apple TV+",8.4,96,88,"Historiskt drama","1 säsong","Fyra generationer koreaner i Japan. Vackert filmat familjeepos.","tt8888462"],
-    ["Reacher","2022-02-04","Prime Video",8.1,84,63,"Action","1 säsong","Väldigt stor man löser brott i småstad. Precis så bra som det låter.","tt9288030"],
-    ["Arcane","2021-11-06","Netflix",9.0,100,93,"Animerat","1 säsong","Systrar på var sin sida i en klasskonflikt. Animation i världsklass.","tt11126994"],
-    ["Squid Game","2021-09-17","Netflix",8.0,95,81,"Thriller","1 säsong","Skuldsatta spelar barnlekar om livet. Fenomenet som startade allt.","tt10919420"],
-    ["Only Murders in the Building","2021-08-31","Disney+",8.1,96,78,"Mysteriekomedi","1 säsong","Tre poddande grannar utreder ett mord i sitt eget hus.","tt11691774"],
-    ["Hacks","2021-05-13","HBO Max",8.2,96,84,"Komedi","1 säsong","Åldrande Vegaskomiker och ung manusförfattare avskyr varandra. Först.","tt11815682"],
-    ["Invincible","2021-03-25","Prime Video",8.7,98,82,"Animerat","1 säsong","Tonårshjälte upptäcker sanningen om sin far. Långt blodigare än väntat.","tt6741278"]
+    ["Task","2025-09-07","HBO Max",8.1,92,76,"Kriminaldrama","1 säsong","FBI-agent jagar rånarliga i Philadelphia. Från Mare of Easttown-skaparen.","tt28013708","task","task"],
+    ["Peacemaker","2025-08-21","HBO Max",8.3,91,74,"Action/Komedi","Säsong 2","Grovt olämplig antihjälte, förvånansvärt mycket känsla under skämten.","tt13146488","peacemaker_2022","peacemaker"],
+    ["Alien: Earth","2025-08-12","Disney+",7.4,87,74,"Sci-fi","1 säsong","Xenomorferna når jorden. Snyggt och obehagligt i lika delar.","tt13623632","alien_earth","alien-earth"],
+    ["Dept. Q","2025-05-29","Netflix",8.0,89,71,"Deckare","1 säsong","Skottland får sin egen avdelning för kalla fall. Adler-Olsen i ny tappning.","tt27995114","dept_q","dept-q"],
+    ["Andor","2025-04-22","Disney+",8.7,97,89,"Sci-fi","Säsong 2","Star Wars för vuxna: uppror, byråkrati och riktigt bra dialog.","tt9253284","andor","andor"],
+    ["The Rehearsal","2025-04-20","HBO Max",8.4,96,84,"Komedi","Säsong 2","Nathan Fielder repeterar verkligheten. Inget annat är i närheten.","tt10802170","the_rehearsal_2022","the-rehearsal"],
+    ["Your Friends & Neighbors","2025-04-11","Apple TV+",7.5,78,66,"Drama","1 säsong","Sparkad hedgefondchef börjar stjäla från grannarna i förorten.","tt30459041","your_friends_and_neighbors","your-friends-neighbors"],
+    ["The Studio","2025-03-26","Apple TV+",8.2,97,91,"Komedi","1 säsong","Nytillsatt filmbosschef går från katastrof till katastrof. Filmad i långa tagningar.","tt23649128","the_studio","the-studio"],
+    ["Adolescence","2025-03-13","Netflix",8.1,99,91,"Drama","Miniserie","Trettonåring anhållen för mord. Varje avsnitt i en enda tagning.","tt31806037","adolescence","adolescence"],
+    ["Daredevil: Born Again","2025-03-04","Disney+",7.6,83,66,"Action","1 säsong","Murdock mot Fisk igen, mörkare än de flesta Marvelserier.","tt18923754","daredevil_born_again","daredevil-born-again"],
+    ["The White Lotus","2025-02-16","HBO Max",8.0,91,76,"Drama/Satir","Säsong 3","Rika gäster, thailändskt lyxhotell och minst ett lik.","tt13406094","the_white_lotus","the-white-lotus"],
+    ["Severance","2025-01-17","Apple TV+",8.7,97,88,"Sci-fi/Thriller","Säsong 2","Anställda med delade minnen börjar nysta i vad företaget egentligen gör.","tt11280740","severance","severance"],
+    ["The Pitt","2025-01-09","HBO Max",8.8,96,87,"Sjukhusdrama","1 säsong","Ett akutpass i realtid, avsnitt för avsnitt. Bäst i klassen.","tt31938062","the_pitt","the-pitt"],
+    ["Senna","2024-11-29","Netflix",7.7,100,78,"Biografi/Sport","Miniserie","Ayrton Sennas väg till tre VM-titlar, som dramaserie.","tt9145758","senna","senna-2024"],
+    ["A Man on the Inside","2024-11-21","Netflix",7.9,96,71,"Komedi","1 säsong","Pensionerad professor blir spion på äldreboende. Varm och rolig.","tt26670955","a_man_on_the_inside","a-man-on-the-inside"],
+    ["Say Nothing","2024-11-14","Disney+",8.0,99,89,"Drama","Miniserie","Nordirlands konflikt genom några som var mitt i den.","tt31122777","say_nothing","say-nothing"],
+    ["Nobody Wants This","2024-09-26","Netflix",7.9,94,71,"Romantisk komedi","1 säsong","Podcastare och rabbin blir ihop. Ovanligt välskrivet.","tt26933824","nobody_wants_this","nobody-wants-this"],
+    ["The Penguin","2024-09-19","HBO Max",8.4,96,82,"Kriminaldrama","Miniserie","Gotham utan Batman. Colin Farrell är oigenkännlig och lysande.","tt15435876","the_penguin","the-penguin"],
+    ["Fallout","2024-04-10","Prime Video",8.3,93,79,"Sci-fi","1 säsong","Efter kärnvapenkriget kliver en valvbo upp till ytan.","tt12637874","fallout","fallout"],
+    ["Ripley","2024-04-04","Netflix",8.0,94,82,"Thriller","Miniserie","Bedragare i femtiotalets Italien, filmad i praktfull svartvitt.","tt11016042","ripley","ripley"],
+    ["X-Men '97","2024-03-20","Disney+",8.5,97,84,"Animerat","1 säsong","Nittiotalsserien fortsätter, och den är bättre än väntat.","tt16026746","x_men_97","x-men-97"],
+    ["The Gentlemen","2024-03-07","Netflix",8.1,84,66,"Kriminalkomedi","1 säsong","Lord ärver gods med cannabisodling i källaren. Ritchie i sitt esse.","tt13210838","the_gentlemen","the-gentlemen"],
+    ["Shōgun","2024-02-27","Disney+",8.6,99,92,"Historiskt drama","1 säsong","Maktkamp i 1600-talets Japan. Årets serie när den kom.","tt2788316","shogun_2024","shogun-2024"],
+    ["Mr. & Mrs. Smith","2024-02-02","Prime Video",7.1,79,68,"Action/Komedi","1 säsong","Två främlingar spelar gift par – och jobbar som spioner.","tt14044212","mr_and_mrs_smith_2024","mr-and-mrs-smith-2024"],
+    ["Slow Horses","2023-11-29","Apple TV+",8.2,98,84,"Spionthriller","Säsong 3","MI5:s misslyckade agenter, ledda av en osnygg Gary Oldman.","tt5875444","slow_horses","slow-horses"],
+    ["Loki","2023-10-06","Disney+",8.2,92,71,"Sci-fi","Säsong 2","Tidsresor och multiversum, men med känsla för karaktärerna.","tt9140554","loki","loki"],
+    ["Gen V","2023-09-29","Prime Video",7.9,92,74,"Superhjälte","1 säsong","Superhjältehögskola med samma svarta humor som The Boys.","tt13159924","gen_v","gen-v"],
+    ["One Piece","2023-08-31","Netflix",8.2,92,76,"Äventyr","1 säsong","Piratäventyr med hjärta. Fungerar även utan att ha läst mangan.","tt11737520","one_piece","one-piece"],
+    ["Silo","2023-05-05","Apple TV+",8.0,92,75,"Sci-fi","1 säsong","Tiotusen människor lever nedgrävda. Ingen får fråga varför.","tt14688458","silo","silo"],
+    ["The Diplomat","2023-04-20","Netflix",8.0,91,72,"Politisk thriller","1 säsong","Nyutnämnd USA-ambassadör i London hanterar kris efter kris.","tt17491088","the_diplomat","the-diplomat"],
+    ["Beef","2023-04-06","Netflix",8.0,98,88,"Dramakomedi","Miniserie","En parkeringsincident eskalerar till livslångt krig.","tt14403178","beef","beef"],
+    ["Shrinking","2023-01-27","Apple TV+",8.2,93,74,"Dramakomedi","1 säsong","Terapeut i sorg börjar säga precis vad han tycker till klienterna.","tt15677150","shrinking","shrinking"],
+    ["The Last of Us","2023-01-15","HBO Max",8.7,96,88,"Drama/Skräck","1 säsong","Smugglare eskorterar ung flicka genom ett sönderfallet USA.","tt3581920","the_last_of_us","the-last-of-us"],
+    ["Wednesday","2022-11-23","Netflix",8.1,84,66,"Mysteriekomedi","1 säsong","Familjen Addams dotter löser mord på internat för utstötta.","tt13443470","wednesday","wednesday"],
+    ["House of the Dragon","2022-08-21","HBO Max",8.3,84,68,"Fantasy","1 säsong","Targaryen mot Targaryen, med drakar. Bäst sedan Game of Thrones.","tt11198330","house_of_the_dragon","house-of-the-dragon"],
+    ["Bad Sisters","2022-08-19","Apple TV+",8.2,98,83,"Svart komedi","1 säsong","Fyra systrar planerar att göra sig av med svågern.","tt15469618","bad_sisters","bad-sisters"],
+    ["The Bear","2022-06-23","Disney+",8.6,100,94,"Dramakomedi","1 säsong","Stjärnkock tar över familjens smörgåsbar i Chicago. Stressigt och strålande.","tt14452776","the_bear","the-bear"],
+    ["Pachinko","2022-03-25","Apple TV+",8.4,96,88,"Historiskt drama","1 säsong","Fyra generationer koreaner i Japan. Vackert filmat familjeepos.","tt8888462","pachinko","pachinko"],
+    ["Reacher","2022-02-04","Prime Video",8.1,84,63,"Action","1 säsong","Väldigt stor man löser brott i småstad. Precis så bra som det låter.","tt9288030","reacher","reacher"],
+    ["Arcane","2021-11-06","Netflix",9.0,100,93,"Animerat","1 säsong","Systrar på var sin sida i en klasskonflikt. Animation i världsklass.","tt11126994","arcane","arcane"],
+    ["Squid Game","2021-09-17","Netflix",8.0,95,81,"Thriller","1 säsong","Skuldsatta spelar barnlekar om livet. Fenomenet som startade allt.","tt10919420","squid_game","squid-game"],
+    ["Only Murders in the Building","2021-08-31","Disney+",8.1,96,78,"Mysteriekomedi","1 säsong","Tre poddande grannar utreder ett mord i sitt eget hus.","tt11691774","only_murders_in_the_building","only-murders-in-the-building"],
+    ["Hacks","2021-05-13","HBO Max",8.2,96,84,"Komedi","1 säsong","Åldrande Vegaskomiker och ung manusförfattare avskyr varandra. Först.","tt11815682","hacks","hacks"],
+    ["Invincible","2021-03-25","Prime Video",8.7,98,82,"Animerat","1 säsong","Tonårshjälte upptäcker sanningen om sin far. Långt blodigare än väntat.","tt6741278","invincible","invincible"]
   ];
 
   function toObj(row, kind) {
     return { title: row[0], date: row[1], service: row[2], imdb: row[3], rt: row[4], mc: row[5],
-             genre: row[6], length: row[7], desc: row[8], id: row[9] || "", kind: kind };
+             genre: row[6], length: row[7], desc: row[8], id: row[9] || "",
+             rtId: row[10] || "", mcId: row[11] || "", kind: kind };
   }
   var POOL = {
     film: FILM.map(function (r) { return toObj(r, "film"); }),
@@ -668,6 +671,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       ? "https://www.imdb.com/title/" + it.id + "/"
       : "https://www.imdb.com/search/title/?title=" + encodeURIComponent(it.title) +
         "&title_type=" + (it.kind === "film" ? "feature" : "tvSeries");
+    var rtLink = it.rtId
+      ? "https://www.rottentomatoes.com/" + (it.kind === "film" ? "m/" : "tv/") + it.rtId + "/"
+      : "https://www.rottentomatoes.com/search?search=" + encodeURIComponent(it.title);
+    var mcLink = it.mcId
+      ? "https://www.metacritic.com/" + (it.kind === "film" ? "movie/" : "tv/") + it.mcId + "/"
+      : "https://www.metacritic.com/search/all/" + encodeURIComponent(it.title) + "/results";
     return '<article class="item fade" data-kind="' + it.kind + '" style="animation-delay:' +
       Math.min(i * 40, 400) + 'ms">' +
       '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
@@ -692,8 +701,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "</div></div>" +
       '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
       '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>" +
-      (it.rt ? '<span class="rt">RT ' + it.rt + "%</span>" : "") +
-      (it.mc ? '<span class="mc">MC ' + it.mc + "</span>" : "") +
+      (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener">RT ' + it.rt + "%</a>" : "") +
+      (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener">MC ' + it.mc + "</a>" : "") +
       '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
       '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
