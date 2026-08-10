@@ -28,7 +28,7 @@
   --ink:#08080D; --panel:#17181F; --line:#42445C;
   --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A; --sett:#7CFF9B; --want:#FFA94D;
   --rt:#FF6B4A; --mc:#8FD3FF; --mine:#C9A6FF;
-  --txt:#FFFFFF; --dim:#C7C9DE; --on-accent:var(--ink);
+  --txt:#FFFFFF; --dim:#C7C9DE; --dim2:#E9EAF7; --on-accent:var(--ink);
   --display:'Oswald','Arial Narrow',Impact,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
@@ -41,7 +41,7 @@
   --ink:#0B0D12; --panel:#151821; --line:#262B38;
   --film:#8FB3FF; --serie:#5EEAD4; --fav:#FDA4AF; --sett:#6EE7B7; --want:#FBBF66;
   --rt:#FCA5A5; --mc:#7DD3FC; --mine:#C4B5FD;
-  --txt:#F3F4F8; --dim:#8B93A7; --on-accent:var(--ink);
+  --txt:#F3F4F8; --dim:#8B93A7; --dim2:#BDC4D6; --on-accent:var(--ink);
   --display:'Manrope','Inter',system-ui,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
   --radius:10px; --shadow:0 8px 24px -14px rgba(0,0,0,.6);
@@ -53,7 +53,7 @@
   --ink:#FBF4EA; --panel:#FFFDF9; --line:#E9DFCE;
   --film:#B8862E; --serie:#3E7E74; --fav:#B84E64; --sett:#5A8F5E; --want:#BD7530;
   --rt:#BC5240; --mc:#4C77A6; --mine:#7E5FA6;
-  --txt:#2E2620; --dim:#8A7C6A; --on-accent:#FFFCF6;
+  --txt:#2E2620; --dim:#8A7C6A; --dim2:#5F5646; --on-accent:#FFFCF6;
   --display:'Fraunces','Georgia',serif;
   --body:'Nunito',system-ui,-apple-system,sans-serif;
   --radius:20px; --shadow:0 2px 10px rgba(70,50,20,.06),0 16px 34px -20px rgba(70,50,20,.22);
@@ -155,6 +155,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   width:38px;height:38px;flex:0 0 38px;font-size:17px;line-height:1;transition:.16s;border-radius:var(--radius)}
 .heart:hover{color:var(--fav);border-color:var(--fav)}
 .heart[data-on="1"]{color:var(--fav);border-color:var(--fav);background:rgba(255,127,154,.12)}
+.watch{color:var(--dim2)}
 .watch:hover{color:var(--sett);border-color:var(--sett)}
 .watch[data-on="1"]{color:var(--sett);border-color:var(--sett);background:rgba(124,255,155,.12)}
 .star:hover{color:var(--want);border-color:var(--want)}
@@ -201,7 +202,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="modern"] .empty p, [data-theme="soft"] .empty p{
   text-transform:none; letter-spacing:normal;
 }
-[data-theme="soft"] .bar h1{font-style:italic}
+[data-theme="soft"] .bar h1{font-style:normal}
 
 [data-theme="modern"] .ctrl, [data-theme="soft"] .ctrl,
 [data-theme="modern"] .btn, [data-theme="soft"] .btn,
@@ -224,6 +225,67 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="modern"] .watch[data-on="1"], [data-theme="soft"] .watch[data-on="1"]{background:color-mix(in srgb, var(--sett) 16%, transparent)}
 [data-theme="modern"] .star[data-on="1"], [data-theme="soft"] .star[data-on="1"]{background:color-mix(in srgb, var(--want) 16%, transparent)}
 [data-theme="modern"] .rate-sel[data-rated="1"], [data-theme="soft"] .rate-sel[data-rated="1"]{background:color-mix(in srgb, var(--mine) 16%, transparent)}
+
+/* ---- Mjuk: Apple-liknande layout (se bifogad referensbild) ----
+   Krom-fri chrome, luftig vitryms-känsla, gradient-rubrik, pill-formade
+   knappar och understrukna flikar istället för fyllda rutor. ---- */
+[data-theme="soft"] body{ padding-bottom:72px; }
+[data-theme="soft"] .bar{
+  background:var(--ink); color:var(--txt);
+  border-bottom:1px solid var(--line);
+  padding:18px 16px 14px;
+}
+[data-theme="soft"] .bar h1{
+  font-size:32px; font-weight:600; letter-spacing:-.01em;
+  background:linear-gradient(100deg,#7C5CA8 15%,#C46A86 85%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+[data-theme="soft"] .today{color:var(--dim); font-size:11px}
+[data-theme="soft"] .sub{
+  font-size:13px; color:var(--dim); padding-top:18px; font-weight:600;
+}
+
+[data-theme="soft"] .theme-row{ margin:18px 0 6px; }
+
+[data-theme="soft"] .tabs{
+  gap:22px; margin:20px 0 22px; border-bottom:1px solid var(--line); padding-bottom:0;
+}
+[data-theme="soft"] .tab{
+  background:transparent; border:none; box-shadow:none;
+  padding:2px 0 12px; border-radius:0;
+  border-bottom:3px solid transparent; color:var(--dim);
+}
+[data-theme="soft"] .tab:hover{color:var(--txt)}
+[data-theme="soft"] .tab-label{font-weight:600}
+[data-theme="soft"] .tab[data-on="film"]{background:transparent;color:var(--txt);border-color:var(--film)}
+[data-theme="soft"] .tab[data-on="serie"]{background:transparent;color:var(--txt);border-color:var(--serie)}
+[data-theme="soft"] .tab[data-on="villse"]{background:transparent;color:var(--txt);border-color:var(--want)}
+[data-theme="soft"] .tab[data-on="sett"]{background:transparent;color:var(--txt);border-color:var(--sett)}
+[data-theme="soft"] .tab[data-on="favorit"]{background:transparent;color:var(--txt);border-color:var(--fav)}
+[data-theme="soft"] .tab[data-on] .tab-label{font-weight:800}
+[data-theme="soft"] .tab[data-on] .ic-want{color:var(--want)}
+[data-theme="soft"] .tab[data-on] .ic-sett{color:var(--sett)}
+[data-theme="soft"] .tab[data-on] .ic-fav{color:var(--fav)}
+
+[data-theme="soft"] .ctrl{
+  background:transparent; border:none; box-shadow:none; padding:0 0 6px;
+}
+[data-theme="soft"] .lbl{color:var(--dim); font-weight:700; margin-bottom:10px}
+[data-theme="soft"] .chip{
+  border-radius:999px; border-color:var(--line); background:var(--panel);
+}
+[data-theme="soft"] .chip[data-on="1"]{box-shadow:var(--shadow)}
+[data-theme="soft"] .gsel, [data-theme="soft"] #toggleRemoved{border-radius:999px}
+[data-theme="soft"] .btn{
+  border-radius:999px; font-weight:700; padding:13px 24px; box-shadow:var(--shadow);
+}
+[data-theme="soft"] .item{ border:none; padding:18px; }
+[data-theme="soft"] .title{ font-weight:600; }
+[data-theme="soft"] .heart,[data-theme="soft"] .watch,
+[data-theme="soft"] .trash,[data-theme="soft"] .star{ border-color:transparent; background:transparent; }
+[data-theme="soft"] .empty,[data-theme="soft"] #removedPanel{
+  border-style:solid; background:var(--panel); box-shadow:var(--shadow);
+}
 </style>
 </head>
 <body>
@@ -533,13 +595,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function renderTabs() {
     var defs = [["film", "Filmer", state.shown.film.length, "", ""],
                 ["serie", "Serier", state.shown.serie.length, "", ""],
-                ["villse", "Vill se", state.wantToSee.length, "&#9733;", "want"],
-                ["sett", "Sett", state.watched.length, "&#10004;", "sett"],
-                ["favorit", "Favoriter", state.favorites.length, "&hearts;", "fav"]];
+                ["villse", "Vill se", state.wantToSee.length, "&#9733;&#65038;", "want"],
+                ["sett", "Sett", state.watched.length, "&#10004;&#65038;", "sett"],
+                ["favorit", "Favoriter", state.favorites.length, "&hearts;&#65038;", "fav"]];
     document.getElementById("tabs").innerHTML = defs.map(function (d) {
       var icon = d[3]
         ? '<span class="tab-ic ic-' + d[4] + '">' + d[3] + '</span>'
-        : '<span class="tab-ic ic-empty">&#9733;</span>';
+        : '<span class="tab-ic ic-empty">&#9733;&#65038;</span>';
       return '<button class="tab" data-tab="' + d[0] + '"' +
         (state.tab === d[0] ? ' data-on="' + d[0] + '"' : "") +
         ' aria-pressed="' + (state.tab === d[0]) + '"><span class="tab-label">' + d[1] +
@@ -613,15 +675,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<button class="star" data-want="' + esc(k) + '" data-on="' + (want ? 1 : 0) +
       '" aria-pressed="' + want + '" aria-label="' +
       (want ? "Ta bort " + esc(it.title) + " från vill se" : "Lägg " + esc(it.title) + " i vill se") +
-      '">' + (want ? "&#9733;" : "&#9734;") + "</button>" +
+      '">' + (want ? "&#9733;&#65038;" : "&#9734;&#65038;") + "</button>" +
       '<button class="watch" data-watch="' + esc(k) + '" data-on="' + (watched ? 1 : 0) +
       '" aria-pressed="' + watched + '" aria-label="' +
       (watched ? "Lägg tillbaka " + esc(it.title) + " bland tipsen" : "Markera " + esc(it.title) + " som sedd") +
-      '">' + (watched ? "&#10004;" : "&#9633;") + "</button>" +
+      '">' + (watched ? "&#10004;&#65038;" : "&#9633;&#65038;") + "</button>" +
       '<button class="heart" data-fav="' + esc(k) + '" data-on="' + (fav ? 1 : 0) +
       '" aria-pressed="' + fav + '" aria-label="' +
       (fav ? "Ta bort " + esc(it.title) + " från favoriter" : "Spara " + esc(it.title) + " som favorit") +
-      '">' + (fav ? "&hearts;" : "&#9825;") + "</button>" +
+      '">' + (fav ? "&hearts;&#65038;" : "&#9825;&#65038;") + "</button>" +
       '<button class="trash" data-remove="' + esc(k) + '" aria-label="Ta bort ' + esc(it.title) +
       ' från tipsen">&#10005;</button>' +
       "</div></div>" +
