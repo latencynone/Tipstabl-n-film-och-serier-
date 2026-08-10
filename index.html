@@ -287,7 +287,27 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="soft"] .item{ border:none; padding:18px; }
 [data-theme="soft"] .title{ font-weight:600; }
 [data-theme="soft"] .heart,[data-theme="soft"] .watch,
-[data-theme="soft"] .trash,[data-theme="soft"] .star{ border-color:transparent; background:transparent; }
+[data-theme="soft"] .trash,[data-theme="soft"] .star{
+  border-color:transparent; background:var(--panel);
+  font-size:19px; font-weight:700; border-radius:999px;
+}
+/* Omarkerat läge: dämpad variant av respektive färg i stället för grått,
+   så det syns vad knappen gör redan innan man tryckt. */
+[data-theme="soft"] .star{ color:color-mix(in srgb, var(--want) 62%, #8E8E93); }
+[data-theme="soft"] .watch{ color:color-mix(in srgb, var(--sett) 62%, #8E8E93); }
+[data-theme="soft"] .heart{ color:color-mix(in srgb, var(--fav) 62%, #8E8E93); }
+[data-theme="soft"] .trash{ color:#FF3B30; }
+/* Markerat läge: full färg och tydligare platta. */
+[data-theme="soft"] .star[data-on="1"],
+[data-theme="soft"] .watch[data-on="1"],
+[data-theme="soft"] .heart[data-on="1"]{ font-size:20px; }
+[data-theme="soft"] .star[data-on="1"]{ color:var(--want); background:color-mix(in srgb, var(--want) 20%, #FFFFFF) }
+[data-theme="soft"] .watch[data-on="1"]{ color:var(--sett); background:color-mix(in srgb, var(--sett) 20%, #FFFFFF) }
+[data-theme="soft"] .heart[data-on="1"]{ color:var(--fav); background:color-mix(in srgb, var(--fav) 20%, #FFFFFF) }
+[data-theme="soft"] .heart:hover,[data-theme="soft"] .watch:hover,
+[data-theme="soft"] .trash:hover,[data-theme="soft"] .star:hover{
+  background:#E8E8ED; border-color:transparent;
+}
 [data-theme="soft"] .empty,[data-theme="soft"] #removedPanel{
   border-style:solid; background:var(--panel); box-shadow:var(--shadow);
 }
