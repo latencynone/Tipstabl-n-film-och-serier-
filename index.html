@@ -78,8 +78,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .tabs{display:flex;gap:2px;margin:16px 0 12px}
 .tab{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);
   font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
-  padding:11px 6px;cursor:pointer;border-radius:var(--radius);transition:.16s}
+  padding:10px 4px;cursor:pointer;border-radius:var(--radius);transition:.16s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .tab:hover{color:var(--txt)}
+.tab-label{display:block}
+.tab-ic{display:block;font-size:14px;line-height:1;font-family:var(--body)}
+.ic-empty{visibility:hidden}
+.ic-want{color:var(--want)}
+.ic-sett{color:var(--sett)}
+.ic-fav{color:var(--fav)}
+.tab[data-on] .tab-ic{color:var(--on-accent)}
 .tab[data-on="film"]{background:var(--film);color:var(--on-accent);border-color:var(--film)}
 .tab[data-on="serie"]{background:var(--serie);color:var(--on-accent);border-color:var(--serie)}
 .tab[data-on="favorit"]{background:var(--fav);color:var(--on-accent);border-color:var(--fav)}
@@ -523,15 +531,19 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function isWantToSee(it) { return state.wantToSee.indexOf(keyOf(it)) !== -1; }
 
   function renderTabs() {
-    var defs = [["film", "Filmer", state.shown.film.length, ""],
-                ["serie", "Serier", state.shown.serie.length, ""],
-                ["villse", "Vill se", state.wantToSee.length, "&#9733; "],
-                ["sett", "Sett", state.watched.length, "&#10004; "],
-                ["favorit", "Favoriter", state.favorites.length, "&hearts; "]];
+    var defs = [["film", "Filmer", state.shown.film.length, "", ""],
+                ["serie", "Serier", state.shown.serie.length, "", ""],
+                ["villse", "Vill se", state.wantToSee.length, "&#9733;", "want"],
+                ["sett", "Sett", state.watched.length, "&#10004;", "sett"],
+                ["favorit", "Favoriter", state.favorites.length, "&hearts;", "fav"]];
     document.getElementById("tabs").innerHTML = defs.map(function (d) {
+      var icon = d[3]
+        ? '<span class="tab-ic ic-' + d[4] + '">' + d[3] + '</span>'
+        : '<span class="tab-ic ic-empty">&#9733;</span>';
       return '<button class="tab" data-tab="' + d[0] + '"' +
         (state.tab === d[0] ? ' data-on="' + d[0] + '"' : "") +
-        ' aria-pressed="' + (state.tab === d[0]) + '">' + d[3] + d[1] + "<b>" + d[2] + "</b></button>";
+        ' aria-pressed="' + (state.tab === d[0]) + '"><span class="tab-label">' + d[1] +
+        "<b>" + d[2] + "</b></span>" + icon + "</button>";
     }).join("");
   }
 
