@@ -28,7 +28,7 @@
   --ink:#08080D; --panel:#17181F; --line:#42445C;
   --film:#FFD666; --serie:#7EF0F7; --fav:#FF7F9A; --sett:#7CFF9B; --want:#FFA94D;
   --rt:#FF6B4A; --mc:#8FD3FF; --mine:#C9A6FF;
-  --txt:#FFFFFF; --dim:#C7C9DE; --dim2:#E9EAF7; --on-accent:var(--ink);
+  --txt:#FFFFFF; --dim:#C7C9DE; --dim2:#E9EAF7; --on-accent:var(--ink); --desc:#E7E8F5;
   --display:'Oswald','Arial Narrow',Impact,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
@@ -41,7 +41,7 @@
   --ink:#0B0D12; --panel:#151821; --line:#262B38;
   --film:#8FB3FF; --serie:#5EEAD4; --fav:#FDA4AF; --sett:#6EE7B7; --want:#FBBF66;
   --rt:#FCA5A5; --mc:#7DD3FC; --mine:#C4B5FD;
-  --txt:#F3F4F8; --dim:#8B93A7; --dim2:#BDC4D6; --on-accent:var(--ink);
+  --txt:#F3F4F8; --dim:#8B93A7; --dim2:#BDC4D6; --on-accent:var(--ink); --desc:#D7DAE5;
   --display:'Manrope','Inter',system-ui,sans-serif;
   --body:'Inter',system-ui,-apple-system,sans-serif;
   --radius:10px; --shadow:0 8px 24px -14px rgba(0,0,0,.6);
@@ -50,13 +50,13 @@
 
 /* ---- Mjuk: ljus, varm, rundad designhus-känsla, djupare dova accenter ---- */
 [data-theme="soft"]{
-  --ink:#FBF4EA; --panel:#FFFDF9; --line:#E9DFCE;
-  --film:#B8862E; --serie:#3E7E74; --fav:#B84E64; --sett:#5A8F5E; --want:#BD7530;
-  --rt:#BC5240; --mc:#4C77A6; --mine:#7E5FA6;
-  --txt:#2E2620; --dim:#8A7C6A; --dim2:#5F5646; --on-accent:#FFFCF6;
-  --display:'Fraunces','Georgia',serif;
-  --body:'Nunito',system-ui,-apple-system,sans-serif;
-  --radius:20px; --shadow:0 2px 10px rgba(70,50,20,.06),0 16px 34px -20px rgba(70,50,20,.22);
+  --ink:#FFFFFF; --panel:#F5F5F7; --line:#D2D2D7;
+  --film:#0071E3; --serie:#30B0C7; --fav:#FF375F; --sett:#34C759; --want:#FF9500;
+  --rt:#FF3B30; --mc:#5AC8FA; --mine:#AF52DE;
+  --txt:#1D1D1F; --dim:#6E6E73; --dim2:#48484A; --on-accent:#FFFFFF; --desc:#3A3A3C;
+  --display:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',system-ui,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',system-ui,sans-serif;
+  --radius:18px; --shadow:0 2px 8px rgba(0,0,0,.06),0 14px 30px -18px rgba(0,0,0,.16);
   color-scheme: light;
 }
 html{background:var(--ink)}
@@ -149,7 +149,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .rate-sel:hover{border-color:var(--mine)}
 .rate-sel[data-rated="1"]{border-color:var(--mine);background:rgba(201,166,255,.14)}
 .rate-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
-.desc{font-size:14px;line-height:1.55;color:#E7E8F5;margin:8px 0 0}
+.desc{font-size:14px;line-height:1.55;color:var(--desc);margin:8px 0 0}
 .actions{display:flex;gap:6px;flex-shrink:0}
 .heart,.watch,.trash,.star{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
   width:38px;height:38px;flex:0 0 38px;font-size:17px;line-height:1;transition:.16s;border-radius:var(--radius)}
@@ -237,7 +237,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 }
 [data-theme="soft"] .bar h1{
   font-size:32px; font-weight:600; letter-spacing:-.01em;
-  background:linear-gradient(100deg,#7C5CA8 15%,#C46A86 85%);
+  background:linear-gradient(100deg,#7B4FE0 10%,#E85B93 90%);
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 [data-theme="soft"] .today{color:var(--dim); font-size:11px}
