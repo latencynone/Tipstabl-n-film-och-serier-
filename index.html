@@ -10,7 +10,7 @@
 <meta property="og:description" content="Filmer och serier värda kvällen. Nyast överst.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2308080D'/><rect x='18' y='30' width='64' height='40' fill='%23FFD666'/></svg>">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACvUlEQVR4nO3dwU3cQBiA0WzEYTnQQ2qglZxoJQWkFU5phRrSBdccIqFI8CnZsT22lfeOSMysZj9+e9EuXK7Xh0/wkc97PwCOSxwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIH6W6XXV9fnnbZ99TuH58n73iZ/K9DZbHQzESmXlaUsdzMM5wXhzLWMu0kJ8WhjHXNOc8ZcShjCxNO1UtZ0uZxGBvb2fpsTQ6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEibx3H/+Lz1Fv+trc/W5CDNiMPw2MKEU500OfSxrjnnOe+yoo+1TDvJqfcc+lhu5hlerteHaZu9eX15mr/p2c3/0donDk7BS1mSOEjiIImDJA6SOEh3ez8ABv38+v39F7/8+LbiFn7PcTIfNvHeKpWI4zT+MYs/LUzEPcc5DJQx/F1vTI6jW/gE/zY2QkyOQ1uljOF1xEESx3GtNTaGVxPHQa1bxtia4iCJ44i2GBsDK4uDJA6SOA5nu2vKreuLgyQOkjhI4iCJgyQOkjgOZ933gS5ZXxwkcZDEcUTbXVluWlkcJHEc1BbD49Y1xXFc6/YxsJo4SOI4tLWGx9g6PtR0DsNv8liSl8lxDmPP8cLBY3KcjE/Z83f+Pgd7cs9BEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkH4BwzNioaJbOPsAAAAASUVORK5CYII=">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22Film-%20och%20Serietips%22%2C%20%22short_name%22%3A%20%22Filmtips%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22background_color%22%3A%20%22%2308080D%22%2C%20%22theme_color%22%3A%20%22%2308080D%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2527http%253A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%253D%2527100%2527%2520height%253D%2527100%2527%2520fill%253D%2527%25252308080D%2527%2F%253E%253Crect%2520x%253D%252718%2527%2520y%253D%252730%2527%2520width%253D%252764%2527%2520height%253D%252740%2527%2520fill%253D%2527%252523FFD666%2527%2F%253E%253C%2Fsvg%253E%22%2C%20%22sizes%22%3A%20%22any%22%2C%20%22type%22%3A%20%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -636,12 +636,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     shown: { film: [], serie: [] }
   };
 
-  /* ============ backup i webbadressen ============
+  /* ============ backup via delbar länk ============
      Den personliga datan (favoriter, sett, vill se, sällskap, betyg,
-     borttaget) speglas i sidans egen adressrad (#backup=...), tyst och
-     automatiskt vid varje ändring. Sparar man den adressen (Anteckningar,
-     mejl till sig själv, en ny hemskärmsikon) kan datan hämtas tillbaka
-     även om den lokala lagringen i webbläsaren har rensats.
+     borttaget) kan när som helst packas ihop till en delbar länk – men
+     bara på begäran. Adressfältet hålls annars kort, eftersom en lång,
+     ständigt uppdaterad adress kan hindra "Lägg till på hemskärmen" från
+     att fungera på iPhone.
   ==================================== */
 
   function toB64Utf8(str) {
@@ -681,16 +681,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     store.set(RATING_KEY, state.ratings);
   }
 
-  // Uppdaterar adressradens hash tyst, utan att lägga till historik-poster.
-  function syncHashBackup() {
+  // Bygger en delbar länk – rör INTE adressfältet, bara en vanlig sträng.
+  function buildBackupUrl() {
     try {
       var encoded = toB64Utf8(JSON.stringify(buildBackupObj()));
-      history.replaceState(null, "", "#backup=" + encoded);
-    } catch (e) { /* t.ex. mycket äldre webbläsare utan TextEncoder */ }
+      return location.origin + location.pathname + location.search + "#backup=" + encoded;
+    } catch (e) {
+      return location.origin + location.pathname + location.search;
+    }
   }
 
-  // Körs vid sidladdning: om adressen bär på en backup, fråga innan den
-  // eventuellt skriver över det som redan finns sparat i webbläsaren.
   // Kanoniserar ett backup-objekt (sorterar listor/nycklar) så att två
   // objekt med samma innehåll men i annan ordning jämförs som lika.
   function canonicalBackup(b) {
@@ -705,24 +705,30 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     });
   }
 
+  // Körs vid sidladdning: om adressen bär på en backup (t.ex. du öppnade en
+  // sparad återställningslänk), fråga innan den skriver över lokal data.
+  // Adressfältet städas alltid till sin korta form direkt efteråt.
   function restoreFromHashIfPresent() {
     var m = location.hash.match(/^#backup=(.+)$/);
     if (!m) return false;
+    var didRestore = false;
     try {
       var incoming = JSON.parse(fromB64Utf8(m[1]));
       var current = buildBackupObj();
-      // Bara fråga om länken faktiskt innehåller något annat än det som
-      // redan finns sparat – annars skulle en vanlig omladdning fråga varje gång.
-      if (canonicalBackup(incoming) === canonicalBackup(current)) return false;
-      var hasLocal = current.fav.length || current.watched.length ||
-        current.want.length || Object.keys(current.ratings).length;
-      var proceed = !hasLocal || confirm(
-        "Den här länken innehåller sparad data (favoriter, betyg med mera) som skiljer sig från det som redan finns här.\n\n" +
-        "Vill du återställa den? Det du redan har sparat i den här webbläsaren skrivs då över."
-      );
-      if (proceed) { applyBackupObj(incoming); return true; }
+      if (canonicalBackup(incoming) !== canonicalBackup(current)) {
+        var hasLocal = current.fav.length || current.watched.length ||
+          current.want.length || Object.keys(current.ratings).length;
+        var proceed = !hasLocal || confirm(
+          "Den här länken innehåller sparad data (favoriter, betyg med mera) som skiljer sig från det som redan finns här.\n\n" +
+          "Vill du återställa den? Det du redan har sparat i den här webbläsaren skrivs då över."
+        );
+        if (proceed) { applyBackupObj(incoming); didRestore = true; }
+      }
     } catch (e) { /* trasig eller för gammal länk – ignorera tyst */ }
-    return false;
+    // Adressfältet ska alltid vara kort igen, oavsett vad som hände ovan –
+    // annars kan nästa "Lägg till på hemskärmen" fånga en alltför lång adress.
+    history.replaceState(null, "", location.pathname + location.search);
+    return didRestore;
   }
 
   document.getElementById("today").textContent =
@@ -1024,7 +1030,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         ? state.favorites.filter(function (f) { return f !== k; })
         : [k].concat(state.favorites);
       store.set(FAV_KEY, state.favorites);
-      syncHashBackup();
       render(); return;
     }
 
@@ -1034,7 +1039,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         ? state.watched.filter(function (w) { return w !== wk; })
         : [wk].concat(state.watched);
       store.set(WATCHED_KEY, state.watched);
-      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -1048,7 +1052,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         state.wantToSee = [vk].concat(state.wantToSee);
       }
       store.set(WANT_KEY, state.wantToSee);
-      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -1069,7 +1072,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       store.set(WATCHED_KEY, state.watched);
       store.set(WANT_KEY, state.wantToSee);
       store.set(WANTWHO_KEY, state.wantWho);
-      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -1077,7 +1079,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var rsk = t.dataset.restore;
       state.removed = state.removed.filter(function (x) { return x !== rsk; });
       store.set(REMOVED_KEY, state.removed);
-      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -1113,7 +1114,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (v) state.ratings[k] = parseInt(v, 10);
       else delete state.ratings[k];
       store.set(RATING_KEY, state.ratings);
-      syncHashBackup();
       render();
       return;
     }
@@ -1123,14 +1123,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (t.value) state.wantWho[wk] = t.value;
       else delete state.wantWho[wk];
       store.set(WANTWHO_KEY, state.wantWho);
-      syncHashBackup();
       render();
     }
   });
 
   function renderBackupPanel() {
     var panel = document.getElementById("backupPanel");
-    var url = location.href;
+    var url = buildBackupUrl();
     var standalone = window.navigator.standalone === true;
     document.getElementById("backupStatus").textContent =
       standalone ? "Körs som hemskärmsapp" : "";
@@ -1163,7 +1162,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   document.addEventListener("click", function (e) {
     var t = e.target.closest("#backupShareBtn");
     if (!t) return;
-    var url = location.href;
+    var url = buildBackupUrl();
     if (navigator.share) {
       navigator.share({ title: "Film- och Serietips – återställningslänk", url: url }).catch(function () {});
     } else if (navigator.clipboard) {
@@ -1195,7 +1194,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     drawAll();
     render();
   }
-  syncHashBackup();
 })();
 </script>
 
