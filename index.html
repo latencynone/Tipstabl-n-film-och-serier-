@@ -78,7 +78,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .today{font-family:var(--mono);font-size:11px;margin-left:auto;letter-spacing:.1em}
 .sub{font-family:var(--mono);font-size:11px;color:var(--dim);
   letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
-.theme-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+.theme-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
+.backup-status-txt{flex:1 1 auto;min-width:0;font-family:var(--mono);font-size:10px;
+  letter-spacing:.04em;color:var(--dim);text-transform:none}
 #backupPanel:empty{display:none}
 #backupPanel{border:1px solid var(--line);background:var(--panel);padding:14px;
   margin:10px 0 4px;border-radius:var(--radius);font-size:13px;line-height:1.6}
@@ -376,7 +378,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   <div class="theme-row">
     <button class="chip" id="backupBtn">📲 Hemskärm &amp; backup</button>
-    <span class="who-lbl" id="backupStatus"></span>
+    <span class="backup-status-txt" id="backupStatus"></span>
   </div>
   <div id="backupPanel"></div>
 
@@ -1125,7 +1127,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "</div>" +
       '<span class="who-lbl" id="backupStatus2"></span>' +
       (standalone
-        ? '<h3 style="margin-top:16px">✓ Redan på hemskärmen</h3>'
+        ? ""
         : '<h3 style="margin-top:16px">Lägg till på hemskärmen</h3>' +
           "<ol>" +
           "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
