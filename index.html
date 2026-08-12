@@ -397,6 +397,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
           <option value="imdb">Högst IMDb först</option>
           <option value="rt">Högst Rotten Tomatoes först</option>
           <option value="mc">Högst Metacritic först</option>
+          <option value="mine">Ditt betyg (högst)</option>
         </select>
       </div>
       <button class="chip" id="toggleRemoved" data-on="0">Borttagna (0)</button>
@@ -588,6 +589,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   // Sorterar enligt användarens val; vid lika IMDb-betyg avgör datumet.
   function sortList(list) {
     var arr = list.slice();
+    if (state.sort === "mine") {
+      return arr.sort(function (a, b) {
+        var av = state.ratings[keyOf(a)] || -1, bv = state.ratings[keyOf(b)] || -1;
+        return (bv - av) || (parseDate(b) - parseDate(a));
+      });
+    }
     var field = { imdb: "imdb", rt: "rt", mc: "mc" }[state.sort];
     if (field) {
       return arr.sort(function (a, b) {
@@ -1132,25 +1139,34 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var url = buildBackupUrl();
     var standalone = window.navigator.standalone === true;
     document.getElementById("backupStatus").textContent =
-      standalone ? "Körs som hemskärmsapp" : "";
+      standalone ? "Aktuell status: Körs som app från hemskärmen" : "";
 
-    panel.innerHTML =
+    var linkSection =
       '<h3>Din återställningslänk</h3>' +
-      '<p>Uppdateras automatiskt med det du markerar. Spara den någonstans varaktigt – t.ex. Anteckningar eller ett mejl till dig själv – så kan du hämta tillbaka allt om appens data någonsin försvinner.</p>' +
+      '<p>Länken byggs utifrån det du har sparat just nu, varje gång du öppnar den här panelen. Spara den någonstans varaktigt – t.ex. Anteckningar eller ett mejl till dig själv.</p>' +
       '<div class="backup-link-row">' +
         '<input type="text" id="backupLinkInput" readonly value="' + esc(url) + '">' +
         '<button class="btn" id="backupShareBtn" style="padding:9px 14px">' +
         (navigator.share ? "Dela" : "Kopiera") + "</button>" +
       "</div>" +
-      (standalone
-        ? "<h3 style=\"margin-top:16px\">✓ Redan på hemskärmen</h3>"
-        : '<h3 style="margin-top:16px">Lägg till på hemskärmen</h3>' +
-          "<ol>" +
-          "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
-          "<li>Välj <b>Lägg till på hemskärmen</b>.</li>" +
-          "<li>Öppna appen från den nya ikonen härefter – då slipper den raderas efter en veckas inaktivitet.</li>" +
-          "</ol>" +
-          '<p>Om du behöver göra om det här (t.ex. efter en uppdatering av sidan): öppna först din sparade återställningslänk, bekräfta återställningen, och gör sedan om stegen ovan.</p>');
+      '<p style="margin-top:10px">Öppnar du länken i Safari läses den in direkt (efter en bekräftelse om något skiljer sig). Appen på hemskärmen har däremot ett <b>eget lagringsutrymme som inte delas med Safari</b> – att bara öppna länken räcker alltså inte för att uppdatera hemskärms-appen. Se nedan.</p>';
+
+    if (standalone) {
+      panel.innerHTML = linkSection +
+        '<h3 style="margin-top:16px">✓ Redan på hemskärmen</h3>' +
+        '<p>Du kör den här instansen fristående från Safari. Vill du att en annan enhet, eller en helt ny hemskärmsikon här, ska ha samma data: öppna Safari på den enheten och använd återställningslänken ovan, sedan stegen för att lägga till på hemskärmen.</p>';
+    } else {
+      panel.innerHTML = linkSection +
+        '<h3 style="margin-top:16px">Ge hemskärmsikonen din nuvarande data</h3>' +
+        '<ol>' +
+        '<li>Tryck <b>Förbered adress</b> nedan.</li>' +
+        '<li>Direkt efter: tryck dela-ikonen i Safaris nederkant (fyrkant med pil upp) → <b>Lägg till på hemskärmen</b> → <b>Lägg till</b>.</li>' +
+        '<li>Öppna appen fortsättningsvis från den nya ikonen.</li>' +
+        '</ol>' +
+        '<button class="chip" id="prepareHandoffBtn">Förbered adress</button>' +
+        '<p id="handoffNote" style="margin-top:8px"></p>' +
+        '<p>Redan klar och bara vill lägga till utan att flytta över data? Hoppa steg 1 och gå direkt till dela-ikonen.</p>';
+    }
   }
 
   document.getElementById("backupBtn").addEventListener("click", function () {
@@ -1160,6 +1176,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   });
 
   document.addEventListener("click", function (e) {
+    var prep = e.target.closest("#prepareHandoffBtn");
+    if (prep) {
+      // Sätter adressen med data inbäddad utan att ladda om sidan, så den
+      // hinner fångas av "Lägg till på hemskärmen" innan något annat händer.
+      history.replaceState(null, "", buildBackupUrl());
+      var note = document.getElementById("handoffNote");
+      if (note) note.textContent = "✓ Adressen är redo – tryck dela-ikonen i Safari nu.";
+      return;
+    }
+
     var t = e.target.closest("#backupShareBtn");
     if (!t) return;
     var url = buildBackupUrl();
