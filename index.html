@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Film- och Serietips</title>
+<title>FILMoSERIER</title>
 <meta name="description" content="Filmer och serier från Netflix, Apple TV+, HBO Max, Prime Video och Disney+. Max fem år gamla, IMDb 7,0+, med Rotten Tomatoes och Metacritic när det finns.">
 <meta name="theme-color" content="#08080D">
-<meta property="og:title" content="Film- och Serietips">
+<meta property="og:title" content="FILMoSERIER">
 <meta property="og:description" content="Filmer och serier värda kvällen. Nyast överst.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2308080D'/><rect x='18' y='30' width='64' height='40' fill='%23FFD666'/></svg>">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22Film-%20och%20Serietips%22%2C%20%22short_name%22%3A%20%22Filmtips%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22background_color%22%3A%20%22%2308080D%22%2C%20%22theme_color%22%3A%20%22%2308080D%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2527http%253A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%253D%2527100%2527%2520height%253D%2527100%2527%2520fill%253D%2527%25252308080D%2527%2F%253E%253Crect%2520x%253D%252718%2527%2520y%253D%252730%2527%2520width%253D%252764%2527%2520height%253D%252740%2527%2520fill%253D%2527%252523FFD666%2527%2F%253E%253C%2Fsvg%253E%22%2C%20%22sizes%22%3A%20%22any%22%2C%20%22type%22%3A%20%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22FILMoSERIER%22%2C%20%22short_name%22%3A%20%22FILMoSERIER%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22background_color%22%3A%20%22%2308080D%22%2C%20%22theme_color%22%3A%20%22%2308080D%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage%2Fsvg%2Bxml%3Bcharset%3Dutf-8%2C%253Csvg%2520xmlns%253D%2527http%253A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%253D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%253D%2527100%2527%2520height%253D%2527100%2527%2520fill%253D%2527%25252308080D%2527%2F%253E%253Crect%2520x%253D%252718%2527%2520y%253D%252730%2527%2520width%253D%252764%2527%2520height%253D%252740%2527%2520fill%253D%2527%252523FFD666%2527%2F%253E%253C%2Fsvg%253E%22%2C%20%22sizes%22%3A%20%22any%22%2C%20%22type%22%3A%20%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Filmtips">
+<meta name="apple-mobile-web-app-title" content="FILMoSERIER">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -72,13 +72,33 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .wrap{max-width:880px;margin:0 auto;padding:0 16px}
 
 .bar{background:var(--film);color:var(--on-accent);padding:10px 16px;
-  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .bar h1{font-family:var(--display);font-weight:700;font-size:26px;
   letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1}
-.today{font-family:var(--mono);font-size:11px;margin-left:auto;letter-spacing:.1em}
+.hamburger{background:none;border:1px solid currentColor;color:inherit;
+  width:34px;height:34px;flex:0 0 34px;font-size:17px;line-height:1;
+  cursor:pointer;border-radius:var(--radius);opacity:.85}
+.hamburger:hover{opacity:1}
+.bar-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.today{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.theme-mini{background:transparent;border:1px solid currentColor;color:inherit;
+  font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 20px 3px 7px;
+  border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 12px) 55%,calc(100% - 8px) 55%;background-size:4px 4px;background-repeat:no-repeat}
+
+.menu-dropdown{display:none;position:absolute;top:56px;left:16px;z-index:20;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:0 12px 28px -10px rgba(0,0,0,.5);overflow:hidden;min-width:220px}
+.menu-dropdown.open{display:block}
+.menu-dropdown button{display:block;width:100%;text-align:left;background:none;border:none;
+  border-bottom:1px solid var(--line);color:var(--txt);font-family:var(--body);font-size:14px;
+  padding:13px 16px;cursor:pointer}
+.menu-dropdown button:last-child{border-bottom:none}
+.menu-dropdown button:hover{background:var(--ink)}
+.menu-dropdown #menuRemovedCount{color:var(--dim);font-family:var(--mono);font-size:11px}
 .sub{font-family:var(--mono);font-size:11px;color:var(--dim);
   letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
-.theme-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
 .backup-status-txt{flex:1 1 auto;min-width:0;font-family:var(--mono);font-size:10px;
   letter-spacing:.04em;color:var(--dim);text-transform:none}
 #backupPanel:empty{display:none}
@@ -117,7 +137,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .tab-label{display:block}
 .tab-ic{display:block;font-size:14px;line-height:1;font-family:var(--body)}
 .ic-empty{visibility:hidden}
-.ic-want{color:var(--want)}
+.ic-want{color:var(--want);font-size:19px}
 .ic-sett{color:var(--sett)}
 .ic-fav{color:var(--fav)}
 .tab[data-on] .tab-ic{color:var(--on-accent)}
@@ -145,6 +165,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .btn{font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
   background:var(--film);color:var(--on-accent);border:none;padding:11px 18px;cursor:pointer;border-radius:var(--radius)}
 .btn:active{transform:translateY(1px)}
+.btn-outline{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.btn-outline:hover{border-color:var(--txt)}
+.refresh-ic{font-size:22px;display:inline-block;vertical-align:-5px;margin-right:2px;line-height:1}
+
+#page:empty{display:none}
+.page-back{background:none;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);
+  font-size:12px;padding:8px 14px;border-radius:var(--radius);cursor:pointer;margin-bottom:16px}
+.page-back:hover{color:var(--txt);border-color:var(--txt)}
+.page-title{font-family:var(--display);font-size:22px;margin:0 0 4px;text-transform:none;letter-spacing:normal}
 .select-wrap{position:relative;flex:1 1 160px}
 .select-wrap:after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);
   color:var(--dim);pointer-events:none;font-size:11px}
@@ -287,8 +316,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   font-size:13px; color:var(--dim); padding-top:18px; font-weight:600;
 }
 
-[data-theme="soft"] .theme-row{ margin:18px 0 6px; }
-
 [data-theme="soft"] .tabs{
   gap:22px; margin:20px 0 22px; border-bottom:1px solid var(--line); padding-bottom:0;
 }
@@ -320,7 +347,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   background:#E85B93;
   color:#FFFFFF; border-color:#E85B93; box-shadow:var(--shadow);
 }
-[data-theme="soft"] .gsel, [data-theme="soft"] #toggleRemoved{border-radius:999px}
+[data-theme="soft"] .gsel{border-radius:999px}
 [data-theme="soft"] .btn{
   border-radius:999px; font-weight:700; padding:13px 24px; box-shadow:var(--shadow);
 }
@@ -358,29 +385,25 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 <body>
 
 <header class="bar">
-  <h1>Film- och Serietips</h1>
-  <span class="today" id="today"></span>
+  <button class="hamburger" id="menuBtn" aria-label="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
+  <h1>FILMoSERIER</h1>
+  <div class="bar-right">
+    <span class="today" id="today"></span>
+    <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
+      <option value="retro">Text-TV</option>
+      <option value="modern">Modern</option>
+      <option value="soft">Mjuk</option>
+    </select>
+  </div>
 </header>
 
+<div class="menu-dropdown" id="menuDropdown">
+  <button data-page="backup">📲 Hemskärm &amp; backup</button>
+  <button data-page="removed">🗑 Borttagna <span id="menuRemovedCount"></span></button>
+</div>
+
 <div class="wrap">
-  <p class="sub">Max fem år gammalt · IMDb 7,0+ · Nyast överst</p>
-
-  <div class="theme-row">
-    <span class="lbl" style="margin:0">Utseende</span>
-    <div class="select-wrap" style="flex:0 1 170px">
-      <select class="gsel" id="themeSelect" aria-label="Välj utseende">
-        <option value="retro">Text-TV (nuvarande)</option>
-        <option value="modern">Modern</option>
-        <option value="soft">Mjuk</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="theme-row">
-    <button class="chip" id="backupBtn">📲 Hemskärm &amp; backup</button>
-    <span class="backup-status-txt" id="backupStatus"></span>
-  </div>
-  <div id="backupPanel"></div>
+  <p class="sub">Kriterier: Max fem år gammalt · IMDb 7,0+ · Nyast överst</p>
 
   <div class="tabs" id="tabs"></div>
 
@@ -402,15 +425,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
           <option value="mine">Ditt betyg (högst)</option>
         </select>
       </div>
-      <button class="chip" id="toggleRemoved" data-on="0">Borttagna (0)</button>
-      <button class="btn" id="refresh">⟳ Hämta nya tips</button>
+      <button class="btn" id="refresh"><span class="refresh-ic">⟳</span> Hämta nya tips</button>
     </div>
     <p class="fetch-status" id="fetchStatus"></p>
   </div>
 
   <div class="who-row" id="whoRow"></div>
 
-  <div id="removedPanel"></div>
+  <div id="page"></div>
 
   <div id="list"></div>
 
@@ -637,7 +659,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     removed: normalizeKeys(store.get(REMOVED_KEY)),
     ratings: store.get(RATING_KEY) || {},
     seen: store.get(SEEN_KEY) || [],
-    showRemoved: false,
+    returnTab: "film",
     lastFetchedTitle: null,
     lastFetchedKind: null,
     fetchAdded: null,
@@ -813,10 +835,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     }
     sel.value = state.genre;
 
-    var rm = document.getElementById("toggleRemoved");
-    rm.textContent = "Borttagna (" + state.removed.length + ")";
-    rm.setAttribute("data-on", state.showRemoved ? "1" : "0");
-
     var fs = document.getElementById("fetchStatus");
     if (state.lastFetchedTitle) {
       var kindLabel = state.lastFetchedKind === "film" ? "film" : "serie";
@@ -912,7 +930,64 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     return sortList(list);
   }
 
+  function renderBackupPage() {
+    var standalone = window.navigator.standalone === true;
+    var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
+      '<h2 class="page-title">Hemskärm &amp; backup</h2>' +
+      (standalone ? '<p class="fetch-status">Aktuell status: Körs som app från hemskärmen</p>' : "") +
+      '<h3 style="font-family:var(--display);font-size:16px;margin:18px 0 6px">Säkerhetskopiera</h3>' +
+      '<p style="color:var(--dim);font-size:13px;margin:0 0 12px">Exportera sparar favoriter, sett, vill se, sällskap och betyg som en fil. Importera läser tillbaka en tidigare exporterad fil. Funkar likadant här och i hemskärmsappen – kom ihåg att göra båda i respektive läge om du vill hålla dem synkade.</p>' +
+      '<div class="backup-link-row">' +
+        '<button class="btn" id="exportBtn">⬇️ Exportera</button>' +
+        '<button class="btn btn-outline" id="importBtn">⬆️ Importera</button>' +
+        '<input type="file" id="importFile" accept="application/json" style="display:none">' +
+      "</div>" +
+      '<span class="who-lbl" id="backupStatus2"></span>' +
+      (standalone
+        ? ""
+        : '<h3 style="font-family:var(--display);font-size:16px;margin:20px 0 6px">Lägg till på hemskärmen</h3>' +
+          '<ol style="color:var(--dim);font-size:13px;padding-left:20px">' +
+          "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
+          "<li>Välj <b>Lägg till på hemskärmen</b> → <b>Lägg till</b>.</li>" +
+          "<li>Öppna appen fortsättningsvis från den nya ikonen – då slipper den raderas efter en veckas inaktivitet.</li>" +
+          "</ol>" +
+          '<p style="color:var(--dim);font-size:13px">Startar hemskärmsappen tom (den delar inte lagring med Safari): tryck Importera ovan och välj din senaste exportfil.</p>');
+    document.getElementById("page").innerHTML = html;
+  }
+
+  function renderRemovedPage() {
+    var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
+      '<h2 class="page-title">Borttagna (' + state.removed.length + ')</h2>';
+    if (!state.removed.length) {
+      html += '<div class="empty"><p>Inget borttaget</p><span>Titlar du tar bort med krysset hamnar här och kan återställas.</span></div>';
+    } else {
+      html += '<div id="removedPanel">' + state.removed.map(function (k) {
+        var it = BY_KEY[k];
+        if (!it) return "";
+        return '<div class="rm-row"><span>' + esc(it.title) + " (" + (it.kind === "film" ? "film" : "serie") + ")</span>" +
+          '<button class="rm-restore" data-restore="' + esc(k) + '">Återställ</button></div>';
+      }).join("") + "</div>";
+    }
+    document.getElementById("page").innerHTML = html;
+  }
+
   function render() {
+    var isPage = state.tab === "backup" || state.tab === "removed";
+    document.getElementById("tabs").style.display = isPage ? "none" : "";
+    document.querySelector(".ctrl").style.display = isPage ? "none" : "";
+    document.getElementById("list").style.display = isPage ? "none" : "";
+    document.getElementById("foot").style.display = isPage ? "none" : "";
+    document.getElementById("whoRow").innerHTML = "";
+    var menuCount = document.getElementById("menuRemovedCount");
+    if (menuCount) menuCount.textContent = "(" + state.removed.length + ")";
+
+    if (isPage) {
+      if (state.tab === "backup") renderBackupPage();
+      else renderRemovedPage();
+      return;
+    }
+    document.getElementById("page").innerHTML = "";
+
     renderTabs();
     renderChips();
 
@@ -935,8 +1010,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
               (state.whoFilter === w[0] ? 1 : 0) + '" aria-pressed="' +
               (state.whoFilter === w[0]) + '">' + esc(w[1]) + " (" + w[2] + ")</button>";
           }).join("");
-    } else {
-      whoEl.innerHTML = "";
     }
 
     var list;
@@ -964,27 +1037,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       el.innerHTML = list.map(card).join("");
     }
 
-    var rp = document.getElementById("removedPanel");
-    if (state.showRemoved && state.removed.length) {
-      rp.innerHTML = state.removed.map(function (k) {
-        var it = BY_KEY[k];
-        if (!it) return "";
-        return '<div class="rm-row"><span>' + esc(it.title) + " (" + (it.kind === "film" ? "film" : "serie") + ")</span>" +
-          '<button class="rm-restore" data-restore="' + esc(k) + '">Återställ</button></div>';
-      }).join("");
-    } else {
-      rp.innerHTML = "";
-    }
-
     document.getElementById("foot").innerHTML =
       "Titelbanken innehåller " + (FILM.length + SERIE.length) +
       " titlar, alla med IMDb-betyg. Ladda om sidan för nya tips.<br>" +
       "☆ Vill se · ☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
       "RT = Rotten Tomatoes, MC = Metacritic (visas när de finns). \"Du\" är ditt eget betyg (1–10), sparas bara i den här webbläsaren.<br>" +
       "Klicka på titeln för att öppna den på IMDb.";
-
-    var bp = document.getElementById("backupPanel");
-    if (bp && bp.innerHTML) renderBackupPanel();
   }
 
   /* ============ händelser ============ */
@@ -999,7 +1057,31 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       t.blur();
     }
 
-    if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
+    if (t.dataset.tab) { state.tab = t.dataset.tab; state.returnTab = t.dataset.tab; render(); return; }
+
+    if (t.id === "menuBtn") {
+      var dd = document.getElementById("menuDropdown");
+      var willOpen = !dd.classList.contains("open");
+      dd.classList.toggle("open", willOpen);
+      t.setAttribute("aria-expanded", willOpen);
+      return;
+    }
+
+    if (t.dataset.page) {
+      document.getElementById("menuDropdown").classList.remove("open");
+      document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
+      state.tab = t.dataset.page;
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (t.id === "pageBack") {
+      state.tab = state.returnTab || "film";
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
 
     if (t.dataset.svc) {
       var s = t.dataset.svc;
@@ -1066,8 +1148,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       drawAll(); render(); return;
     }
 
-    if (t.id === "toggleRemoved") { state.showRemoved = !state.showRemoved; render(); return; }
-
     if (t.id === "refresh") {
       var prevKeys = state.shown.film.concat(state.shown.serie).map(keyOf);
       drawAll();
@@ -1076,6 +1156,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  });
+
+  document.addEventListener("click", function (e) {
+    var dd = document.getElementById("menuDropdown");
+    if (!dd.classList.contains("open")) return;
+    if (e.target.closest("#menuDropdown") || e.target.closest("#menuBtn")) return;
+    dd.classList.remove("open");
+    document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
   });
 
   document.getElementById("genreSelect").addEventListener("change", function (e) {
@@ -1109,38 +1197,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       store.set(WANTWHO_KEY, state.wantWho);
       render();
     }
-  });
-
-  function renderBackupPanel() {
-    var panel = document.getElementById("backupPanel");
-    var standalone = window.navigator.standalone === true;
-    document.getElementById("backupStatus").textContent =
-      standalone ? "Aktuell status: Körs som app från hemskärmen" : "";
-
-    panel.innerHTML =
-      '<h3>Säkerhetskopiera</h3>' +
-      '<p>Exportera sparar favoriter, sett, vill se, sällskap och betyg som en fil. Importera läser tillbaka en tidigare exporterad fil. Funkar likadant här och i hemskärmsappen – kom ihåg att göra båda i respektive läge om du vill hålla dem synkade.</p>' +
-      '<div class="backup-link-row">' +
-        '<button class="btn" id="exportBtn" style="padding:9px 14px">⬇️ Exportera</button>' +
-        '<button class="chip" id="importBtn" style="padding:9px 14px">⬆️ Importera</button>' +
-        '<input type="file" id="importFile" accept="application/json" style="display:none">' +
-      "</div>" +
-      '<span class="who-lbl" id="backupStatus2"></span>' +
-      (standalone
-        ? ""
-        : '<h3 style="margin-top:16px">Lägg till på hemskärmen</h3>' +
-          "<ol>" +
-          "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
-          "<li>Välj <b>Lägg till på hemskärmen</b> → <b>Lägg till</b>.</li>" +
-          "<li>Öppna appen fortsättningsvis från den nya ikonen – då slipper den raderas efter en veckas inaktivitet.</li>" +
-          "</ol>" +
-          "<p>Startar hemskärmsappen tom (den delar inte lagring med Safari): tryck Importera ovan och välj din senaste exportfil.</p>");
-  }
-
-  document.getElementById("backupBtn").addEventListener("click", function () {
-    var panel = document.getElementById("backupPanel");
-    if (panel.innerHTML) { panel.innerHTML = ""; return; }
-    renderBackupPanel();
   });
 
   document.addEventListener("click", function (e) {
