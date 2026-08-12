@@ -10,6 +10,11 @@
 <meta property="og:description" content="Filmer och serier värda kvällen. Nyast överst.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2308080D'/><rect x='18' y='30' width='64' height='40' fill='%23FFD666'/></svg>">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACvUlEQVR4nO3dwU3cQBiA0WzEYTnQQ2qglZxoJQWkFU5phRrSBdccIqFI8CnZsT22lfeOSMysZj9+e9EuXK7Xh0/wkc97PwCOSxwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIH6W6XXV9fnnbZ99TuH58n73iZ/K9DZbHQzESmXlaUsdzMM5wXhzLWMu0kJ8WhjHXNOc8ZcShjCxNO1UtZ0uZxGBvb2fpsTQ6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEjiIImDJA6SOEibx3H/+Lz1Fv+trc/W5CDNiMPw2MKEU500OfSxrjnnOe+yoo+1TDvJqfcc+lhu5hlerteHaZu9eX15mr/p2c3/0donDk7BS1mSOEjiIImDJA6SOEh3ez8ABv38+v39F7/8+LbiFn7PcTIfNvHeKpWI4zT+MYs/LUzEPcc5DJQx/F1vTI6jW/gE/zY2QkyOQ1uljOF1xEESx3GtNTaGVxPHQa1bxtia4iCJ44i2GBsDK4uDJA6SOA5nu2vKreuLgyQOkjhI4iCJgyQOkjgOZ933gS5ZXxwkcZDEcUTbXVluWlkcJHEc1BbD49Y1xXFc6/YxsJo4SOI4tLWGx9g6PtR0DsNv8liSl8lxDmPP8cLBY3KcjE/Z83f+Pgd7cs9BEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkH4BwzNioaJbOPsAAAAASUVORK5CYII=">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Film- och Serietips","short_name":"Filmtips","display":"standalone","start_url":"./","background_color":"%2308080D","theme_color":"%2308080D","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' fill=\'%2308080D\'/%3E%3Crect x=\'18\' y=\'30\' width=\'64\' height=\'40\' fill=\'%23FFD666\'/%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Filmtips">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -74,6 +79,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .sub{font-family:var(--mono);font-size:11px;color:var(--dim);
   letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
 .theme-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+#backupPanel:empty{display:none}
+#backupPanel{border:1px solid var(--line);background:var(--panel);padding:14px;
+  margin:10px 0 4px;border-radius:var(--radius);font-size:13px;line-height:1.6}
+#backupPanel h3{font-family:var(--display);font-size:15px;margin:0 0 6px;
+  text-transform:none;letter-spacing:normal}
+#backupPanel p{margin:4px 0 10px;color:var(--dim)}
+#backupPanel ol{margin:4px 0 14px;padding-left:20px;color:var(--dim)}
+#backupPanel ol li{margin:3px 0}
+.backup-link-row{display:flex;gap:6px}
+.backup-link-row input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);
+  color:var(--txt);font-family:var(--mono);font-size:11px;padding:9px 10px;border-radius:var(--radius)}
 .who-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;margin:-6px 0 16px;
   overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
 .who-row::-webkit-scrollbar{display:none}
@@ -358,6 +374,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     </div>
   </div>
 
+  <div class="theme-row">
+    <button class="chip" id="backupBtn">📲 Hemskärm &amp; backup</button>
+    <span class="who-lbl" id="backupStatus"></span>
+  </div>
+  <div id="backupPanel"></div>
+
   <div class="tabs" id="tabs"></div>
 
   <div class="ctrl">
@@ -613,6 +635,78 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     fetchAddedCount: 0,
     shown: { film: [], serie: [] }
   };
+
+  /* ============ backup i webbadressen ============
+     Den personliga datan (favoriter, sett, vill se, sällskap, betyg,
+     borttaget) speglas i sidans egen adressrad (#backup=...), tyst och
+     automatiskt vid varje ändring. Sparar man den adressen (Anteckningar,
+     mejl till sig själv, en ny hemskärmsikon) kan datan hämtas tillbaka
+     även om den lokala lagringen i webbläsaren har rensats.
+  ==================================== */
+
+  function toB64Utf8(str) {
+    var bytes = new TextEncoder().encode(str);
+    var bin = "";
+    bytes.forEach(function (b) { bin += String.fromCharCode(b); });
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function fromB64Utf8(b64) {
+    var s = b64.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function buildBackupObj() {
+    return {
+      fav: state.favorites, watched: state.watched, want: state.wantToSee,
+      who: state.wantWho, removed: state.removed, ratings: state.ratings
+    };
+  }
+
+  function applyBackupObj(b) {
+    state.favorites = normalizeKeys(b.fav);
+    state.watched = normalizeKeys(b.watched);
+    state.wantToSee = normalizeKeys(b.want);
+    state.wantWho = b.who || {};
+    state.removed = normalizeKeys(b.removed);
+    state.ratings = b.ratings || {};
+    store.set(FAV_KEY, state.favorites);
+    store.set(WATCHED_KEY, state.watched);
+    store.set(WANT_KEY, state.wantToSee);
+    store.set(WANTWHO_KEY, state.wantWho);
+    store.set(REMOVED_KEY, state.removed);
+    store.set(RATING_KEY, state.ratings);
+  }
+
+  // Uppdaterar adressradens hash tyst, utan att lägga till historik-poster.
+  function syncHashBackup() {
+    try {
+      var encoded = toB64Utf8(JSON.stringify(buildBackupObj()));
+      history.replaceState(null, "", "#backup=" + encoded);
+    } catch (e) { /* t.ex. mycket äldre webbläsare utan TextEncoder */ }
+  }
+
+  // Körs vid sidladdning: om adressen bär på en backup, fråga innan den
+  // eventuellt skriver över det som redan finns sparat i webbläsaren.
+  function restoreFromHashIfPresent() {
+    var m = location.hash.match(/^#backup=(.+)$/);
+    if (!m) return;
+    try {
+      var obj = JSON.parse(fromB64Utf8(m[1]));
+      var hasLocal = state.favorites.length || state.watched.length ||
+        state.wantToSee.length || Object.keys(state.ratings).length;
+      var proceed = !hasLocal || confirm(
+        "Den här länken innehåller sparad data (favoriter, betyg med mera).\n\n" +
+        "Vill du återställa den? Det du redan har sparat i den här webbläsaren skrivs då över."
+      );
+      if (proceed) applyBackupObj(obj);
+    } catch (e) { /* trasig eller för gammal länk – ignorera tyst */ }
+    // Städa bort hashen så den inte frågar igen vid en vanlig omladdning.
+    history.replaceState(null, "", location.pathname + location.search);
+  }
 
   document.getElementById("today").textContent =
     String(NOW.getDate()).padStart(2, "0") + " " + MONTHS[NOW.getMonth()] + " " + NOW.getFullYear();
@@ -881,6 +975,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "☆ Vill se · ☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
       "RT = Rotten Tomatoes, MC = Metacritic (visas när de finns). \"Du\" är ditt eget betyg (1–10), sparas bara i den här webbläsaren.<br>" +
       "Klicka på titeln för att öppna den på IMDb.";
+
+    var bp = document.getElementById("backupPanel");
+    if (bp && bp.innerHTML) renderBackupPanel();
   }
 
   /* ============ händelser ============ */
@@ -910,6 +1007,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         ? state.favorites.filter(function (f) { return f !== k; })
         : [k].concat(state.favorites);
       store.set(FAV_KEY, state.favorites);
+      syncHashBackup();
       render(); return;
     }
 
@@ -919,6 +1017,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         ? state.watched.filter(function (w) { return w !== wk; })
         : [wk].concat(state.watched);
       store.set(WATCHED_KEY, state.watched);
+      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -932,6 +1031,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         state.wantToSee = [vk].concat(state.wantToSee);
       }
       store.set(WANT_KEY, state.wantToSee);
+      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -952,6 +1052,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       store.set(WATCHED_KEY, state.watched);
       store.set(WANT_KEY, state.wantToSee);
       store.set(WANTWHO_KEY, state.wantWho);
+      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -959,6 +1060,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var rsk = t.dataset.restore;
       state.removed = state.removed.filter(function (x) { return x !== rsk; });
       store.set(REMOVED_KEY, state.removed);
+      syncHashBackup();
       drawAll(); render(); return;
     }
 
@@ -994,6 +1096,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (v) state.ratings[k] = parseInt(v, 10);
       else delete state.ratings[k];
       store.set(RATING_KEY, state.ratings);
+      syncHashBackup();
       render();
       return;
     }
@@ -1003,7 +1106,56 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (t.value) state.wantWho[wk] = t.value;
       else delete state.wantWho[wk];
       store.set(WANTWHO_KEY, state.wantWho);
+      syncHashBackup();
       render();
+    }
+  });
+
+  function renderBackupPanel() {
+    var panel = document.getElementById("backupPanel");
+    var url = location.href;
+    var standalone = window.navigator.standalone === true;
+    document.getElementById("backupStatus").textContent =
+      standalone ? "Körs som hemskärmsapp" : "";
+
+    panel.innerHTML =
+      '<h3>Din återställningslänk</h3>' +
+      '<p>Uppdateras automatiskt med det du markerar. Spara den någonstans varaktigt – t.ex. Anteckningar eller ett mejl till dig själv – så kan du hämta tillbaka allt om appens data någonsin försvinner.</p>' +
+      '<div class="backup-link-row">' +
+        '<input type="text" id="backupLinkInput" readonly value="' + esc(url) + '">' +
+        '<button class="btn" id="backupShareBtn" style="padding:9px 14px">' +
+        (navigator.share ? "Dela" : "Kopiera") + "</button>" +
+      "</div>" +
+      (standalone
+        ? "<h3 style=\"margin-top:16px\">✓ Redan på hemskärmen</h3>"
+        : '<h3 style="margin-top:16px">Lägg till på hemskärmen</h3>' +
+          "<ol>" +
+          "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
+          "<li>Välj <b>Lägg till på hemskärmen</b>.</li>" +
+          "<li>Öppna appen från den nya ikonen härefter – då slipper den raderas efter en veckas inaktivitet.</li>" +
+          "</ol>" +
+          '<p>Om du behöver göra om det här (t.ex. efter en uppdatering av sidan): öppna först din sparade återställningslänk, bekräfta återställningen, och gör sedan om stegen ovan.</p>');
+  }
+
+  document.getElementById("backupBtn").addEventListener("click", function () {
+    var panel = document.getElementById("backupPanel");
+    if (panel.innerHTML) { panel.innerHTML = ""; return; }
+    renderBackupPanel();
+  });
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("#backupShareBtn");
+    if (!t) return;
+    var url = location.href;
+    if (navigator.share) {
+      navigator.share({ title: "Film- och Serietips – återställningslänk", url: url }).catch(function () {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(function () {
+        t.textContent = "Kopierad!";
+        setTimeout(function () { t.textContent = "Kopiera"; }, 1500);
+      });
+    } else {
+      document.getElementById("backupLinkInput").select();
     }
   });
 
@@ -1016,6 +1168,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   document.getElementById("sortSelect").value = state.sort;
   document.documentElement.setAttribute("data-theme", state.theme);
 
+  restoreFromHashIfPresent();
+  syncHashBackup();
   drawAll();
   checkFetchResult([]);
   render();
