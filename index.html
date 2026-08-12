@@ -643,28 +643,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     shown: { film: [], serie: [] }
   };
 
-  /* ============ backup via delbar länk ============
-     Den personliga datan (favoriter, sett, vill se, sällskap, betyg,
-     borttaget) kan när som helst packas ihop till en delbar länk – men
-     bara på begäran. Adressfältet hålls annars kort, eftersom en lång,
-     ständigt uppdaterad adress kan hindra "Lägg till på hemskärmen" från
-     att fungera på iPhone.
+  /* ============ backup via fil ============
+     Enkel export/import: en nedladdad JSON-fil med favoriter, sett,
+     vill se, sällskap, betyg och borttaget. Funkar likadant i Safari
+     och i hemskärmsappen, oavsett webbadressens längd eller iOS
+     ikon-cache – det är bara en vanlig fil.
   ==================================== */
-
-  function toB64Utf8(str) {
-    var bytes = new TextEncoder().encode(str);
-    var bin = "";
-    bytes.forEach(function (b) { bin += String.fromCharCode(b); });
-    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  }
-  function fromB64Utf8(b64) {
-    var s = b64.replace(/-/g, "+").replace(/_/g, "/");
-    while (s.length % 4) s += "=";
-    var bin = atob(s);
-    var bytes = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return new TextDecoder().decode(bytes);
-  }
 
   function buildBackupObj() {
     return {
@@ -688,54 +672,45 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     store.set(RATING_KEY, state.ratings);
   }
 
-  // Bygger en delbar länk – rör INTE adressfältet, bara en vanlig sträng.
-  function buildBackupUrl() {
-    try {
-      var encoded = toB64Utf8(JSON.stringify(buildBackupObj()));
-      return location.origin + location.pathname + location.search + "#backup=" + encoded;
-    } catch (e) {
-      return location.origin + location.pathname + location.search;
-    }
+  function exportBackupFile() {
+    var data = JSON.stringify(buildBackupObj(), null, 2);
+    var blob = new Blob([data], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var d = new Date();
+    var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+      "-" + String(d.getDate()).padStart(2, "0");
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "filmtips-backup-" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   }
 
-  // Kanoniserar ett backup-objekt (sorterar listor/nycklar) så att två
-  // objekt med samma innehåll men i annan ordning jämförs som lika.
-  function canonicalBackup(b) {
-    var sortArr = function (a) { return (a || []).slice().sort(); };
-    var sortObj = function (o) {
-      var out = {}; Object.keys(o || {}).sort().forEach(function (k) { out[k] = o[k]; });
-      return out;
-    };
-    return JSON.stringify({
-      fav: sortArr(b.fav), watched: sortArr(b.watched), want: sortArr(b.want),
-      who: sortObj(b.who), removed: sortArr(b.removed), ratings: sortObj(b.ratings)
-    });
-  }
-
-  // Körs vid sidladdning: om adressen bär på en backup (t.ex. du öppnade en
-  // sparad återställningslänk), fråga innan den skriver över lokal data.
-  // Adressfältet städas alltid till sin korta form direkt efteråt.
-  function restoreFromHashIfPresent() {
-    var m = location.hash.match(/^#backup=(.+)$/);
-    if (!m) return false;
-    var didRestore = false;
-    try {
-      var incoming = JSON.parse(fromB64Utf8(m[1]));
-      var current = buildBackupObj();
-      if (canonicalBackup(incoming) !== canonicalBackup(current)) {
-        var hasLocal = current.fav.length || current.watched.length ||
-          current.want.length || Object.keys(current.ratings).length;
-        var proceed = !hasLocal || confirm(
-          "Den här länken innehåller sparad data (favoriter, betyg med mera) som skiljer sig från det som redan finns här.\n\n" +
-          "Vill du återställa den? Det du redan har sparat i den här webbläsaren skrivs då över."
+  function importBackupFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var incoming = JSON.parse(String(reader.result));
+        var proceed = confirm(
+          "Importera data från filen?\n\nDet du redan har sparat i den här webbläsaren skrivs över."
         );
-        if (proceed) { applyBackupObj(incoming); didRestore = true; }
+        if (proceed) {
+          applyBackupObj(incoming);
+          drawAll();
+          render();
+          document.getElementById("backupStatus2").textContent = "✓ Importerat";
+          setTimeout(function () {
+            var el = document.getElementById("backupStatus2");
+            if (el) el.textContent = "";
+          }, 2500);
+        }
+      } catch (e) {
+        alert("Kunde inte läsa filen. Är det en export från den här appen?");
       }
-    } catch (e) { /* trasig eller för gammal länk – ignorera tyst */ }
-    // Adressfältet ska alltid vara kort igen, oavsett vad som hände ovan –
-    // annars kan nästa "Lägg till på hemskärmen" fånga en alltför lång adress.
-    history.replaceState(null, "", location.pathname + location.search);
-    return didRestore;
+    };
+    reader.readAsText(file);
   }
 
   document.getElementById("today").textContent =
@@ -1136,37 +1111,28 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   function renderBackupPanel() {
     var panel = document.getElementById("backupPanel");
-    var url = buildBackupUrl();
     var standalone = window.navigator.standalone === true;
     document.getElementById("backupStatus").textContent =
       standalone ? "Aktuell status: Körs som app från hemskärmen" : "";
 
-    var linkSection =
-      '<h3>Din återställningslänk</h3>' +
-      '<p>Länken byggs utifrån det du har sparat just nu, varje gång du öppnar den här panelen. Spara den någonstans varaktigt – t.ex. Anteckningar eller ett mejl till dig själv.</p>' +
+    panel.innerHTML =
+      '<h3>Säkerhetskopiera</h3>' +
+      '<p>Exportera sparar favoriter, sett, vill se, sällskap och betyg som en fil. Importera läser tillbaka en tidigare exporterad fil. Funkar likadant här och i hemskärmsappen – kom ihåg att göra båda i respektive läge om du vill hålla dem synkade.</p>' +
       '<div class="backup-link-row">' +
-        '<input type="text" id="backupLinkInput" readonly value="' + esc(url) + '">' +
-        '<button class="btn" id="backupShareBtn" style="padding:9px 14px">' +
-        (navigator.share ? "Dela" : "Kopiera") + "</button>" +
+        '<button class="btn" id="exportBtn" style="padding:9px 14px">⬇️ Exportera</button>' +
+        '<button class="chip" id="importBtn" style="padding:9px 14px">⬆️ Importera</button>' +
+        '<input type="file" id="importFile" accept="application/json" style="display:none">' +
       "</div>" +
-      '<p style="margin-top:10px">Öppnar du länken i Safari läses den in direkt (efter en bekräftelse om något skiljer sig). Appen på hemskärmen har däremot ett <b>eget lagringsutrymme som inte delas med Safari</b> – att bara öppna länken räcker alltså inte för att uppdatera hemskärms-appen. Se nedan.</p>';
-
-    if (standalone) {
-      panel.innerHTML = linkSection +
-        '<h3 style="margin-top:16px">✓ Redan på hemskärmen</h3>' +
-        '<p>Du kör den här instansen fristående från Safari. Vill du att en annan enhet, eller en helt ny hemskärmsikon här, ska ha samma data: öppna Safari på den enheten och använd återställningslänken ovan, sedan stegen för att lägga till på hemskärmen.</p>';
-    } else {
-      panel.innerHTML = linkSection +
-        '<h3 style="margin-top:16px">Ge hemskärmsikonen din nuvarande data</h3>' +
-        '<ol>' +
-        '<li>Tryck <b>Förbered adress</b> nedan.</li>' +
-        '<li>Direkt efter: tryck dela-ikonen i Safaris nederkant (fyrkant med pil upp) → <b>Lägg till på hemskärmen</b> → <b>Lägg till</b>.</li>' +
-        '<li>Öppna appen fortsättningsvis från den nya ikonen.</li>' +
-        '</ol>' +
-        '<button class="chip" id="prepareHandoffBtn">Förbered adress</button>' +
-        '<p id="handoffNote" style="margin-top:8px"></p>' +
-        '<p>Redan klar och bara vill lägga till utan att flytta över data? Hoppa steg 1 och gå direkt till dela-ikonen.</p>';
-    }
+      '<span class="who-lbl" id="backupStatus2"></span>' +
+      (standalone
+        ? '<h3 style="margin-top:16px">✓ Redan på hemskärmen</h3>'
+        : '<h3 style="margin-top:16px">Lägg till på hemskärmen</h3>' +
+          "<ol>" +
+          "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
+          "<li>Välj <b>Lägg till på hemskärmen</b> → <b>Lägg till</b>.</li>" +
+          "<li>Öppna appen fortsättningsvis från den nya ikonen – då slipper den raderas efter en veckas inaktivitet.</li>" +
+          "</ol>" +
+          "<p>Startar hemskärmsappen tom (den delar inte lagring med Safari): tryck Importera ovan och välj din senaste exportfil.</p>");
   }
 
   document.getElementById("backupBtn").addEventListener("click", function () {
@@ -1176,29 +1142,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   });
 
   document.addEventListener("click", function (e) {
-    var prep = e.target.closest("#prepareHandoffBtn");
-    if (prep) {
-      // Sätter adressen med data inbäddad utan att ladda om sidan, så den
-      // hinner fångas av "Lägg till på hemskärmen" innan något annat händer.
-      history.replaceState(null, "", buildBackupUrl());
-      var note = document.getElementById("handoffNote");
-      if (note) note.textContent = "✓ Adressen är redo – tryck dela-ikonen i Safari nu.";
-      return;
-    }
+    if (e.target.closest("#exportBtn")) { exportBackupFile(); return; }
+    if (e.target.closest("#importBtn")) { document.getElementById("importFile").click(); return; }
+  });
 
-    var t = e.target.closest("#backupShareBtn");
-    if (!t) return;
-    var url = buildBackupUrl();
-    if (navigator.share) {
-      navigator.share({ title: "Film- och Serietips – återställningslänk", url: url }).catch(function () {});
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(function () {
-        t.textContent = "Kopierad!";
-        setTimeout(function () { t.textContent = "Kopiera"; }, 1500);
-      });
-    } else {
-      document.getElementById("backupLinkInput").select();
-    }
+  document.addEventListener("change", function (e) {
+    if (e.target.id !== "importFile" || !e.target.files.length) return;
+    importBackupFile(e.target.files[0]);
+    e.target.value = "";
   });
 
   document.getElementById("themeSelect").addEventListener("change", function (e) {
@@ -1213,13 +1164,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   drawAll();
   checkFetchResult([]);
   render();
-
-  // Görs sist: om länkens data faktiskt skiljer sig från det redan sparade
-  // frågar den här om återställning. Sidan är då redan uppritad bakom rutan.
-  if (restoreFromHashIfPresent()) {
-    drawAll();
-    render();
-  }
 })();
 </script>
 
