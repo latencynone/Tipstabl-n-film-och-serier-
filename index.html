@@ -691,21 +691,38 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   // Körs vid sidladdning: om adressen bär på en backup, fråga innan den
   // eventuellt skriver över det som redan finns sparat i webbläsaren.
+  // Kanoniserar ett backup-objekt (sorterar listor/nycklar) så att två
+  // objekt med samma innehåll men i annan ordning jämförs som lika.
+  function canonicalBackup(b) {
+    var sortArr = function (a) { return (a || []).slice().sort(); };
+    var sortObj = function (o) {
+      var out = {}; Object.keys(o || {}).sort().forEach(function (k) { out[k] = o[k]; });
+      return out;
+    };
+    return JSON.stringify({
+      fav: sortArr(b.fav), watched: sortArr(b.watched), want: sortArr(b.want),
+      who: sortObj(b.who), removed: sortArr(b.removed), ratings: sortObj(b.ratings)
+    });
+  }
+
   function restoreFromHashIfPresent() {
     var m = location.hash.match(/^#backup=(.+)$/);
-    if (!m) return;
+    if (!m) return false;
     try {
-      var obj = JSON.parse(fromB64Utf8(m[1]));
-      var hasLocal = state.favorites.length || state.watched.length ||
-        state.wantToSee.length || Object.keys(state.ratings).length;
+      var incoming = JSON.parse(fromB64Utf8(m[1]));
+      var current = buildBackupObj();
+      // Bara fråga om länken faktiskt innehåller något annat än det som
+      // redan finns sparat – annars skulle en vanlig omladdning fråga varje gång.
+      if (canonicalBackup(incoming) === canonicalBackup(current)) return false;
+      var hasLocal = current.fav.length || current.watched.length ||
+        current.want.length || Object.keys(current.ratings).length;
       var proceed = !hasLocal || confirm(
-        "Den här länken innehåller sparad data (favoriter, betyg med mera).\n\n" +
+        "Den här länken innehåller sparad data (favoriter, betyg med mera) som skiljer sig från det som redan finns här.\n\n" +
         "Vill du återställa den? Det du redan har sparat i den här webbläsaren skrivs då över."
       );
-      if (proceed) applyBackupObj(obj);
+      if (proceed) { applyBackupObj(incoming); return true; }
     } catch (e) { /* trasig eller för gammal länk – ignorera tyst */ }
-    // Städa bort hashen så den inte frågar igen vid en vanlig omladdning.
-    history.replaceState(null, "", location.pathname + location.search);
+    return false;
   }
 
   document.getElementById("today").textContent =
@@ -1168,12 +1185,19 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   document.getElementById("sortSelect").value = state.sort;
   document.documentElement.setAttribute("data-theme", state.theme);
 
-  restoreFromHashIfPresent();
-  syncHashBackup();
   drawAll();
   checkFetchResult([]);
   render();
+
+  // Görs sist: om länkens data faktiskt skiljer sig från det redan sparade
+  // frågar den här om återställning. Sidan är då redan uppritad bakom rutan.
+  if (restoreFromHashIfPresent()) {
+    drawAll();
+    render();
+  }
+  syncHashBackup();
 })();
 </script>
+
 </body>
 </html>
