@@ -74,6 +74,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .sub{font-family:var(--mono);font-size:11px;color:var(--dim);
   letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
 .theme-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+.who-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:-6px 0 16px}
+.who-row:empty{display:none}
+.who-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);
+  text-transform:uppercase;margin-right:2px}
+.who-sel{background:transparent;border:1px solid var(--line);color:var(--want);
+  font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 5px;
+  border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
+.who-sel:hover{border-color:var(--want)}
+.who-sel[data-set="1"]{border-color:var(--want);background:color-mix(in srgb, var(--want) 14%, transparent)}
+.who-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 
 .tabs{display:flex;gap:2px;margin:16px 0 12px}
 .tab{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);
@@ -345,11 +355,19 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
           <option value="">Alla genrer</option>
         </select>
       </div>
+      <div class="select-wrap">
+        <select class="gsel" id="sortSelect" aria-label="Sortera listan">
+          <option value="datum">Nyast först</option>
+          <option value="imdb">Högst IMDb först</option>
+        </select>
+      </div>
       <button class="chip" id="toggleRemoved" data-on="0">Borttagna (0)</button>
       <button class="btn" id="refresh">⟳ Hämta nya tips</button>
     </div>
     <p class="fetch-status" id="fetchStatus"></p>
   </div>
+
+  <div class="who-row" id="whoRow"></div>
 
   <div id="removedPanel"></div>
 
@@ -367,6 +385,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var SEEN_KEY = "tipstablan:visade";
   var WATCHED_KEY = "tipstablan:sett";
   var WANT_KEY = "tipstablan:vill-se";
+  var WANTWHO_KEY = "tipstablan:vill-se-sallskap";
   var REMOVED_KEY = "tipstablan:borttagna";
   var RATING_KEY = "tipstablan:betyg";
   var THEME_KEY = "tipstablan:tema";
@@ -520,6 +539,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     return isNaN(d.getTime()) ? new Date("2021-01-01") : d;
   }
   function newestFirst(a, b) { return parseDate(b) - parseDate(a); }
+  // Sorterar enligt användarens val; vid lika IMDb-betyg avgör datumet.
+  function sortList(list) {
+    var arr = list.slice();
+    if (state.sort === "imdb") {
+      return arr.sort(function (a, b) {
+        return (b.imdb - a.imdb) || (parseDate(b) - parseDate(a));
+      });
+    }
+    return arr.sort(newestFirst);
+  }
   function keyOf(it) { return it.kind + ":" + it.title + ":" + it.date; }
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -544,6 +573,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     favorites: normalizeKeys(store.get(FAV_KEY)),
     watched: normalizeKeys(store.get(WATCHED_KEY)),
     wantToSee: normalizeKeys(store.get(WANT_KEY)),
+    wantWho: store.get(WANTWHO_KEY) || {},
+    whoFilter: "",
+    sort: "datum",
     removed: normalizeKeys(store.get(REMOVED_KEY)),
     ratings: store.get(RATING_KEY) || {},
     seen: store.get(SEEN_KEY) || [],
@@ -569,7 +601,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       return true;
     }).sort(newestFirst);
 
-    if (pool.length <= 10) return pool;
+    if (pool.length <= 10) return sortList(pool);
 
     // De fyra färskaste följer alltid med, resten roteras.
     var head = pool.slice(0, 4);
@@ -583,7 +615,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     }
     var picked = fresh.slice(0, 6);
     state.seen = state.seen.concat(picked.map(keyOf)).slice(-34);
-    return head.concat(picked).sort(newestFirst);
+    return sortList(head.concat(picked));
   }
 
   function drawAll() {
@@ -683,6 +715,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var want = isWantToSee(it);
     var k = keyOf(it);
     var myRating = state.ratings[k] || "";
+    var myWho = state.wantWho[k] || "";
     var rateOpts = '<option value="">Betygsätt</option>';
     for (var r = 1; r <= 10; r++) {
       rateOpts += '<option value="' + r + '"' + (myRating === r ? ' selected' : '') + '>Du ' + r + '</option>';
@@ -725,36 +758,72 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener">MC ' + it.mc + "</a>" : "") +
       '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
       '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
+      (state.tab === "villse"
+        ? '<select class="who-sel" data-whoset="' + esc(k) + '" data-set="' + (myWho ? 1 : 0) +
+          '" aria-label="Vem vill du se ' + esc(it.title) + ' med"><option value=""' +
+          (myWho ? "" : " selected") + '>Se med…</option><option value="sjalv"' +
+          (myWho === "sjalv" ? " selected" : "") + '>Själv</option><option value="familj"' +
+          (myWho === "familj" ? " selected" : "") + '>Familjen</option></select>'
+        : "") +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       ((state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       '</div><p class="desc">' + esc(it.desc) + "</p></div></article>";
   }
 
-  function resolveList(keys) {
-    return keys.map(function (k) { return BY_KEY[k]; })
-      .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); })
-      .sort(newestFirst);
+  function resolveList(keys, applyWhoFilter) {
+    var list = keys.map(function (k) { return BY_KEY[k]; })
+      .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); });
+    if (applyWhoFilter && state.whoFilter) {
+      list = list.filter(function (it) {
+        return (state.wantWho[keyOf(it)] || "") === state.whoFilter;
+      });
+    }
+    return sortList(list);
   }
 
   function render() {
     renderTabs();
     renderChips();
 
+    // Sällskapsfilter visas bara i Vill se-fliken.
+    var whoEl = document.getElementById("whoRow");
+    if (state.tab === "villse") {
+      var counts = { "": state.wantToSee.length, sjalv: 0, familj: 0 };
+      state.wantToSee.forEach(function (k) {
+        var w = state.wantWho[k];
+        if (w === "sjalv") counts.sjalv++;
+        else if (w === "familj") counts.familj++;
+      });
+      whoEl.innerHTML = '<span class="who-lbl">Se med</span>' +
+        [["", "Alla", counts[""]], ["sjalv", "Själv", counts.sjalv], ["familj", "Familjen", counts.familj]]
+          .map(function (w) {
+            return '<button class="chip" data-who="' + w[0] + '" data-on="' +
+              (state.whoFilter === w[0] ? 1 : 0) + '" aria-pressed="' +
+              (state.whoFilter === w[0]) + '">' + w[1] + " (" + w[2] + ")</button>";
+          }).join("");
+    } else {
+      whoEl.innerHTML = "";
+    }
+
     var list;
     if (state.tab === "favorit") list = resolveList(state.favorites);
     else if (state.tab === "sett") list = resolveList(state.watched);
-    else if (state.tab === "villse") list = resolveList(state.wantToSee);
+    else if (state.tab === "villse") list = resolveList(state.wantToSee, true);
     else list = state.shown[state.tab];
 
     var el = document.getElementById("list");
     if (!list.length) {
+      var villseHint = state.whoFilter
+        ? "Inget är märkt för det sällskapet än. Välj Alla, eller märk en titel nedan."
+        : "Tryck på stjärnan vid ett tips för att lägga det här.";
       var msg = { film: "Inga tips i listan", serie: "Inga tips i listan",
-                  sett: "Inget markerat som sett", villse: "Inget i Vill se än",
+                  sett: "Inget markerat som sett",
+                  villse: state.whoFilter ? "Inget för det sällskapet" : "Inget i Vill se än",
                   favorit: "Inga favoriter än" }[state.tab];
       var hint = { film: "Markera minst en av tjänsterna ovan.",
                    serie: "Markera minst en av tjänsterna ovan.",
                    sett: "Tryck på bocken vid ett tips för att lägga det här.",
-                   villse: "Tryck på stjärnan vid ett tips för att lägga det här.",
+                   villse: villseHint,
                    favorit: "Tryck på hjärtat vid ett tips så hamnar det här." }[state.tab];
       el.innerHTML = '<div class="empty"><p>' + msg + "</p><span>" + hint + "</span></div>";
     } else {
@@ -816,10 +885,19 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     if (t.dataset.want) {
       var vk = t.dataset.want;
-      state.wantToSee = state.wantToSee.indexOf(vk) !== -1
-        ? state.wantToSee.filter(function (w) { return w !== vk; })
-        : [vk].concat(state.wantToSee);
+      if (state.wantToSee.indexOf(vk) !== -1) {
+        state.wantToSee = state.wantToSee.filter(function (w) { return w !== vk; });
+        delete state.wantWho[vk];
+        store.set(WANTWHO_KEY, state.wantWho);
+      } else {
+        state.wantToSee = [vk].concat(state.wantToSee);
+      }
       store.set(WANT_KEY, state.wantToSee);
+      render(); return;
+    }
+
+    if (t.dataset.who !== undefined && t.hasAttribute("data-who")) {
+      state.whoFilter = t.dataset.who;
       render(); return;
     }
 
@@ -829,10 +907,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       state.favorites = state.favorites.filter(function (f) { return f !== rk; });
       state.watched = state.watched.filter(function (w) { return w !== rk; });
       state.wantToSee = state.wantToSee.filter(function (w) { return w !== rk; });
+      delete state.wantWho[rk];
       store.set(REMOVED_KEY, state.removed);
       store.set(FAV_KEY, state.favorites);
       store.set(WATCHED_KEY, state.watched);
       store.set(WANT_KEY, state.wantToSee);
+      store.set(WANTWHO_KEY, state.wantWho);
       drawAll(); render(); return;
     }
 
@@ -860,15 +940,32 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     drawAll(); render();
   });
 
+  document.getElementById("sortSelect").addEventListener("change", function (e) {
+    state.sort = e.target.value;
+    drawAll(); render();
+  });
+
   document.addEventListener("change", function (e) {
     var t = e.target;
-    if (!t.classList || !t.classList.contains("rate-sel")) return;
-    var k = t.dataset.rate;
-    var v = t.value;
-    if (v) state.ratings[k] = parseInt(v, 10);
-    else delete state.ratings[k];
-    store.set(RATING_KEY, state.ratings);
-    render();
+    if (!t.classList) return;
+
+    if (t.classList.contains("rate-sel")) {
+      var k = t.dataset.rate;
+      var v = t.value;
+      if (v) state.ratings[k] = parseInt(v, 10);
+      else delete state.ratings[k];
+      store.set(RATING_KEY, state.ratings);
+      render();
+      return;
+    }
+
+    if (t.classList.contains("who-sel")) {
+      var wk = t.dataset.whoset;
+      if (t.value) state.wantWho[wk] = t.value;
+      else delete state.wantWho[wk];
+      store.set(WANTWHO_KEY, state.wantWho);
+      render();
+    }
   });
 
   document.getElementById("themeSelect").addEventListener("change", function (e) {
@@ -877,6 +974,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     store.set(THEME_KEY, state.theme);
   });
   document.getElementById("themeSelect").value = state.theme;
+  document.getElementById("sortSelect").value = state.sort;
   document.documentElement.setAttribute("data-theme", state.theme);
 
   drawAll();
