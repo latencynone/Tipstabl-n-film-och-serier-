@@ -598,6 +598,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (state.genre && genreBucket(it.genre) !== state.genre) return false;
       if (state.removed.indexOf(keyOf(it)) !== -1) return false;
       if (state.watched.indexOf(keyOf(it)) !== -1) return false;
+      if (state.wantToSee.indexOf(keyOf(it)) !== -1) return false;
       return true;
     }).sort(newestFirst);
 
@@ -893,7 +894,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         state.wantToSee = [vk].concat(state.wantToSee);
       }
       store.set(WANT_KEY, state.wantToSee);
-      render(); return;
+      drawAll(); render(); return;
     }
 
     if (t.dataset.who !== undefined && t.hasAttribute("data-who")) {
