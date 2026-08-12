@@ -359,6 +359,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         <select class="gsel" id="sortSelect" aria-label="Sortera listan">
           <option value="datum">Nyast först</option>
           <option value="imdb">Högst IMDb först</option>
+          <option value="rt">Högst Rotten Tomatoes först</option>
+          <option value="mc">Högst Metacritic först</option>
         </select>
       </div>
       <button class="chip" id="toggleRemoved" data-on="0">Borttagna (0)</button>
@@ -542,9 +544,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   // Sorterar enligt användarens val; vid lika IMDb-betyg avgör datumet.
   function sortList(list) {
     var arr = list.slice();
-    if (state.sort === "imdb") {
+    var field = { imdb: "imdb", rt: "rt", mc: "mc" }[state.sort];
+    if (field) {
       return arr.sort(function (a, b) {
-        return (b.imdb - a.imdb) || (parseDate(b) - parseDate(a));
+        // Titlar som saknar betyg hamnar sist i stället för överst.
+        var av = a[field] || -1, bv = b[field] || -1;
+        return (bv - av) || (parseDate(b) - parseDate(a));
       });
     }
     return arr.sort(newestFirst);
