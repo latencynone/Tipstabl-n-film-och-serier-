@@ -221,6 +221,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 }
 .rate-sel[data-rated="1"]{border-color:var(--mine);background:rgba(201,166,255,.14)}
 .rate-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
+.more-tog{background:none;border:none;color:var(--dim);font-family:var(--mono);font-size:11px;
+  font-weight:700;letter-spacing:.04em;padding:8px 0;margin:2px 0 0;cursor:pointer;
+  display:block;min-height:32px}
+.more-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  margin:2px 0 4px;padding-top:8px;border-top:1px dashed var(--line)}
+.more-row[hidden]{display:none}
 .desc{font-size:14px;line-height:1.55;color:var(--desc);margin:8px 0 0}
 .actions{display:flex;gap:8px;flex-shrink:0}
 .heart,.watch,.trash,.star{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
@@ -238,6 +244,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   .watch:hover{color:var(--sett);border-color:var(--sett)}
   .star:hover{color:var(--want);border-color:var(--want)}
   .trash:hover{color:#FF3B2E;border-color:#FF3B2E;background:rgba(255,98,89,.12)}
+  .more-tog:hover{color:var(--txt)}
 }
 
 #removedPanel:empty{display:none}
@@ -670,6 +677,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     ratings: store.get(RATING_KEY) || {},
     seen: store.get(SEEN_KEY) || [],
     returnTab: "film",
+    expanded: {},
     lastFetchedTitle: null,
     lastFetchedKind: null,
     fetchAdded: null,
@@ -911,22 +919,37 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "</div></div>" +
       '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
       '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>" +
-      (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener">RT ' + it.rt + "%</a>" : "") +
-      (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener">MC ' + it.mc + "</a>" : "") +
-      '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
-      '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
-      (state.tab === "villse"
-        ? '<select class="who-sel" data-whoset="' + esc(k) + '" data-set="' + (myWho ? 1 : 0) +
-          '" aria-label="Vem vill du se ' + esc(it.title) + ' med"><option value=""' +
-          (myWho ? "" : " selected") + '>Se med…</option>' +
-          WHO_OPTIONS.map(function (w) {
-            return '<option value="' + w.id + '"' +
-              (myWho === w.id ? " selected" : "") + ">" + esc(w.label) + "</option>";
-          }).join("") + "</select>"
-        : "") +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       ((state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
-      '</div><p class="desc">' + esc(it.desc) + "</p></div></article>";
+      "</div>" +
+      (function () {
+        var hints = [];
+        if (myRating) hints.push("Du " + myRating);
+        if (state.tab === "villse" && myWho) {
+          var whoOpt = WHO_OPTIONS.filter(function (w) { return w.id === myWho; })[0];
+          if (whoOpt) hints.push(whoOpt.label);
+        }
+        var hintText = hints.length ? " (" + hints.map(esc).join(" · ") + ")" : "";
+        var isOpen = !!state.expanded[k];
+        return '<button class="more-tog" data-more="' + esc(k) + '" aria-expanded="' + isOpen + '">' +
+          (isOpen ? "Mindre ▲" : "Mer" + hintText + " ▾") + "</button>" +
+          '<div class="more-row"' + (isOpen ? "" : " hidden") + ">" +
+          (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener">RT ' + it.rt + "%</a>" : "") +
+          (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener">MC ' + it.mc + "</a>" : "") +
+          '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
+          '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
+          (state.tab === "villse"
+            ? '<select class="who-sel" data-whoset="' + esc(k) + '" data-set="' + (myWho ? 1 : 0) +
+              '" aria-label="Vem vill du se ' + esc(it.title) + ' med"><option value=""' +
+              (myWho ? "" : " selected") + '>Se med…</option>' +
+              WHO_OPTIONS.map(function (w) {
+                return '<option value="' + w.id + '"' +
+                  (myWho === w.id ? " selected" : "") + ">" + esc(w.label) + "</option>";
+              }).join("") + "</select>"
+            : "") +
+          "</div>";
+      })() +
+      '<p class="desc">' + esc(it.desc) + "</p></div></article>";
   }
 
   function resolveList(keys, applyWhoFilter) {
@@ -1063,7 +1086,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     // Kortknapparna byts ut när listan ritas om. Släpp fokus först, annars
     // kan markeringen se ut att hoppa till kortet som tar dess plats.
-    if (t.dataset.remove || t.dataset.watch || t.dataset.want || t.dataset.fav) {
+    if (t.dataset.remove || t.dataset.watch || t.dataset.want || t.dataset.fav || t.dataset.more) {
       t.blur();
     }
 
@@ -1090,6 +1113,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       state.tab = state.returnTab || "film";
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (t.dataset.more) {
+      var mk = t.dataset.more;
+      state.expanded[mk] = !state.expanded[mk];
+      render();
       return;
     }
 
