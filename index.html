@@ -267,6 +267,18 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .empty span{font-size:13px;color:var(--dim)}
 .foot{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;
   text-align:center;padding-top:26px;line-height:1.9}
+.foot-link{background:none;border:none;color:var(--dim);font-family:var(--mono);
+  font-size:11px;letter-spacing:.08em;cursor:pointer;padding:12px;min-height:44px}
+.foot-link:hover{color:var(--txt)}
+.info-h{font-family:var(--display);font-size:15px;margin:22px 0 6px;
+  text-transform:none;letter-spacing:normal}
+.info-h:first-of-type{margin-top:18px}
+.info-p{font-size:13px;line-height:1.6;color:var(--dim);margin:0}
+.icon-guide{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.icon-row{display:flex;gap:14px;align-items:flex-start}
+.icon-demo{font-size:22px;line-height:1.4;flex:0 0 26px;text-align:center}
+.icon-row div{font-size:13px;line-height:1.55;color:var(--dim)}
+.icon-row b{color:var(--txt)}
 .fade{animation:in .32s ease both}
 @keyframes in{from{opacity:0;transform:translateY(7px)}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none!important}}
@@ -425,6 +437,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 <div class="menu-dropdown" id="menuDropdown">
   <button data-page="backup">App &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
+  <button data-page="info">Info &amp; förklaring</button>
 </div>
 
 <div class="wrap">
@@ -924,6 +937,49 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     return sortList(list);
   }
 
+  function renderInfoPage() {
+    var total = POOL.film.length + POOL.serie.length;
+    var html =
+      '<button class="page-back" id="pageBack">← Tillbaka</button>' +
+      '<h2 class="page-title">Info &amp; förklaring</h2>' +
+
+      '<h3 class="info-h">Om titelbanken</h3>' +
+      '<p class="info-p">Innehåller just nu ' + total + ' titlar (' + POOL.film.length + ' filmer, ' +
+      POOL.serie.length + ' serier), alla max fem år gamla med IMDb-betyg 7,0 eller högre. ' +
+      'Banken uppdateras automatiskt en gång i veckan med nya titlar som dyker upp på dina tjänster. ' +
+      'Knappen <b>⟳ Hämta nya tips</b> rullar fram nya urval ur den befintliga banken direkt, utan att vänta på nästa veckas uppdatering.</p>' +
+
+      '<h3 class="info-h">Ikonerna på varje kort</h3>' +
+      '<div class="icon-guide">' +
+        '<div class="icon-row"><span class="icon-demo" style="color:var(--want)">★&#65038;</span>' +
+          '<div><b>Vill se</b><br>Sparar titeln i egen flik utan att markera den som sedd. Tom stjärna (☆) betyder inte markerad än.</div></div>' +
+        '<div class="icon-row"><span class="icon-demo" style="color:var(--sett)">✔&#65038;</span>' +
+          '<div><b>Sett</b><br>Markerar titeln som sedd och flyttar den till Sett-fliken. Tom ruta (☐) betyder inte sedd än.</div></div>' +
+        '<div class="icon-row"><span class="icon-demo" style="color:var(--fav)">♥&#65038;</span>' +
+          '<div><b>Favorit</b><br>Sparar titeln i Favoriter-fliken, utan att påverka om den räknas som sedd eller ej. Tomt hjärta (♡) betyder inte favoritmarkerad än.</div></div>' +
+        '<div class="icon-row"><span class="icon-demo" style="color:#FF3B2E">✕&#65038;</span>' +
+          '<div><b>Ta bort</b><br>Tar bort titeln helt ur tipsen. Går att återställa under menyn (☰) → Borttagna.</div></div>' +
+      '</div>' +
+
+      '<h3 class="info-h">Betyg</h3>' +
+      '<p class="info-p"><b>IMDb</b> visas alltid. <b>RT</b> (Rotten Tomatoes) och <b>MC</b> (Metacritic) visas när de finns, ' +
+      'och länkar direkt till respektive sida. <b>"Du"</b> är ditt eget betyg (1–10) — sätts under "Mer" på varje kort, ' +
+      'sparas bara i den här webbläsaren tills du exporterar en backup.</p>' +
+
+      '<h3 class="info-h">Sök, filter och sortering</h3>' +
+      '<p class="info-p">Sökfältet letar bland samtliga titlar i hela banken, inte bara det just nu synliga urvalet. ' +
+      'Genre-filtret och tjänsterna under "Mina tjänster" kombineras med sökningen. Sorteringen kan växlas mellan nyast, ' +
+      'högst betyg (IMDb/RT/MC) eller ditt eget betyg.</p>' +
+
+      '<h3 class="info-h">Sällskap i Vill se</h3>' +
+      '<p class="info-p">I Vill se-fliken kan varje titel märkas med vem du tänkt se den med, och filtreras efter det ovanför listan.</p>' +
+
+      '<h3 class="info-h">Klicka på titeln</h3>' +
+      '<p class="info-p">Öppnar titelns sida på IMDb i en ny flik.</p>';
+
+    document.getElementById("page").innerHTML = html;
+  }
+
   function renderBackupPage() {
     var standalone = window.navigator.standalone === true;
     var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
@@ -966,17 +1022,21 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   }
 
   function render() {
-    var isPage = state.tab === "backup" || state.tab === "removed";
+    var isPage = state.tab === "backup" || state.tab === "removed" || state.tab === "info";
     document.getElementById("tabs").style.display = isPage ? "none" : "";
+    document.querySelector(".search-row").style.display = isPage ? "none" : "";
     document.querySelector(".ctrl").style.display = isPage ? "none" : "";
     document.getElementById("list").style.display = isPage ? "none" : "";
     document.getElementById("foot").style.display = isPage ? "none" : "";
     document.getElementById("whoRow").innerHTML = "";
     var menuCount = document.getElementById("menuRemovedCount");
     if (menuCount) menuCount.textContent = "(" + state.removed.length + ")";
+    document.getElementById("foot").innerHTML =
+      '<button class="foot-link" data-page="info">ℹ Info &amp; förklaring</button>';
 
     if (isPage) {
       if (state.tab === "backup") renderBackupPage();
+      else if (state.tab === "info") renderInfoPage();
       else renderRemovedPage();
       return;
     }
@@ -1041,13 +1101,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     } else {
       el.innerHTML = list.map(card).join("");
     }
-
-    document.getElementById("foot").innerHTML =
-      "Titelbanken innehåller " + (POOL.film.length + POOL.serie.length) +
-      " titlar, alla med IMDb-betyg. Ladda om sidan för nya tips.<br>" +
-      "☆ Vill se · ☐ Markera som sedd · ♡ Spara som favorit · ✕ Ta bort ur tipsen.<br>" +
-      "RT = Rotten Tomatoes, MC = Metacritic (visas när de finns). \"Du\" är ditt eget betyg (1–10), sparas bara i den här webbläsaren.<br>" +
-      "Klicka på titeln för att öppna den på IMDb.";
   }
 
   /* ============ händelser ============ */
