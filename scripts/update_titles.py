@@ -179,7 +179,20 @@ def omdb_lookup(title, year):
         m = re.search(r"(\d+)", ratings["Metacritic"])
         if m:
             mc = int(m.group(1))
-    return {"imdb": imdb, "rt": rt, "mc": mc, "imdbID": data.get("imdbID", "")}
+    runtime_min = 0
+    m = re.search(r"(\d+)", data.get("Runtime", "") or "")
+    if m:
+        runtime_min = int(m.group(1))
+    seasons = None
+    if data.get("totalSeasons") and data["totalSeasons"] not in ("N/A", None):
+        try:
+            seasons = int(data["totalSeasons"])
+        except ValueError:
+            pass
+    return {
+        "imdb": imdb, "rt": rt, "mc": mc, "imdbID": data.get("imdbID", ""),
+        "runtime": runtime_min, "seasons": seasons,
+    }
 
 
 def build_entry(item, media_type, service_name):
@@ -210,13 +223,24 @@ def build_entry(item, media_type, service_name):
         "rt": omdb["rt"],
         "mc": omdb["mc"],
         "genre": genre,
-        "length": normalize_length(item.get("runtime"), media_type),
+        "length": normalize_length(omdb["runtime"], media_type, omdb["seasons"]),
         "desc": (item.get("overview") or "")[:140] or "Ingen beskrivning tillgänglig.",
         "id": omdb["imdbID"],
         "rtId": "",
         "mcId": "",
         "kind": kind,
     }
+
+
+def entry_score(x):
+    """Grov kvalitetspoäng - används för att avgöra om en nyfunnen post är
+    bättre än en redan sparad, så uppenbara luckor kan självläka över tid."""
+    s = 0
+    if x.get("rtId"): s += 2
+    if x.get("mcId"): s += 2
+    if x.get("length"): s += 1
+    if len(x.get("desc", "")) > 20: s += 1
+    return s
 
 
 def main():
@@ -227,12 +251,16 @@ def main():
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         current = json.load(f)
 
+    by_id = {}
     existing_keys = set()
     for kind in ("film", "serie"):
         for it in current.get(kind, []):
+            if it.get("id"):
+                by_id[it["id"]] = it
             existing_keys.add(kind + ":" + it["title"] + ":" + it["date"])
 
     added = {"film": [], "serie": []}
+    upgraded = 0
 
     for media_type in ("movie", "tv"):
         print("== %s ==" % media_type)
@@ -244,15 +272,33 @@ def main():
                 entry = build_entry(item, media_type, service_name)
                 if not entry:
                     continue
+
+                # IMDb-ID är den pålitliga nyckeln - releasedatum kan skilja
+                # sig med några dagar mellan TMDb och det datum en titel
+                # faktiskt dök upp på tjänsten, vilket annars gett dubbletter.
+                if entry["id"] and entry["id"] in by_id:
+                    old = by_id[entry["id"]]
+                    if entry_score(entry) > entry_score(old):
+                        old["imdb"], old["rt"], old["mc"] = entry["imdb"], entry["rt"], entry["mc"]
+                        if entry["length"]:
+                            old["length"] = entry["length"]
+                        if len(entry["desc"]) > len(old.get("desc", "")):
+                            old["desc"] = entry["desc"]
+                        upgraded += 1
+                        print("  ~ uppdaterade %s med bättre data" % entry["title"])
+                    continue
+
                 key = entry["kind"] + ":" + entry["title"] + ":" + entry["date"]
                 if key in existing_keys:
                     continue
+                if entry["id"]:
+                    by_id[entry["id"]] = entry
                 existing_keys.add(key)
                 added[entry["kind"]].append(entry)
                 print("  + %s (%s) IMDb %.1f" % (entry["title"], entry["date"][:4], entry["imdb"]))
 
-    if not added["film"] and not added["serie"]:
-        print("Inga nya titlar hittades den här veckan.")
+    if not added["film"] and not added["serie"] and not upgraded:
+        print("Inga nya titlar eller uppdateringar den här veckan.")
         return
 
     current["film"] = current.get("film", []) + added["film"]
@@ -262,7 +308,8 @@ def main():
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(current, f, ensure_ascii=False, separators=(",", ":"))
 
-    print("Klart: +%d filmer, +%d serier." % (len(added["film"]), len(added["serie"])))
+    print("Klart: +%d filmer, +%d serier, %d poster uppgraderade." % (
+        len(added["film"]), len(added["serie"]), upgraded))
 
 
 if __name__ == "__main__":
