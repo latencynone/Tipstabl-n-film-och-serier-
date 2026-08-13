@@ -74,13 +74,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .bar{background:var(--film);color:var(--on-accent);padding:10px 16px;
   display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .bar h1{font-family:var(--display);font-weight:700;font-size:26px;
-  letter-spacing:.06em;text-transform:uppercase;margin:0;line-height:1}
-.hamburger{background:none;border:1px solid currentColor;color:inherit;
-  width:34px;height:34px;flex:0 0 34px;font-size:17px;line-height:1;
-  cursor:pointer;border-radius:var(--radius);opacity:.85}
+  letter-spacing:.06em;text-transform:none;margin:0;line-height:1;cursor:pointer}
+.hamburger{background:none;border:none;color:inherit;
+  width:38px;height:38px;flex:0 0 38px;font-size:26px;line-height:1;
+  cursor:pointer;opacity:.85;padding:0}
 .hamburger:hover{opacity:1}
 .bar-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .today{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.theme-pick{display:flex;align-items:center;gap:6px}
+.theme-pick-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;opacity:.85}
 .theme-mini{background:transparent;border:1px solid currentColor;color:inherit;
   font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 20px 3px 7px;
   border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer;
@@ -97,8 +99,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .menu-dropdown button:last-child{border-bottom:none}
 .menu-dropdown button:hover{background:var(--ink)}
 .menu-dropdown #menuRemovedCount{color:var(--dim);font-family:var(--mono);font-size:11px}
-.sub{font-family:var(--mono);font-size:11px;color:var(--dim);
-  letter-spacing:.1em;padding:12px 0 0;margin:0;text-transform:uppercase}
+.sub{font-family:var(--mono);font-size:clamp(8.5px,2.6vw,11px);color:var(--dim);
+  letter-spacing:.02em;padding:12px 0 0;margin:0;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden}
 .backup-status-txt{flex:1 1 auto;min-width:0;font-family:var(--mono);font-size:10px;
   letter-spacing:.04em;color:var(--dim);text-transform:none}
 #backupPanel:empty{display:none}
@@ -313,7 +316,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 }
 [data-theme="soft"] .today{color:var(--dim); font-size:11px}
 [data-theme="soft"] .sub{
-  font-size:13px; color:var(--dim); padding-top:18px; font-weight:600;
+  font-size:clamp(8.5px,2.6vw,13px); color:var(--dim); padding-top:18px; font-weight:600;
 }
 
 [data-theme="soft"] .tabs{
@@ -337,7 +340,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="soft"] .tab[data-on] .ic-fav{color:var(--fav)}
 
 [data-theme="soft"] .ctrl{
-  background:transparent; border:none; box-shadow:none; padding:0 0 6px;
+  background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow);
+  padding:14px; border-radius:var(--radius);
 }
 [data-theme="soft"] .lbl{color:var(--dim); font-weight:700; margin-bottom:10px}
 [data-theme="soft"] .chip{
@@ -386,20 +390,23 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
 <header class="bar">
   <button class="hamburger" id="menuBtn" aria-label="Meny" aria-haspopup="true" aria-expanded="false">☰</button>
-  <h1>FILMoSERIER</h1>
+  <h1 id="homeBtn" role="button" tabindex="0" aria-label="Till startsidan">FILMoSERIER</h1>
   <div class="bar-right">
     <span class="today" id="today"></span>
-    <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
-      <option value="retro">Text-TV</option>
-      <option value="modern">Modern</option>
-      <option value="soft">Mjuk</option>
-    </select>
+    <div class="theme-pick">
+      <span class="theme-pick-lbl">Utseende</span>
+      <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
+        <option value="retro">Text-TV</option>
+        <option value="soft">Mjuk</option>
+        <option value="modern">Modern</option>
+      </select>
+    </div>
   </div>
 </header>
 
 <div class="menu-dropdown" id="menuDropdown">
-  <button data-page="backup">📲 Hemskärm &amp; backup</button>
-  <button data-page="removed">🗑 Borttagna <span id="menuRemovedCount"></span></button>
+  <button data-page="backup">Hemskärm &amp; backup</button>
+  <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
 </div>
 
 <div class="wrap">
@@ -1156,6 +1163,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  });
+
+  document.getElementById("homeBtn").addEventListener("click", function () {
+    state.tab = "film"; state.returnTab = "film";
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.getElementById("homeBtn").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.click(); }
   });
 
   document.addEventListener("click", function (e) {
