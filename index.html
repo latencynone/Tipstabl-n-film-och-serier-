@@ -128,8 +128,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   cursor:pointer;width:44px;height:44px;font-size:17px;display:flex;align-items:center;justify-content:center}
 .search-btn:hover{color:var(--txt)}
 .search-input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
-  font-family:var(--body);font-size:15px;padding:11px 44px 11px 44px;border-radius:var(--radius);
+  font-family:var(--body);font-size:15px;padding:11px 96px 11px 44px;border-radius:var(--radius);
   -webkit-appearance:none;appearance:none}
+.search-count{position:absolute;right:42px;top:50%;transform:translateY(-50%);
+  font-family:var(--mono);font-size:10px;color:var(--dim);pointer-events:none;white-space:nowrap}
 .search-input::placeholder{color:var(--dim)}
 .search-input:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 .search-input::-webkit-search-cancel-button{display:none}
@@ -433,6 +435,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <div class="search-row">
     <button class="search-btn" id="searchBtn" aria-label="Sök">🔍</button>
     <input type="search" id="searchInput" class="search-input" placeholder="Sök titel…" aria-label="Sök titel" autocomplete="off">
+    <span class="search-count" id="searchCount" aria-live="polite"></span>
     <button class="search-clear" id="searchClear" aria-label="Rensa sökning" hidden>✕</button>
   </div>
 
@@ -1008,6 +1011,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     else if (state.tab === "sett") list = resolveList(state.watched);
     else if (state.tab === "villse") list = resolveList(state.wantToSee, true);
     else list = state.shown[state.tab];
+
+    var countEl = document.getElementById("searchCount");
+    countEl.textContent = state.search
+      ? (list.length === 1 ? "1 träff" : list.length + " träffar")
+      : "";
 
     var el = document.getElementById("list");
     if (!list.length) {
