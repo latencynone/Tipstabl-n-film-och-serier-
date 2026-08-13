@@ -80,15 +80,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   opacity:.85;padding:0;align-self:center}
 .hamburger:hover{opacity:1}
 .hb-bar{display:block;width:100%;height:2px;border-radius:1px;background:currentColor}
-.bar-right{margin-left:auto;display:grid;grid-template-columns:auto auto;
-  align-items:center;justify-content:end;gap:4px 6px}
-.today{grid-column:1 / -1;justify-self:end;font-family:var(--mono);font-size:11px;letter-spacing:.1em}
-.theme-pick-lbl{justify-self:end;font-family:var(--mono);font-size:10px;letter-spacing:.08em;opacity:.85}
-.theme-mini{background:transparent;border:none;color:inherit;
-  font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 16px 3px 0;
+.bar-right{margin-left:auto}
+.today{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.menu-pick-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:13px 16px;border-bottom:1px solid var(--line)}
+.menu-pick-lbl{font-family:var(--body);font-size:14px;color:var(--txt)}
+.menu-pick-select{background:var(--ink);border:1px solid var(--line);color:var(--txt);
+  font-family:var(--mono);font-size:12px;padding:7px 26px 7px 10px;border-radius:var(--radius);
   -webkit-appearance:none;appearance:none;cursor:pointer;
-  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
-  background-position:calc(100% - 8px) 55%,calc(100% - 4px) 55%;background-size:4px 4px;background-repeat:no-repeat}
+  background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+  background-position:calc(100% - 13px) 55%,calc(100% - 9px) 55%;background-size:4px 4px;background-repeat:no-repeat}
 
 .menu-dropdown{display:none;position:absolute;top:56px;left:16px;z-index:20;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
@@ -427,18 +428,22 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <h1 id="homeBtn" role="button" tabindex="0" aria-label="Till startsidan">FILMoSERIER</h1>
   <div class="bar-right">
     <span class="today" id="today"></span>
-    <span class="theme-pick-lbl" id="profilePickLbl" style="display:none">Profil</span>
-    <select class="theme-mini" id="profileSelect" aria-label="Välj profil" style="display:none"></select>
-    <span class="theme-pick-lbl">Utseende</span>
-    <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
+  </div>
+</header>
+
+<div class="menu-dropdown" id="menuDropdown">
+  <div class="menu-pick-row">
+    <span class="menu-pick-lbl">Utseende</span>
+    <select class="menu-pick-select" id="themeSelect" aria-label="Välj utseende">
       <option value="retro">Text-TV</option>
       <option value="soft">Mjuk</option>
       <option value="modern">Modern</option>
     </select>
   </div>
-</header>
-
-<div class="menu-dropdown" id="menuDropdown">
+  <div class="menu-pick-row" id="profilePickRow" style="display:none">
+    <span class="menu-pick-lbl">Profil</span>
+    <select class="menu-pick-select" id="profileSelect" aria-label="Välj profil"></select>
+  </div>
   <button data-page="backup">App &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
   <button data-page="info">Info &amp; förklaring</button>
@@ -694,6 +699,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     state.removed = normalizeKeys(store.get(REMOVED_KEY()));
     state.ratings = store.get(RATING_KEY()) || {};
     state.seen = store.get(SEEN_KEY()) || [];
+  }
+
+  function closeMenu() {
+    document.getElementById("menuDropdown").classList.remove("open");
+    document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
   }
 
   function switchProfile(name) {
@@ -1214,17 +1224,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.getElementById("foot").innerHTML =
       '<button class="foot-link" data-page="info">ℹ Info &amp; förklaring</button>';
 
-    var profilePickLbl = document.getElementById("profilePickLbl");
+    var profilePickRow = document.getElementById("profilePickRow");
     var profileSelectEl = document.getElementById("profileSelect");
     if (state.profiles.length > 1) {
-      profilePickLbl.style.display = "";
-      profileSelectEl.style.display = "";
+      profilePickRow.style.display = "";
       profileSelectEl.innerHTML = state.profiles.map(function (p) {
         return '<option value="' + esc(p) + '"' + (p === state.activeProfile ? " selected" : "") + '>' + esc(p) + "</option>";
       }).join("");
     } else {
-      profilePickLbl.style.display = "none";
-      profileSelectEl.style.display = "none";
+      profilePickRow.style.display = "none";
     }
 
     if (isPage) {
@@ -1304,8 +1312,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var dd = document.getElementById("menuDropdown");
     if (dd.classList.contains("open") &&
         !e.target.closest("#menuDropdown") && !e.target.closest("#menuBtn")) {
-      dd.classList.remove("open");
-      document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
+      closeMenu();
     }
 
     var t = e.target.closest("button");
@@ -1328,8 +1335,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     }
 
     if (t.dataset.page) {
-      document.getElementById("menuDropdown").classList.remove("open");
-      document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
+      closeMenu();
       state.tab = t.dataset.page;
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1506,12 +1512,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   document.getElementById("profileSelect").addEventListener("change", function (e) {
     switchProfile(e.target.value);
+    closeMenu();
   });
 
   document.getElementById("themeSelect").addEventListener("change", function (e) {
     state.theme = e.target.value;
     document.documentElement.setAttribute("data-theme", state.theme);
     store.set(THEME_KEY, state.theme);
+    closeMenu();
   });
   document.getElementById("themeSelect").value = state.theme;
   document.getElementById("sortSelect").value = state.sort;
