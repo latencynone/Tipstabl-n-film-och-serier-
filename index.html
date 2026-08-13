@@ -56,8 +56,8 @@
 /* ---- Mjuk: ljus, varm, rundad designhus-känsla, djupare dova accenter ---- */
 [data-theme="soft"]{
   --ink:#FFFFFF; --panel:#F5F5F7; --line:#D2D2D7;
-  --film:#0071E3; --serie:#30B0C7; --fav:#FF375F; --sett:#34C759; --want:#FF9500;
-  --rt:#FF3B30; --mc:#5AC8FA; --mine:#AF52DE;
+  --film:#0071E3; --serie:#12707D; --fav:#FF375F; --sett:#34C759; --want:#A65200;
+  --rt:#FF3B30; --mc:#155D91; --mine:#AF52DE;
   --txt:#1D1D1F; --dim:#6E6E73; --dim2:#48484A; --on-accent:#FFFFFF; --desc:#3A3A3C;
   --display:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',system-ui,sans-serif;
   --body:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',system-ui,sans-serif;
@@ -103,16 +103,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .sub{font-family:var(--mono);font-size:clamp(8.5px,2.6vw,11px);color:var(--dim);
   letter-spacing:.02em;padding:12px 0 0;margin:0;text-transform:uppercase;
   white-space:nowrap;overflow:hidden}
-.backup-status-txt{flex:1 1 auto;min-width:0;font-family:var(--mono);font-size:10px;
-  letter-spacing:.04em;color:var(--dim);text-transform:none}
-#backupPanel:empty{display:none}
-#backupPanel{border:1px solid var(--line);background:var(--panel);padding:14px;
-  margin:10px 0 4px;border-radius:var(--radius);font-size:13px;line-height:1.6}
-#backupPanel h3{font-family:var(--display);font-size:15px;margin:0 0 6px;
-  text-transform:none;letter-spacing:normal}
-#backupPanel p{margin:4px 0 10px;color:var(--dim)}
-#backupPanel ol{margin:4px 0 14px;padding-left:20px;color:var(--dim)}
-#backupPanel ol li{margin:3px 0}
 .backup-link-row{display:flex;gap:6px}
 .backup-link-row input{flex:1;min-width:0;background:var(--ink);border:1px solid var(--line);
   color:var(--txt);font-family:var(--mono);font-size:11px;padding:9px 10px;border-radius:var(--radius)}
@@ -124,7 +114,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .who-lbl{flex:0 0 auto;white-space:nowrap;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-right:2px}
 .who-sel{background:transparent;border:1px solid var(--line);color:var(--want);
-  font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 5px;
+  font-family:var(--mono);font-size:11px;font-weight:700;padding:10px 8px;min-height:44px;
   border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
 @media (hover: hover) and (pointer: fine){
   .who-sel:hover{border-color:var(--want)}
@@ -133,6 +123,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .who-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 
 .tabs{display:flex;gap:2px;margin:16px 0 12px}
+.search-row{display:flex;align-items:center;gap:0;margin-bottom:14px;position:relative}
+.search-input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  font-family:var(--body);font-size:15px;padding:11px 44px 11px 14px;border-radius:var(--radius);
+  -webkit-appearance:none;appearance:none}
+.search-input::placeholder{color:var(--dim)}
+.search-input:focus-visible{outline:2px solid var(--film);outline-offset:2px}
+.search-input::-webkit-search-cancel-button{display:none}
+.search-clear{position:absolute;right:0;top:0;background:none;border:none;color:var(--dim);
+  cursor:pointer;width:44px;height:44px;font-size:16px}
+.search-clear:hover{color:var(--txt)}
 .tab{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--dim);
   font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
   padding:10px 4px;cursor:pointer;border-radius:var(--radius);transition:.16s;
@@ -214,7 +214,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .mc{color:var(--mc);font-weight:700;text-decoration:none}
 .mc:hover{text-decoration:underline}
 .rate-sel{background:transparent;border:1px solid var(--line);color:var(--mine);
-  font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 5px;
+  font-family:var(--mono);font-size:11px;font-weight:700;padding:10px 8px;min-height:44px;
   border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
 @media (hover: hover) and (pointer: fine){
   .rate-sel:hover{border-color:var(--mine)}
@@ -222,8 +222,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .rate-sel[data-rated="1"]{border-color:var(--mine);background:rgba(201,166,255,.14)}
 .rate-sel:focus-visible{outline:2px solid var(--film);outline-offset:2px}
 .more-tog{background:none;border:none;color:var(--dim);font-family:var(--mono);font-size:11px;
-  font-weight:700;letter-spacing:.04em;padding:8px 0;margin:2px 0 0;cursor:pointer;
-  display:block;min-height:32px}
+  font-weight:700;letter-spacing:.04em;padding:0;margin:2px 0 0;cursor:pointer;
+  display:flex;align-items:center;min-height:44px}
 .more-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
   margin:2px 0 4px;padding-top:8px;border-top:1px dashed var(--line)}
 .more-row[hidden]{display:none}
@@ -284,7 +284,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="modern"] .empty p, [data-theme="soft"] .empty p{
   text-transform:none; letter-spacing:normal;
 }
-[data-theme="soft"] .bar h1{font-style:normal}
 
 [data-theme="modern"] .ctrl, [data-theme="soft"] .ctrl,
 [data-theme="modern"] .btn, [data-theme="soft"] .btn,
@@ -392,6 +391,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="soft"] .empty,[data-theme="soft"] #removedPanel{
   border-style:solid; background:var(--panel); box-shadow:var(--shadow);
 }
+[data-theme="soft"] .search-input{background:#EBEBF0; border-color:#C7C7CC}
+[data-theme="soft"] .more-row{border-top-style:solid}
 </style>
 </head>
 <body>
@@ -423,6 +424,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <p class="sub">Kriterier: Max fem år gammalt · IMDb 7,0+</p>
 
   <div class="tabs" id="tabs"></div>
+
+  <div class="search-row">
+    <input type="search" id="searchInput" class="search-input" placeholder="Sök titel…" aria-label="Sök titel" autocomplete="off">
+    <button class="search-clear" id="searchClear" aria-label="Rensa sökning" hidden>✕</button>
+  </div>
 
   <div class="ctrl">
     <span class="lbl">Mina tjänster</span>
@@ -678,6 +684,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     seen: store.get(SEEN_KEY) || [],
     returnTab: "film",
     expanded: {},
+    search: "",
     lastFetchedTitle: null,
     lastFetchedKind: null,
     fetchAdded: null,
@@ -699,13 +706,32 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     };
   }
 
+  // Säkerhetsspärr: importerad JSON kan i princip innehålla vad som helst.
+  // Plockar bara ut egna, oskadliga nycklar/värden, och stryker uttryckligen
+  // farliga objektnycklar (__proto__ m.fl.) om koden någon gång skulle byggas
+  // om till en nyckel-för-nyckel-kopiering istället för en hel referens.
+  function sanitizeObj(o, valueCheck) {
+    var out = {};
+    if (!o || typeof o !== "object" || Array.isArray(o)) return out;
+    Object.keys(o).forEach(function (k) {
+      if (k === "__proto__" || k === "constructor" || k === "prototype") return;
+      if (typeof k !== "string" || k.length > 200) return;
+      var v = o[k];
+      if (valueCheck && !valueCheck(v)) return;
+      out[k] = v;
+    });
+    return out;
+  }
+
   function applyBackupObj(b) {
     state.favorites = normalizeKeys(b.fav);
     state.watched = normalizeKeys(b.watched);
     state.wantToSee = normalizeKeys(b.want);
-    state.wantWho = b.who || {};
+    state.wantWho = sanitizeObj(b.who, function (v) { return typeof v === "string" && v.length < 50; });
     state.removed = normalizeKeys(b.removed);
-    state.ratings = b.ratings || {};
+    state.ratings = sanitizeObj(b.ratings, function (v) {
+      return typeof v === "number" && v >= 1 && v <= 10;
+    });
     store.set(FAV_KEY, state.favorites);
     store.set(WATCHED_KEY, state.watched);
     store.set(WANT_KEY, state.wantToSee);
@@ -760,15 +786,25 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   /* ============ urval ============ */
 
+  // Diakritik-okänslig, versal-okänslig normalisering (t.ex. "shogun" hittar "Shōgun").
+  function normSearch(s) {
+    return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
   function draw(kind) {
+    var q = state.search ? normSearch(state.search) : "";
     var pool = POOL[kind].filter(function (it) {
       if (state.active.indexOf(it.service) === -1) return false;
       if (state.genre && genreBucket(it.genre) !== state.genre) return false;
       if (state.removed.indexOf(keyOf(it)) !== -1) return false;
       if (state.watched.indexOf(keyOf(it)) !== -1) return false;
       if (state.wantToSee.indexOf(keyOf(it)) !== -1) return false;
+      if (q && normSearch(it.title).indexOf(q) === -1) return false;
       return true;
     }).sort(newestFirst);
+
+    // Vid aktiv sökning visas alla träffar direkt, ingen rotation.
+    if (q) return sortList(pool);
 
     if (pool.length <= 10) return sortList(pool);
 
@@ -900,7 +936,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
       '</div><div class="md">' + rest + "</div></div>" +
       '<div class="body"><div class="head"><h2 class="title">' +
-      '<a href="' + link + '" target="_blank" rel="noopener">' + esc(it.title) + "</a></h2>" +
+      '<a href="' + link + '" target="_blank" rel="noopener noreferrer">' + esc(it.title) + "</a></h2>" +
       '<div class="actions">' +
       '<button class="star" data-want="' + esc(k) + '" data-on="' + (want ? 1 : 0) +
       '" aria-pressed="' + want + '" aria-label="' +
@@ -934,8 +970,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
         return '<button class="more-tog" data-more="' + esc(k) + '" aria-expanded="' + isOpen + '">' +
           (isOpen ? "Mindre ▲" : "Mer" + hintText + " ▾") + "</button>" +
           '<div class="more-row"' + (isOpen ? "" : " hidden") + ">" +
-          (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener">RT ' + it.rt + "%</a>" : "") +
-          (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener">MC ' + it.mc + "</a>" : "") +
+          (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener noreferrer">RT ' + it.rt + "%</a>" : "") +
+          (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener noreferrer">MC ' + it.mc + "</a>" : "") +
           '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
           '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
           (state.tab === "villse"
@@ -953,8 +989,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   }
 
   function resolveList(keys, applyWhoFilter) {
+    var q = state.search ? normSearch(state.search) : "";
     var list = keys.map(function (k) { return BY_KEY[k]; })
-      .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); });
+      .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); })
+      .filter(function (it) { return !q || normSearch(it.title).indexOf(q) !== -1; });
     if (applyWhoFilter && state.whoFilter) {
       list = list.filter(function (it) {
         return (state.wantWho[keyOf(it)] || "") === state.whoFilter;
@@ -1039,7 +1077,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       whoEl.innerHTML = '<span class="who-lbl">Se med</span>' +
         rows
           .map(function (w) {
-            return '<button class="chip" data-who="' + w[0] + '" data-on="' +
+            return '<button class="chip" data-who="' + esc(w[0]) + '" data-on="' +
               (state.whoFilter === w[0] ? 1 : 0) + '" aria-pressed="' +
               (state.whoFilter === w[0]) + '">' + esc(w[1]) + " (" + w[2] + ")</button>";
           }).join("");
@@ -1056,16 +1094,22 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var villseHint = state.whoFilter
         ? "Inget är märkt för det sällskapet än. Välj Alla, eller märk en titel nedan."
         : "Tryck på stjärnan vid ett tips för att lägga det här.";
-      var msg = { film: "Inga tips i listan", serie: "Inga tips i listan",
-                  sett: "Inget markerat som sett",
-                  villse: state.whoFilter ? "Inget för det sällskapet" : "Inget i Vill se än",
-                  favorit: "Inga favoriter än" }[state.tab];
-      var hint = { film: "Markera minst en av tjänsterna ovan.",
+      var msg, hint;
+      if (state.search) {
+        msg = "Inga träffar på \u201c" + state.search + "\u201d";
+        hint = "Prova ett annat sökord, eller rensa sökningen.";
+      } else {
+        msg = { film: "Inga tips i listan", serie: "Inga tips i listan",
+                    sett: "Inget markerat som sett",
+                    villse: state.whoFilter ? "Inget för det sällskapet" : "Inget i Vill se än",
+                    favorit: "Inga favoriter än" }[state.tab];
+        hint = { film: "Markera minst en av tjänsterna ovan.",
                    serie: "Markera minst en av tjänsterna ovan.",
                    sett: "Tryck på bocken vid ett tips för att lägga det här.",
                    villse: villseHint,
                    favorit: "Tryck på hjärtat vid ett tips så hamnar det här." }[state.tab];
-      el.innerHTML = '<div class="empty"><p>' + msg + "</p><span>" + hint + "</span></div>";
+      }
+      el.innerHTML = '<div class="empty"><p>' + esc(msg) + "</p><span>" + hint + "</span></div>";
     } else {
       el.innerHTML = list.map(card).join("");
     }
@@ -1081,6 +1125,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   /* ============ händelser ============ */
 
   document.addEventListener("click", function (e) {
+    // Stänger hamburgarmenyn vid klick utanför den. Måste köras innan
+    // knapp-filtreringen nedan, eftersom bakgrundsklick inte är en knapp.
+    var dd = document.getElementById("menuDropdown");
+    if (dd.classList.contains("open") &&
+        !e.target.closest("#menuDropdown") && !e.target.closest("#menuBtn")) {
+      dd.classList.remove("open");
+      document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
+    }
+
     var t = e.target.closest("button");
     if (!t) return;
 
@@ -1195,7 +1248,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") state.tab = "film";
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
     }
+
+    if (t.id === "exportBtn") { exportBackupFile(); return; }
+    if (t.id === "importBtn") { document.getElementById("importFile").click(); return; }
   });
 
   document.getElementById("homeBtn").addEventListener("click", function () {
@@ -1207,12 +1264,18 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.click(); }
   });
 
-  document.addEventListener("click", function (e) {
-    var dd = document.getElementById("menuDropdown");
-    if (!dd.classList.contains("open")) return;
-    if (e.target.closest("#menuDropdown") || e.target.closest("#menuBtn")) return;
-    dd.classList.remove("open");
-    document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
+  document.getElementById("searchInput").addEventListener("input", function (e) {
+    state.search = e.target.value;
+    document.getElementById("searchClear").hidden = !state.search;
+    drawAll(); render();
+  });
+  document.getElementById("searchClear").addEventListener("click", function () {
+    state.search = "";
+    var input = document.getElementById("searchInput");
+    input.value = "";
+    this.hidden = true;
+    drawAll(); render();
+    input.focus();
   });
 
   document.getElementById("genreSelect").addEventListener("change", function (e) {
@@ -1227,6 +1290,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   document.addEventListener("change", function (e) {
     var t = e.target;
+
+    if (t.id === "importFile") {
+      if (t.files.length) { importBackupFile(t.files[0]); t.value = ""; }
+      return;
+    }
+
     if (!t.classList) return;
 
     if (t.classList.contains("rate-sel")) {
@@ -1246,17 +1315,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       store.set(WANTWHO_KEY, state.wantWho);
       render();
     }
-  });
-
-  document.addEventListener("click", function (e) {
-    if (e.target.closest("#exportBtn")) { exportBackupFile(); return; }
-    if (e.target.closest("#importBtn")) { document.getElementById("importFile").click(); return; }
-  });
-
-  document.addEventListener("change", function (e) {
-    if (e.target.id !== "importFile" || !e.target.files.length) return;
-    importBackupFile(e.target.files[0]);
-    e.target.value = "";
   });
 
   document.getElementById("themeSelect").addEventListener("change", function (e) {
