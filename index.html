@@ -82,9 +82,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .hb-bar{display:block;width:100%;height:2px;border-radius:1px;background:currentColor}
 .bar-right{margin-left:auto}
 .today{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
-.menu-pick-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:13px 16px;border-bottom:1px solid var(--line)}
-.menu-pick-lbl{font-family:var(--body);font-size:14px;color:var(--txt)}
 .menu-pick-select{background:var(--ink);border:1px solid var(--line);color:var(--txt);
   font-family:var(--mono);font-size:12px;padding:7px 26px 7px 10px;border-radius:var(--radius);
   -webkit-appearance:none;appearance:none;cursor:pointer;
@@ -100,6 +97,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   padding:13px 16px;cursor:pointer}
 .menu-dropdown button:last-child{border-bottom:none}
 .menu-dropdown button:hover{background:var(--ink)}
+.menu-row-toggle{display:flex;align-items:center;justify-content:space-between}
+.menu-caret{color:var(--dim);font-size:10px;transition:transform .15s}
+.menu-row-toggle[aria-expanded="true"] .menu-caret{transform:rotate(180deg)}
+.theme-options[hidden]{display:none}
+.theme-option{background:var(--ink);font-size:13px!important;color:var(--dim)!important;
+  padding:11px 16px 11px 30px!important;border-bottom:1px solid var(--line)!important}
+.theme-option[aria-current="true"]{color:var(--txt)!important;font-weight:700}
 .menu-dropdown #menuRemovedCount{color:var(--dim);font-family:var(--mono);font-size:11px}
 .sub{font-family:var(--mono);font-size:clamp(8.5px,2.6vw,11px);color:var(--dim);
   letter-spacing:.02em;padding:12px 0 0;margin:0;text-transform:uppercase;
@@ -437,13 +441,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 </header>
 
 <div class="menu-dropdown" id="menuDropdown">
-  <div class="menu-pick-row">
-    <span class="menu-pick-lbl">Utseende</span>
-    <select class="menu-pick-select" id="themeSelect" aria-label="Välj utseende">
-      <option value="retro">Text-TV</option>
-      <option value="soft">Mjuk</option>
-      <option value="modern">Modern</option>
-    </select>
+  <button class="menu-row-toggle" id="themeToggle" aria-expanded="false" aria-controls="themeOptions">
+    Utseende <span class="menu-caret">▾</span>
+  </button>
+  <div class="theme-options" id="themeOptions" hidden>
+    <button class="theme-option" data-theme-choice="retro">Text-TV</button>
+    <button class="theme-option" data-theme-choice="soft">Mjuk</button>
+    <button class="theme-option" data-theme-choice="modern">Modern</button>
   </div>
   <button data-page="backup">Profiler &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
@@ -707,6 +711,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function closeMenu() {
     document.getElementById("menuDropdown").classList.remove("open");
     document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
+    document.getElementById("themeOptions").hidden = true;
+    document.getElementById("themeToggle").setAttribute("aria-expanded", "false");
   }
 
   function switchProfile(name, keepTab) {
@@ -1604,13 +1610,31 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     }
   });
 
-  document.getElementById("themeSelect").addEventListener("change", function (e) {
-    state.theme = e.target.value;
+  function markCurrentTheme() {
+    var opts = document.querySelectorAll(".theme-option");
+    for (var i = 0; i < opts.length; i++) {
+      opts[i].setAttribute("aria-current", opts[i].dataset.themeChoice === state.theme ? "true" : "false");
+    }
+  }
+
+  document.getElementById("themeToggle").addEventListener("click", function () {
+    var opts = document.getElementById("themeOptions");
+    var willOpen = opts.hidden;
+    opts.hidden = !willOpen;
+    this.setAttribute("aria-expanded", willOpen);
+  });
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest(".theme-option");
+    if (!t) return;
+    state.theme = t.dataset.themeChoice;
     document.documentElement.setAttribute("data-theme", state.theme);
     store.set(THEME_KEY, state.theme);
+    markCurrentTheme();
     closeMenu();
   });
-  document.getElementById("themeSelect").value = state.theme;
+
+  markCurrentTheme();
   document.getElementById("sortSelect").value = state.sort;
   document.documentElement.setAttribute("data-theme", state.theme);
 
