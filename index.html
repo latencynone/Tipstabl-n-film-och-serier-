@@ -166,12 +166,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .fetch-status b{color:var(--txt);font-weight:700}
 .fetch-status.is-new{color:var(--sett)}
 .fetch-status.is-new b{color:var(--sett)}
+[data-theme="soft"] .fetch-status.is-new{color:var(--txt)}
+[data-theme="soft"] .fetch-status.is-new b{color:var(--txt)}
 .btn{font-family:var(--display);font-size:14px;letter-spacing:.09em;text-transform:uppercase;
   background:var(--film);color:var(--on-accent);border:none;padding:11px 18px;cursor:pointer;border-radius:var(--radius)}
 .btn:active{transform:translateY(1px)}
 .btn-outline{background:transparent;color:var(--txt);border:1px solid var(--line)}
 .btn-outline:hover{border-color:var(--txt)}
-.refresh-ic{font-size:1em;display:inline-block;vertical-align:-1px;margin-right:2px;line-height:1}
+.refresh-ic{font-size:1.2em;font-weight:700;display:inline-block;vertical-align:-2px;margin-right:2px;line-height:1}
 
 #page:empty{display:none}
 .page-back{background:none;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);
@@ -408,12 +410,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 </header>
 
 <div class="menu-dropdown" id="menuDropdown">
-  <button data-page="backup">Hemskärm &amp; backup</button>
+  <button data-page="backup">App &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
 </div>
 
 <div class="wrap">
-  <p class="sub">Kriterier: Max fem år gammalt · IMDb 7,0+ · Nyast överst</p>
+  <p class="sub">Kriterier: Max fem år gammalt · IMDb 7,0+</p>
 
   <div class="tabs" id="tabs"></div>
 
@@ -435,7 +437,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
           <option value="mine">Ditt betyg (högst)</option>
         </select>
       </div>
-      <button class="btn" id="refresh"><span class="refresh-ic">⟳</span> Hämta nya tips</button>
+      <button class="btn" id="refresh"><span class="refresh-ic">⟳&#65038;</span> Hämta nya tips</button>
     </div>
     <p class="fetch-status" id="fetchStatus"></p>
   </div>
@@ -851,7 +853,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (state.fetchAdded) {
         var extra = state.fetchAddedCount > 1 ? " (+" + (state.fetchAddedCount - 1) + " till)" : "";
         fs.className = "fetch-status is-new";
-        fs.innerHTML = "🆕 Nytt tips hämtat: <b>" + esc(state.lastFetchedTitle) + "</b> (" + kindLabel + ")" + extra;
+        fs.innerHTML = "* Nytt tips hämtat: <b>" + esc(state.lastFetchedTitle) + "</b> (" + kindLabel + ")" + extra;
       } else {
         fs.className = "fetch-status";
         fs.innerHTML = "Inga nya tips hittades den här gången. Senast hämtat: <b>" +
@@ -943,7 +945,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function renderBackupPage() {
     var standalone = window.navigator.standalone === true;
     var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
-      '<h2 class="page-title">Hemskärm &amp; backup</h2>' +
+      '<h2 class="page-title">App &amp; Backup</h2>' +
       (standalone ? '<p class="fetch-status">Aktuell status: Körs som app från hemskärmen</p>' : "") +
       '<h3 style="font-family:var(--display);font-size:16px;margin:18px 0 6px">Säkerhetskopiera</h3>' +
       '<p style="color:var(--dim);font-size:13px;margin:0 0 12px">Exportera sparar favoriter, sett, vill se, sällskap och betyg som en fil. Importera läser tillbaka en tidigare exporterad fil. Funkar likadant här och i hemskärmsappen – kom ihåg att göra båda i respektive läge om du vill hålla dem synkade.</p>' +
@@ -955,13 +957,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<span class="who-lbl" id="backupStatus2"></span>' +
       (standalone
         ? ""
-        : '<h3 style="font-family:var(--display);font-size:16px;margin:20px 0 6px">Lägg till på hemskärmen</h3>' +
+        : '<h3 style="font-family:var(--display);font-size:16px;margin:20px 0 6px">Lägg till som app på hemskärmen</h3>' +
           '<ol style="color:var(--dim);font-size:13px;padding-left:20px">' +
           "<li>Tryck på dela-ikonen i Safaris nederkant (fyrkant med pil upp).</li>" +
           "<li>Välj <b>Lägg till på hemskärmen</b> → <b>Lägg till</b>.</li>" +
           "<li>Öppna appen fortsättningsvis från den nya ikonen – då slipper den raderas efter en veckas inaktivitet.</li>" +
           "</ol>" +
-          '<p style="color:var(--dim);font-size:13px">Startar hemskärmsappen tom (den delar inte lagring med Safari): tryck Importera ovan och välj din senaste exportfil.</p>');
+          '<p style="color:var(--dim);font-size:13px">Om hemskärmsappen startar tom och saknar dina favoriter etc. (den delar inte lagring med Safari): tryck Importera ovan och välj din senaste exportfil.</p>');
     document.getElementById("page").innerHTML = html;
   }
 
