@@ -124,8 +124,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
 .tabs{display:flex;gap:2px;margin:16px 0 12px}
 .search-row{display:flex;align-items:center;gap:0;margin-bottom:14px;position:relative}
+.search-btn{position:absolute;left:0;top:0;background:none;border:none;color:var(--dim);
+  cursor:pointer;width:44px;height:44px;font-size:17px;display:flex;align-items:center;justify-content:center}
+.search-btn:hover{color:var(--txt)}
 .search-input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
-  font-family:var(--body);font-size:15px;padding:11px 44px 11px 14px;border-radius:var(--radius);
+  font-family:var(--body);font-size:15px;padding:11px 44px 11px 44px;border-radius:var(--radius);
   -webkit-appearance:none;appearance:none}
 .search-input::placeholder{color:var(--dim)}
 .search-input:focus-visible{outline:2px solid var(--film);outline-offset:2px}
@@ -428,6 +431,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <div class="tabs" id="tabs"></div>
 
   <div class="search-row">
+    <button class="search-btn" id="searchBtn" aria-label="Sök">🔍</button>
     <input type="search" id="searchInput" class="search-input" placeholder="Sök titel…" aria-label="Sök titel" autocomplete="off">
     <button class="search-clear" id="searchClear" aria-label="Rensa sökning" hidden>✕</button>
   </div>
@@ -1180,6 +1184,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.click(); }
   });
 
+  document.getElementById("searchBtn").addEventListener("click", function () {
+    document.getElementById("searchInput").blur();
+  });
+  document.getElementById("searchInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.target.blur(); }
+  });
   document.getElementById("searchInput").addEventListener("input", function (e) {
     state.search = e.target.value;
     document.getElementById("searchClear").hidden = !state.search;
