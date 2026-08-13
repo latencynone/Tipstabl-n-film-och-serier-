@@ -2,10 +2,8 @@ name: Uppdatera titlar
 
 on:
   schedule:
-    # Varje måndag kl 06:00 svensk tid (05:00 UTC vintertid / 04:00 UTC sommartid,
-    # cron kör alltid i UTC så tiden kan skifta en timme med sommartid)
     - cron: "0 5 * * 1"
-  workflow_dispatch: {}  # gör det möjligt att köra manuellt från Actions-fliken
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -15,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checka ut repot
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Sätt upp Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
