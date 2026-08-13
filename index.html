@@ -445,14 +445,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       <option value="modern">Modern</option>
     </select>
   </div>
-  <div class="menu-pick-row" id="profilePickRow" style="display:none">
-    <span class="menu-pick-lbl">Profil</span>
-    <select class="menu-pick-select" id="profileSelect" aria-label="Välj profil"></select>
-  </div>
-  <button data-page="backup">App &amp; Backup</button>
+  <button data-page="backup">Profiler &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
   <button data-page="info">Info &amp; förklaring</button>
-  <button data-page="compare" id="compareMenuBtn" style="display:none">Jämför profiler</button>
 </div>
 
 <div class="wrap">
@@ -714,7 +709,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
   }
 
-  function switchProfile(name) {
+  function switchProfile(name, keepTab) {
     if (name === ACTIVE_PROFILE) return;
     ACTIVE_PROFILE = name;
     state.activeProfile = name;
@@ -723,8 +718,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     state.expanded = {};
     state.whoFilter = "";
     state.search = "";
-    state.tab = "film";
-    state.returnTab = "film";
+    if (!keepTab) {
+      state.tab = "film";
+      state.returnTab = "film";
+    }
     drawAll();
     render();
   }
@@ -1257,7 +1254,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var standalone = window.navigator.standalone === true;
     var others = state.profiles.filter(function (p) { return p !== state.activeProfile; });
     var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
-      '<h2 class="page-title">App &amp; Backup</h2>' +
+      '<h2 class="page-title">Profiler &amp; Backup</h2>' +
       (standalone ? '<p class="fetch-status">Aktuell status: Körs som app från hemskärmen</p>' : "") +
 
       '<h3 style="font-family:var(--display);font-size:16px;margin:18px 0 6px">Profil</h3>' +
@@ -1265,6 +1262,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       esc(state.activeProfile) + '</b>. Varje profil har sina egna favoriter, betyg, sett-markeringar med mera.</p>' +
       '<div class="backup-link-row">' +
         '<button class="btn btn-outline" id="renameProfileBtn">Byt namn</button>' +
+        (others.length ? '<button class="btn btn-outline" data-page="compare">Jämför profiler</button>' : "") +
       "</div>" +
       (others.length
         ? '<div class="profile-list">' + others.map(function (p) {
@@ -1325,20 +1323,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     if (menuCount) menuCount.textContent = "(" + state.removed.length + ")";
     document.getElementById("foot").innerHTML =
       '<button class="foot-link" data-page="info">ℹ Info &amp; förklaring</button>';
-
-    var profilePickRow = document.getElementById("profilePickRow");
-    var profileSelectEl = document.getElementById("profileSelect");
-    var compareMenuBtn = document.getElementById("compareMenuBtn");
-    if (state.profiles.length > 1) {
-      profilePickRow.style.display = "";
-      compareMenuBtn.style.display = "";
-      profileSelectEl.innerHTML = state.profiles.map(function (p) {
-        return '<option value="' + esc(p) + '"' + (p === state.activeProfile ? " selected" : "") + '>' + esc(p) + "</option>";
-      }).join("");
-    } else {
-      profilePickRow.style.display = "none";
-      compareMenuBtn.style.display = "none";
-    }
 
     if (isPage) {
       if (state.tab === "backup") renderBackupPage();
@@ -1442,6 +1426,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     if (t.dataset.page) {
       closeMenu();
+      if (t.dataset.page === "compare") state.returnTab = "backup";
       state.tab = t.dataset.page;
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1543,7 +1528,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (newName !== null) renameActiveProfile(newName);
       return;
     }
-    if (t.dataset.switchProfile) { switchProfile(t.dataset.switchProfile); return; }
+    if (t.dataset.switchProfile) { switchProfile(t.dataset.switchProfile, true); return; }
     if (t.dataset.deleteProfile) { deleteProfile(t.dataset.deleteProfile); return; }
     if (t.id === "importBtn") { document.getElementById("importFile").click(); return; }
   });
@@ -1617,11 +1602,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       store.set(WANTWHO_KEY(), state.wantWho);
       render();
     }
-  });
-
-  document.getElementById("profileSelect").addEventListener("change", function (e) {
-    switchProfile(e.target.value);
-    closeMenu();
   });
 
   document.getElementById("themeSelect").addEventListener("change", function (e) {
