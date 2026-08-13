@@ -80,10 +80,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   opacity:.85;padding:0;align-self:center}
 .hamburger:hover{opacity:1}
 .hb-bar{display:block;width:100%;height:2px;border-radius:1px;background:currentColor}
-.bar-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.today{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
-.theme-pick{display:flex;align-items:center;gap:6px}
-.theme-pick-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;opacity:.85}
+.bar-right{margin-left:auto;display:grid;grid-template-columns:auto auto;
+  align-items:center;justify-content:end;gap:4px 6px}
+.today{grid-column:1 / -1;justify-self:end;font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.theme-pick-lbl{justify-self:end;font-family:var(--mono);font-size:10px;letter-spacing:.08em;opacity:.85}
 .theme-mini{background:transparent;border:none;color:inherit;
   font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 16px 3px 0;
   -webkit-appearance:none;appearance:none;cursor:pointer;
@@ -427,18 +427,14 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <h1 id="homeBtn" role="button" tabindex="0" aria-label="Till startsidan">FILMoSERIER</h1>
   <div class="bar-right">
     <span class="today" id="today"></span>
-    <div class="theme-pick" id="profilePick" style="display:none">
-      <span class="theme-pick-lbl">Profil</span>
-      <select class="theme-mini" id="profileSelect" aria-label="Välj profil"></select>
-    </div>
-    <div class="theme-pick">
-      <span class="theme-pick-lbl">Utseende</span>
-      <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
-        <option value="retro">Text-TV</option>
-        <option value="soft">Mjuk</option>
-        <option value="modern">Modern</option>
-      </select>
-    </div>
+    <span class="theme-pick-lbl" id="profilePickLbl" style="display:none">Profil</span>
+    <select class="theme-mini" id="profileSelect" aria-label="Välj profil" style="display:none"></select>
+    <span class="theme-pick-lbl">Utseende</span>
+    <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
+      <option value="retro">Text-TV</option>
+      <option value="soft">Mjuk</option>
+      <option value="modern">Modern</option>
+    </select>
   </div>
 </header>
 
@@ -1218,14 +1214,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.getElementById("foot").innerHTML =
       '<button class="foot-link" data-page="info">ℹ Info &amp; förklaring</button>';
 
-    var profilePick = document.getElementById("profilePick");
+    var profilePickLbl = document.getElementById("profilePickLbl");
+    var profileSelectEl = document.getElementById("profileSelect");
     if (state.profiles.length > 1) {
-      profilePick.style.display = "";
-      document.getElementById("profileSelect").innerHTML = state.profiles.map(function (p) {
+      profilePickLbl.style.display = "";
+      profileSelectEl.style.display = "";
+      profileSelectEl.innerHTML = state.profiles.map(function (p) {
         return '<option value="' + esc(p) + '"' + (p === state.activeProfile ? " selected" : "") + '>' + esc(p) + "</option>";
       }).join("");
     } else {
-      profilePick.style.display = "none";
+      profilePickLbl.style.display = "none";
+      profileSelectEl.style.display = "none";
     }
 
     if (isPage) {
