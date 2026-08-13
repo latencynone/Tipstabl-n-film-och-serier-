@@ -186,6 +186,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   font-size:12px;padding:8px 14px;border-radius:var(--radius);cursor:pointer;margin-bottom:16px}
 .page-back:hover{color:var(--txt);border-color:var(--txt)}
 .page-title{font-family:var(--display);font-size:22px;margin:0 0 4px;text-transform:none;letter-spacing:normal}
+.compare-pickers{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.compare-pickers .menu-pick-select{flex:1;background:var(--panel);border:1px solid var(--line)}
+.compare-vs{font-family:var(--mono);color:var(--dim);font-size:13px;flex:0 0 auto}
+.compare-count{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--dim);
+  text-transform:uppercase;margin:0 0 10px}
 .select-wrap{position:relative;flex:1 1 160px}
 .select-wrap:after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);
   color:var(--dim);pointer-events:none;font-size:11px}
@@ -447,6 +452,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <button data-page="backup">App &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
   <button data-page="info">Info &amp; förklaring</button>
+  <button data-page="compare" id="compareMenuBtn" style="display:none">Jämför profiler</button>
 </div>
 
 <div class="wrap">
@@ -667,6 +673,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     tab: "film",
     activeProfile: ACTIVE_PROFILE,
     profiles: ALL_PROFILES.slice(),
+    compareA: "",
+    compareB: "",
     theme: store.get(THEME_KEY) || "retro",
     active: SERVICES.slice(),
     genre: "",
@@ -1108,6 +1116,100 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     return sortList(list);
   }
 
+  // Läser en GODTYCKLIG profils Vill se-lista direkt ur lagringen (inte
+  // nödvändigtvis den aktiva profilen) - används bara för jämförelsen.
+  function getProfileWantToSee(profileName) {
+    return normalizeKeys(store.get(BASE_WANT + ":" + profileName));
+  }
+
+  function computeOverlap(profileA, profileB) {
+    var wantA = getProfileWantToSee(profileA);
+    var wantB = getProfileWantToSee(profileB);
+    var setB = {};
+    wantB.forEach(function (k) { setB[k] = true; });
+    return wantA.filter(function (k) { return setB[k]; })
+      .map(function (k) { return BY_KEY[k]; })
+      .filter(Boolean);
+  }
+
+  function profileSelectHtml(id, selected) {
+    return '<select class="menu-pick-select" id="' + id + '" aria-label="Välj profil">' +
+      state.profiles.map(function (p) {
+        return '<option value="' + esc(p) + '"' + (p === selected ? " selected" : "") + '>' + esc(p) + "</option>";
+      }).join("") + "</select>";
+  }
+
+  // Enklare, icke-interaktivt kort för jämförelsevyn - inga ikoner för
+  // favorit/sett/vill se/betyg, eftersom de hör till EN specifik profil
+  // och skulle vara missvisande att visa/ändra i en jämförelse mellan två.
+  function compareCard(it) {
+    var d = parseDate(it);
+    var hasDay = it.date.length >= 10;
+    var rest = hasDay ? String(d.getDate()).padStart(2, "0") + " " + MONTHS[d.getMonth()] : MONTHS[d.getMonth()];
+    var link = it.id
+      ? "https://www.imdb.com/title/" + it.id + "/"
+      : "https://www.imdb.com/search/title/?title=" + encodeURIComponent(it.title) +
+        "&title_type=" + (it.kind === "film" ? "feature" : "tvSeries");
+    var rtLink = it.rtId
+      ? "https://www.rottentomatoes.com/" + (it.kind === "film" ? "m/" : "tv/") + it.rtId + "/"
+      : "https://www.rottentomatoes.com/search?search=" + encodeURIComponent(it.title);
+    var mcLink = it.mcId
+      ? "https://www.metacritic.com/" + (it.kind === "film" ? "movie/" : "tv/") + it.mcId + "/"
+      : "https://www.metacritic.com/search/all/" + encodeURIComponent(it.title) + "/results";
+    return '<article class="item" data-kind="' + it.kind + '">' +
+      '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
+      '</div><div class="md">' + rest + "</div></div>" +
+      '<div class="body"><div class="head"><h2 class="title">' +
+      '<a href="' + link + '" target="_blank" rel="noopener noreferrer">' + esc(it.title) + "</a></h2></div>" +
+      '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
+      '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>" +
+      (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener noreferrer">RT ' + it.rt + "%</a>" : "") +
+      (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener noreferrer">MC ' + it.mc + "</a>" : "") +
+      "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
+      "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span></div>" +
+      '<p class="desc">' + esc(it.desc) + "</p></div></article>";
+  }
+
+  function renderComparePage() {
+    var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
+      '<h2 class="page-title">Jämför profiler</h2>';
+
+    if (state.profiles.length < 2) {
+      html += '<div class="empty"><p>Behöver minst två profiler</p>' +
+        '<span>Importera en annan profils exportfil under App &amp; Backup för att kunna jämföra.</span></div>';
+      document.getElementById("page").innerHTML = html;
+      return;
+    }
+
+    if (!state.compareA || state.profiles.indexOf(state.compareA) === -1) state.compareA = state.profiles[0];
+    if (!state.compareB || state.profiles.indexOf(state.compareB) === -1) {
+      state.compareB = state.profiles.filter(function (p) { return p !== state.compareA; })[0] || state.profiles[0];
+    }
+
+    html += '<p style="color:var(--dim);font-size:13px;margin:0 0 14px">Visar titlar båda profilerna markerat med ★ Vill se.</p>' +
+      '<div class="compare-pickers">' +
+      profileSelectHtml("compareASelect", state.compareA) +
+      '<span class="compare-vs">×</span>' +
+      profileSelectHtml("compareBSelect", state.compareB) +
+      "</div>";
+
+    if (state.compareA === state.compareB) {
+      html += '<div class="empty"><p>Välj två olika profiler</p><span>Samma profil är vald på båda ställena.</span></div>';
+    } else {
+      var common = computeOverlap(state.compareA, state.compareB).sort(newestFirst);
+      if (!common.length) {
+        html += '<div class="empty"><p>Inga gemensamma titlar än</p><span>Inget som både "' +
+          esc(state.compareA) + '" och "' + esc(state.compareB) + '" har markerat med ★ Vill se.</span></div>';
+      } else {
+        html += '<p class="compare-count">' + common.length +
+          (common.length === 1 ? " gemensam titel" : " gemensamma titlar") + "</p>" +
+          common.map(compareCard).join("");
+      }
+    }
+
+    document.getElementById("page").innerHTML = html;
+  }
+
   function renderInfoPage() {
     var total = POOL.film.length + POOL.serie.length;
     var html =
@@ -1212,7 +1314,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   }
 
   function render() {
-    var isPage = state.tab === "backup" || state.tab === "removed" || state.tab === "info";
+    var isPage = state.tab === "backup" || state.tab === "removed" || state.tab === "info" || state.tab === "compare";
     document.getElementById("tabs").style.display = isPage ? "none" : "";
     document.querySelector(".search-row").style.display = isPage ? "none" : "";
     document.querySelector(".ctrl").style.display = isPage ? "none" : "";
@@ -1226,18 +1328,22 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     var profilePickRow = document.getElementById("profilePickRow");
     var profileSelectEl = document.getElementById("profileSelect");
+    var compareMenuBtn = document.getElementById("compareMenuBtn");
     if (state.profiles.length > 1) {
       profilePickRow.style.display = "";
+      compareMenuBtn.style.display = "";
       profileSelectEl.innerHTML = state.profiles.map(function (p) {
         return '<option value="' + esc(p) + '"' + (p === state.activeProfile ? " selected" : "") + '>' + esc(p) + "</option>";
       }).join("");
     } else {
       profilePickRow.style.display = "none";
+      compareMenuBtn.style.display = "none";
     }
 
     if (isPage) {
       if (state.tab === "backup") renderBackupPage();
       else if (state.tab === "info") renderInfoPage();
+      else if (state.tab === "compare") renderComparePage();
       else renderRemovedPage();
       return;
     }
@@ -1488,6 +1594,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (t.files.length) { importBackupFile(t.files[0]); t.value = ""; }
       return;
     }
+
+    if (t.id === "compareASelect") { state.compareA = t.value; renderComparePage(); return; }
+    if (t.id === "compareBSelect") { state.compareB = t.value; renderComparePage(); return; }
 
     if (!t.classList) return;
 
