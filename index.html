@@ -255,6 +255,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 #removedPanel:empty{display:none}
 #removedPanel{border:1px dashed var(--line);padding:4px 12px;margin:-6px 0 18px;font-family:var(--mono);font-size:12px;border-radius:var(--radius)}
 .rm-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.profile-list{margin:6px 0 4px}
+.profile-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.profile-row:last-child{border-bottom:none}
+.profile-row-actions{display:flex;gap:6px;flex-shrink:0}
 .rm-row:last-child{border-bottom:none}
 .rm-restore{background:none;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);
   font-size:11px;padding:5px 9px;cursor:pointer;border-radius:var(--radius)}
@@ -423,6 +427,10 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <h1 id="homeBtn" role="button" tabindex="0" aria-label="Till startsidan">FILMoSERIER</h1>
   <div class="bar-right">
     <span class="today" id="today"></span>
+    <div class="theme-pick" id="profilePick" style="display:none">
+      <span class="theme-pick-lbl">Profil</span>
+      <select class="theme-mini" id="profileSelect" aria-label="Välj profil"></select>
+    </div>
     <div class="theme-pick">
       <span class="theme-pick-lbl">Utseende</span>
       <select class="theme-mini" id="themeSelect" aria-label="Välj utseende">
@@ -489,11 +497,68 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var SERVICES = ["Netflix", "Apple TV+", "HBO Max", "Prime Video", "Disney+"];
   var NOW = new Date();
   var MONTHS = ["JAN","FEB","MAR","APR","MAJ","JUN","JUL","AUG","SEP","OKT","NOV","DEC"];
-  var FAV_KEY = "tipstablan:favoriter";
-  var SEEN_KEY = "tipstablan:visade";
-  var WATCHED_KEY = "tipstablan:sett";
-  var WANT_KEY = "tipstablan:vill-se";
-  var WANTWHO_KEY = "tipstablan:vill-se-sallskap";
+  var store = {
+    get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    remove: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+
+  /* ============ profiler ============
+     All personlig data (favoriter, sett, vill se, sällskap, betyg,
+     borttaget, rotationshistorik) sparas per profilnamn, t.ex.
+     "tipstablan:favoriter:Martin". PROFILES_KEY/ACTIVE_PROFILE_KEY är
+     de enda nycklarna som INTE är profil-specifika.
+  ==================================== */
+  var PROFILES_KEY = "tipstablan:profiler";
+  var ACTIVE_PROFILE_KEY = "tipstablan:aktiv-profil";
+  var DEFAULT_PROFILE = "Jag";
+
+  var BASE_FAV = "tipstablan:favoriter";
+  var BASE_SEEN = "tipstablan:visade";
+  var BASE_WATCHED = "tipstablan:sett";
+  var BASE_WANT = "tipstablan:vill-se";
+  var BASE_WANTWHO = "tipstablan:vill-se-sallskap";
+  var BASE_REMOVED = "tipstablan:borttagna";
+  var BASE_RATING = "tipstablan:betyg";
+  var PROFILE_BASE_KEYS = [BASE_FAV, BASE_SEEN, BASE_WATCHED, BASE_WANT, BASE_WANTWHO, BASE_REMOVED, BASE_RATING];
+
+  // Körs en gång: om appen aldrig haft profiler men det finns gammal,
+  // o-namnrymd data (från innan den här funktionen fanns), flyttas den
+  // in under en första profil i stället för att gå förlorad.
+  function migrateLegacyDataIfNeeded() {
+    var profiles = store.get(PROFILES_KEY);
+    if (profiles && profiles.length) return profiles;
+
+    var hadAny = false;
+    PROFILE_BASE_KEYS.forEach(function (base) {
+      if (store.get(base) !== null) hadAny = true;
+    });
+
+    var name = DEFAULT_PROFILE;
+    if (hadAny) {
+      PROFILE_BASE_KEYS.forEach(function (base) {
+        var v = store.get(base);
+        if (v !== null) store.set(base + ":" + name, v);
+      });
+    }
+    var list = [name];
+    store.set(PROFILES_KEY, list);
+    store.set(ACTIVE_PROFILE_KEY, name);
+    return list;
+  }
+
+  var ALL_PROFILES = migrateLegacyDataIfNeeded();
+  var ACTIVE_PROFILE = store.get(ACTIVE_PROFILE_KEY) || ALL_PROFILES[0] || DEFAULT_PROFILE;
+  if (ALL_PROFILES.indexOf(ACTIVE_PROFILE) === -1) ALL_PROFILES.push(ACTIVE_PROFILE);
+
+  function nsKey(base) { return base + ":" + ACTIVE_PROFILE; }
+  function FAV_KEY() { return nsKey(BASE_FAV); }
+  function SEEN_KEY() { return nsKey(BASE_SEEN); }
+  function WATCHED_KEY() { return nsKey(BASE_WATCHED); }
+  function WANT_KEY() { return nsKey(BASE_WANT); }
+  function WANTWHO_KEY() { return nsKey(BASE_WANTWHO); }
+  function REMOVED_KEY() { return nsKey(BASE_REMOVED); }
+  function RATING_KEY() { return nsKey(BASE_RATING); }
 
   // Sällskapsalternativ för Vill se. Lägg till fler här vid behov –
   // både kortens väljare och filterraden byggs från den här listan.
@@ -502,8 +567,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     { id: "familj", label: "Familjen" },
     { id: "emma", label: "M&E" }
   ];
-  var REMOVED_KEY = "tipstablan:borttagna";
-  var RATING_KEY = "tipstablan:betyg";
   var THEME_KEY = "tipstablan:tema";
 
   /* ============ TITELBANKEN ============
@@ -558,11 +621,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   /* ============ hjälpare ============ */
 
-  var store = {
-    get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
-    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-  };
-
   function parseDate(it) {
     var s = it.date;
     var d = new Date(s.length === 7 ? s + "-01" : s);
@@ -606,18 +664,20 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   var state = {
     tab: "film",
+    activeProfile: ACTIVE_PROFILE,
+    profiles: ALL_PROFILES.slice(),
     theme: store.get(THEME_KEY) || "retro",
     active: SERVICES.slice(),
     genre: "",
-    favorites: normalizeKeys(store.get(FAV_KEY)),
-    watched: normalizeKeys(store.get(WATCHED_KEY)),
-    wantToSee: normalizeKeys(store.get(WANT_KEY)),
-    wantWho: store.get(WANTWHO_KEY) || {},
+    favorites: normalizeKeys(store.get(FAV_KEY())),
+    watched: normalizeKeys(store.get(WATCHED_KEY())),
+    wantToSee: normalizeKeys(store.get(WANT_KEY())),
+    wantWho: store.get(WANTWHO_KEY()) || {},
     whoFilter: "",
     sort: "datum",
-    removed: normalizeKeys(store.get(REMOVED_KEY)),
-    ratings: store.get(RATING_KEY) || {},
-    seen: store.get(SEEN_KEY) || [],
+    removed: normalizeKeys(store.get(REMOVED_KEY())),
+    ratings: store.get(RATING_KEY()) || {},
+    seen: store.get(SEEN_KEY()) || [],
     returnTab: "film",
     expanded: {},
     search: "",
@@ -628,6 +688,65 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     shown: { film: [], serie: [] }
   };
 
+  // Läser om alla profil-specifika fält från lagringen för den nu aktiva
+  // profilen. Används både vid start och varje gång man byter profil.
+  function loadProfileData() {
+    state.favorites = normalizeKeys(store.get(FAV_KEY()));
+    state.watched = normalizeKeys(store.get(WATCHED_KEY()));
+    state.wantToSee = normalizeKeys(store.get(WANT_KEY()));
+    state.wantWho = store.get(WANTWHO_KEY()) || {};
+    state.removed = normalizeKeys(store.get(REMOVED_KEY()));
+    state.ratings = store.get(RATING_KEY()) || {};
+    state.seen = store.get(SEEN_KEY()) || [];
+  }
+
+  function switchProfile(name) {
+    if (name === ACTIVE_PROFILE) return;
+    ACTIVE_PROFILE = name;
+    state.activeProfile = name;
+    store.set(ACTIVE_PROFILE_KEY, name);
+    loadProfileData();
+    state.expanded = {};
+    state.whoFilter = "";
+    state.search = "";
+    state.tab = "film";
+    state.returnTab = "film";
+    drawAll();
+    render();
+  }
+
+  function renameActiveProfile(newName) {
+    newName = (newName || "").trim();
+    if (!newName || newName === ACTIVE_PROFILE) return;
+    if (state.profiles.indexOf(newName) !== -1) {
+      alert("Det namnet används redan av en annan profil.");
+      return;
+    }
+    PROFILE_BASE_KEYS.forEach(function (base) {
+      var v = store.get(base + ":" + ACTIVE_PROFILE);
+      if (v !== null) store.set(base + ":" + newName, v);
+      store.remove(base + ":" + ACTIVE_PROFILE);
+    });
+    var idx = state.profiles.indexOf(ACTIVE_PROFILE);
+    if (idx !== -1) state.profiles[idx] = newName;
+    store.set(PROFILES_KEY, state.profiles);
+    ACTIVE_PROFILE = newName;
+    state.activeProfile = newName;
+    store.set(ACTIVE_PROFILE_KEY, newName);
+    render();
+  }
+
+  function deleteProfile(name) {
+    if (name === ACTIVE_PROFILE) return; // görs inte via UI, men skyddar ändå
+    if (!confirm("Ta bort profilen \"" + name + "\" och all dess sparade data?\n\nGår inte att ångra.")) return;
+    PROFILE_BASE_KEYS.forEach(function (base) {
+      store.remove(base + ":" + name);
+    });
+    state.profiles = state.profiles.filter(function (p) { return p !== name; });
+    store.set(PROFILES_KEY, state.profiles);
+    render();
+  }
+
   /* ============ backup via fil ============
      Enkel export/import: en nedladdad JSON-fil med favoriter, sett,
      vill se, sällskap, betyg och borttaget. Funkar likadant i Safari
@@ -637,6 +756,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   function buildBackupObj() {
     return {
+      profileName: state.activeProfile,
       fav: state.favorites, watched: state.watched, want: state.wantToSee,
       who: state.wantWho, removed: state.removed, ratings: state.ratings
     };
@@ -659,21 +779,34 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     return out;
   }
 
-  function applyBackupObj(b) {
-    state.favorites = normalizeKeys(b.fav);
-    state.watched = normalizeKeys(b.watched);
-    state.wantToSee = normalizeKeys(b.want);
-    state.wantWho = sanitizeObj(b.who, function (v) { return typeof v === "string" && v.length < 50; });
-    state.removed = normalizeKeys(b.removed);
-    state.ratings = sanitizeObj(b.ratings, function (v) {
+  // Skriver importerad data till EN VALD PROFILS lagring - inte nödvändigtvis
+  // den som är aktiv just nu. Om profilen är ny läggs den till i listan.
+  // Uppdaterar bara den synliga vyn (state.*) om det är den aktiva profilen.
+  function applyBackupObj(b, targetProfile) {
+    var favorites = normalizeKeys(b.fav);
+    var watched = normalizeKeys(b.watched);
+    var wantToSee = normalizeKeys(b.want);
+    var wantWho = sanitizeObj(b.who, function (v) { return typeof v === "string" && v.length < 50; });
+    var removed = normalizeKeys(b.removed);
+    var ratings = sanitizeObj(b.ratings, function (v) {
       return typeof v === "number" && v >= 1 && v <= 10;
     });
-    store.set(FAV_KEY, state.favorites);
-    store.set(WATCHED_KEY, state.watched);
-    store.set(WANT_KEY, state.wantToSee);
-    store.set(WANTWHO_KEY, state.wantWho);
-    store.set(REMOVED_KEY, state.removed);
-    store.set(RATING_KEY, state.ratings);
+
+    store.set(BASE_FAV + ":" + targetProfile, favorites);
+    store.set(BASE_WATCHED + ":" + targetProfile, watched);
+    store.set(BASE_WANT + ":" + targetProfile, wantToSee);
+    store.set(BASE_WANTWHO + ":" + targetProfile, wantWho);
+    store.set(BASE_REMOVED + ":" + targetProfile, removed);
+    store.set(BASE_RATING + ":" + targetProfile, ratings);
+
+    if (state.profiles.indexOf(targetProfile) === -1) {
+      state.profiles.push(targetProfile);
+      store.set(PROFILES_KEY, state.profiles);
+    }
+
+    if (targetProfile === ACTIVE_PROFILE) {
+      loadProfileData();
+    }
   }
 
   function exportBackupFile() {
@@ -685,7 +818,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       "-" + String(d.getDate()).padStart(2, "0");
     var a = document.createElement("a");
     a.href = url;
-    a.download = "FILMoSERIER-backup-" + stamp + ".json";
+    a.download = "FILMoSERIER-" + state.activeProfile + "-" + stamp + ".json";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -695,23 +828,55 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function importBackupFile(file) {
     var reader = new FileReader();
     reader.onload = function () {
+      var incoming;
       try {
-        var incoming = JSON.parse(String(reader.result));
-        var proceed = confirm(
-          "Importera data från filen?\n\nDet du redan har sparat i den här webbläsaren skrivs över."
-        );
-        if (proceed) {
-          applyBackupObj(incoming);
-          drawAll();
-          render();
-          document.getElementById("backupStatus2").textContent = "✓ Importerat";
-          setTimeout(function () {
-            var el = document.getElementById("backupStatus2");
-            if (el) el.textContent = "";
-          }, 2500);
-        }
+        incoming = JSON.parse(String(reader.result));
       } catch (e) {
         alert("Kunde inte läsa filen. Är det en export från den här appen?");
+        return;
+      }
+
+      var suggested = (incoming.profileName && String(incoming.profileName).trim()) || "";
+      var name = prompt(
+        "Vilket namn hör den här datan till?\n\n" +
+        "Redan sparade profiler: " + state.profiles.join(", "),
+        suggested
+      );
+      if (name === null) return; // avbrutet
+      name = name.trim();
+      if (!name) { alert("Namnet kan inte vara tomt."); return; }
+
+      var isActive = name === ACTIVE_PROFILE;
+      var isExistingOther = !isActive && state.profiles.indexOf(name) !== -1;
+      var isNew = state.profiles.indexOf(name) === -1;
+
+      var proceed = true;
+      if (isActive) {
+        proceed = confirm("Skriva över din nuvarande profil (\"" + name + "\") med datan från filen?");
+      } else if (isExistingOther) {
+        proceed = confirm(
+          "\"" + name + "\" finns redan som en sparad profil.\n\n" +
+          "Skriva över den profilens data med filen? Din egen aktiva profil (\"" + ACTIVE_PROFILE + "\") påverkas inte."
+        );
+      }
+      if (!proceed) return;
+
+      applyBackupObj(incoming, name);
+
+      if (isActive) {
+        drawAll();
+        render();
+      } else {
+        render(); // uppdaterar profil-väljaren med ev. ny profil, men byter inte vy
+        if (isNew && confirm("\"" + name + "\" har lagts till som ny profil. Vill du växla till den nu?")) {
+          switchProfile(name);
+        }
+      }
+
+      var statusEl = document.getElementById("backupStatus2");
+      if (statusEl) {
+        statusEl.textContent = "✓ Importerat till \"" + name + "\"";
+        setTimeout(function () { statusEl.textContent = ""; }, 3000);
       }
     };
     reader.readAsText(file);
@@ -762,7 +927,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   function drawAll() {
     state.shown.film = draw("film");
     state.shown.serie = draw("serie");
-    store.set(SEEN_KEY, state.seen);
+    store.set(SEEN_KEY(), state.seen);
   }
 
   // Jämför vilka titlar som visades innan en hämtning mot vilka som visas
@@ -982,11 +1147,30 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   function renderBackupPage() {
     var standalone = window.navigator.standalone === true;
+    var others = state.profiles.filter(function (p) { return p !== state.activeProfile; });
     var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
       '<h2 class="page-title">App &amp; Backup</h2>' +
       (standalone ? '<p class="fetch-status">Aktuell status: Körs som app från hemskärmen</p>' : "") +
-      '<h3 style="font-family:var(--display);font-size:16px;margin:18px 0 6px">Säkerhetskopiera</h3>' +
-      '<p style="color:var(--dim);font-size:13px;margin:0 0 12px">Exportera sparar favoriter, sett, vill se, sällskap och betyg som en fil. Importera läser tillbaka en tidigare exporterad fil. Funkar likadant här och i hemskärmsappen – kom ihåg att göra båda i respektive läge om du vill hålla dem synkade.</p>' +
+
+      '<h3 style="font-family:var(--display);font-size:16px;margin:18px 0 6px">Profil</h3>' +
+      '<p style="color:var(--dim);font-size:13px;margin:0 0 10px">Du använder just nu profilen <b style="color:var(--txt)">' +
+      esc(state.activeProfile) + '</b>. Varje profil har sina egna favoriter, betyg, sett-markeringar med mera.</p>' +
+      '<div class="backup-link-row">' +
+        '<button class="btn btn-outline" id="renameProfileBtn">Byt namn</button>' +
+      "</div>" +
+      (others.length
+        ? '<div class="profile-list">' + others.map(function (p) {
+            return '<div class="profile-row"><span>' + esc(p) + '</span>' +
+              '<span class="profile-row-actions">' +
+              '<button class="rm-restore" data-switch-profile="' + esc(p) + '">Byt till</button>' +
+              '<button class="rm-restore" data-delete-profile="' + esc(p) + '">Ta bort</button>' +
+              '</span></div>';
+          }).join("") + "</div>"
+        : '<p style="color:var(--dim);font-size:13px">Inga andra profiler sparade än. Importerar du någon annans exportfil under ett nytt namn dyker den upp här.</p>') +
+
+      '<h3 style="font-family:var(--display);font-size:16px;margin:20px 0 6px">Säkerhetskopiera</h3>' +
+      '<p style="color:var(--dim);font-size:13px;margin:0 0 12px">Exportera sparar favoriter, sett, vill se, sällskap och betyg för <b style="color:var(--txt)">' +
+      esc(state.activeProfile) + '</b> som en fil. Importera läser tillbaka en fil och frågar vilket profilnamn den hör till – skriver över den profilen om namnet redan finns, annars läggs den till som en ny.</p>' +
       '<div class="backup-link-row">' +
         '<button class="btn" id="exportBtn">⬇️ Exportera</button>' +
         '<button class="btn btn-outline" id="importBtn">⬆️ Importera</button>' +
@@ -1033,6 +1217,16 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     if (menuCount) menuCount.textContent = "(" + state.removed.length + ")";
     document.getElementById("foot").innerHTML =
       '<button class="foot-link" data-page="info">ℹ Info &amp; förklaring</button>';
+
+    var profilePick = document.getElementById("profilePick");
+    if (state.profiles.length > 1) {
+      profilePick.style.display = "";
+      document.getElementById("profileSelect").innerHTML = state.profiles.map(function (p) {
+        return '<option value="' + esc(p) + '"' + (p === state.activeProfile ? " selected" : "") + '>' + esc(p) + "</option>";
+      }).join("");
+    } else {
+      profilePick.style.display = "none";
+    }
 
     if (isPage) {
       if (state.tab === "backup") renderBackupPage();
@@ -1169,7 +1363,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       state.favorites = state.favorites.indexOf(k) !== -1
         ? state.favorites.filter(function (f) { return f !== k; })
         : [k].concat(state.favorites);
-      store.set(FAV_KEY, state.favorites);
+      store.set(FAV_KEY(), state.favorites);
       render(); return;
     }
 
@@ -1178,7 +1372,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       state.watched = state.watched.indexOf(wk) !== -1
         ? state.watched.filter(function (w) { return w !== wk; })
         : [wk].concat(state.watched);
-      store.set(WATCHED_KEY, state.watched);
+      store.set(WATCHED_KEY(), state.watched);
       drawAll(); render(); return;
     }
 
@@ -1187,11 +1381,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (state.wantToSee.indexOf(vk) !== -1) {
         state.wantToSee = state.wantToSee.filter(function (w) { return w !== vk; });
         delete state.wantWho[vk];
-        store.set(WANTWHO_KEY, state.wantWho);
+        store.set(WANTWHO_KEY(), state.wantWho);
       } else {
         state.wantToSee = [vk].concat(state.wantToSee);
       }
-      store.set(WANT_KEY, state.wantToSee);
+      store.set(WANT_KEY(), state.wantToSee);
       drawAll(); render(); return;
     }
 
@@ -1207,18 +1401,18 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       state.watched = state.watched.filter(function (w) { return w !== rk; });
       state.wantToSee = state.wantToSee.filter(function (w) { return w !== rk; });
       delete state.wantWho[rk];
-      store.set(REMOVED_KEY, state.removed);
-      store.set(FAV_KEY, state.favorites);
-      store.set(WATCHED_KEY, state.watched);
-      store.set(WANT_KEY, state.wantToSee);
-      store.set(WANTWHO_KEY, state.wantWho);
+      store.set(REMOVED_KEY(), state.removed);
+      store.set(FAV_KEY(), state.favorites);
+      store.set(WATCHED_KEY(), state.watched);
+      store.set(WANT_KEY(), state.wantToSee);
+      store.set(WANTWHO_KEY(), state.wantWho);
       drawAll(); render(); return;
     }
 
     if (t.dataset.restore) {
       var rsk = t.dataset.restore;
       state.removed = state.removed.filter(function (x) { return x !== rsk; });
-      store.set(REMOVED_KEY, state.removed);
+      store.set(REMOVED_KEY(), state.removed);
       drawAll(); render(); return;
     }
 
@@ -1233,6 +1427,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     }
 
     if (t.id === "exportBtn") { exportBackupFile(); return; }
+    if (t.id === "renameProfileBtn") {
+      var newName = prompt("Nytt namn på profilen \"" + state.activeProfile + "\":", state.activeProfile);
+      if (newName !== null) renameActiveProfile(newName);
+      return;
+    }
+    if (t.dataset.switchProfile) { switchProfile(t.dataset.switchProfile); return; }
+    if (t.dataset.deleteProfile) { deleteProfile(t.dataset.deleteProfile); return; }
     if (t.id === "importBtn") { document.getElementById("importFile").click(); return; }
   });
 
@@ -1290,7 +1491,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var v = t.value;
       if (v) state.ratings[k] = parseInt(v, 10);
       else delete state.ratings[k];
-      store.set(RATING_KEY, state.ratings);
+      store.set(RATING_KEY(), state.ratings);
       render();
       return;
     }
@@ -1299,9 +1500,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var wk = t.dataset.whoset;
       if (t.value) state.wantWho[wk] = t.value;
       else delete state.wantWho[wk];
-      store.set(WANTWHO_KEY, state.wantWho);
+      store.set(WANTWHO_KEY(), state.wantWho);
       render();
     }
+  });
+
+  document.getElementById("profileSelect").addEventListener("change", function (e) {
+    switchProfile(e.target.value);
   });
 
   document.getElementById("themeSelect").addEventListener("change", function (e) {
