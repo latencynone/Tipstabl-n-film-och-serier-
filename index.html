@@ -43,12 +43,12 @@
 
 /* ---- Modern: mörk, ren app-känsla, dova accentfärger, rundade ytor ---- */
 [data-theme="modern"]{
-  --ink:#0B0D12; --panel:#151821; --line:#262B38;
+  --ink:#000000; --panel:#161616; --line:#2C2C2E;
   --film:#8FB3FF; --serie:#5EEAD4; --fav:#FDA4AF; --sett:#6EE7B7; --want:#FBBF66;
-  --rt:#FCA5A5; --mc:#7DD3FC; --mine:#C4B5FD;
-  --txt:#F3F4F8; --dim:#8B93A7; --dim2:#BDC4D6; --on-accent:var(--ink); --desc:#D7DAE5;
-  --display:'Manrope','Inter',system-ui,sans-serif;
-  --body:'Inter',system-ui,-apple-system,sans-serif;
+  --rt:#FCA5A5; --mc:#7DD3FC; --mine:#C4B5FD; --gold:#F5C518;
+  --txt:#F3F4F8; --dim:#9B9B9E; --dim2:#BDC4D6; --on-accent:var(--ink); --desc:#D7DAE5;
+  --display:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter',system-ui,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,'Inter',system-ui,sans-serif;
   --radius:10px; --shadow:0 8px 24px -14px rgba(0,0,0,.6);
   color-scheme: dark;
 }
@@ -336,10 +336,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="modern"] .rail:after, [data-theme="soft"] .rail:after,
 [data-theme="modern"] .dot, [data-theme="soft"] .dot{ display:none; }
 
-[data-theme="modern"] .item, [data-theme="soft"] .item{
-  border:1px solid var(--line); border-bottom:1px solid var(--line);
-  border-radius:var(--radius); background:var(--panel);
+[data-theme="soft"] .item{
+  border:1px solid var(--line); border-radius:var(--radius); background:var(--panel);
   padding:16px; margin-bottom:12px; box-shadow:var(--shadow);
+}
+[data-theme="modern"] .item{
+  border:none; border-bottom:1px solid var(--line);
+  padding:18px 0; margin-bottom:0; background:transparent;
 }
 [data-theme="modern"] .rail, [data-theme="soft"] .rail{
   width:52px; flex:0 0 52px; text-align:left;
@@ -348,6 +351,30 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="modern"] .watch[data-on="1"], [data-theme="soft"] .watch[data-on="1"]{background:color-mix(in srgb, var(--sett) 16%, transparent)}
 [data-theme="modern"] .star[data-on="1"], [data-theme="soft"] .star[data-on="1"]{background:color-mix(in srgb, var(--want) 16%, transparent)}
 [data-theme="modern"] .rate-sel[data-rated="1"], [data-theme="soft"] .rate-sel[data-rated="1"]{background:color-mix(in srgb, var(--mine) 16%, transparent)}
+
+/* ---- Modern Mörk: IMDb-appens visuella språk (se bifogad referensbild) ----
+   Nästan svart bakgrund, platt lista med tunna skiljelinjer istället för
+   boxade kort, genre som outline-piller, och ett guldstjärnebetyg. ---- */
+[data-theme="modern"] .title{ font-weight:700; letter-spacing:-.01em; }
+[data-theme="modern"] .title a:hover{ border-bottom-color:var(--gold); }
+[data-theme="modern"] .imdb{
+  display:inline-flex; align-items:center; gap:3px; color:var(--txt); font-weight:700;
+}
+[data-theme="modern"] .imdb:before{
+  content:"★"; color:var(--gold); font-size:1.1em; line-height:1;
+}
+[data-theme="modern"] .svc{
+  background:transparent; color:var(--dim); border:1px solid var(--line);
+  padding:2px 8px; font-weight:600;
+}
+[data-theme="modern"] .genre-tag{
+  border:1px solid var(--line); border-radius:999px; padding:3px 11px; color:var(--txt);
+}
+[data-theme="modern"] .heart,[data-theme="modern"] .watch,
+[data-theme="modern"] .trash,[data-theme="modern"] .star{
+  border-radius:999px;
+}
+[data-theme="modern"] .rate-sel{ border-radius:999px; padding-left:10px; }
 
 /* ---- Mjuk: Apple-liknande layout (se bifogad referensbild) ----
    Krom-fri chrome, luftig vitryms-känsla, gradient-rubrik, pill-formade
@@ -1032,7 +1059,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
       '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
       "</div>" +
-      '<div class="meta2"><span>' + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
+      '<div class="meta2"><span class="genre-tag">' + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       ((state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       "</div>" +
       (state.tab === "villse"
