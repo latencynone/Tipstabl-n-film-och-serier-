@@ -137,25 +137,50 @@ def slugify_fallback(title):
 
 
 def discover_candidates(media_type, provider_id):
-    date_field = "primary_release_date" if media_type == "movie" else "first_air_date"
     since = (date.today() - timedelta(days=365 * MAX_AGE_YEARS)).isoformat()
+    params_base = {
+        "watch_region": REGION,
+        "with_watch_providers": provider_id,
+        "with_watch_monetization_types": "flatrate",
+        "sort_by": "popularity.desc",
+        "language": "sv-SE",
+    }
+    if media_type == "movie":
+        # En films releasedatum är entydigt - filtrera direkt i sökningen.
+        params_base["primary_release_date.gte"] = since
+    # För TV filtreras INTE på discover-sökningens first_air_date, eftersom
+    # det bara är säsong 1:s premiärdatum. En långkörare som fortfarande
+    # sänder nya säsonger (t.ex. The Boys, premiär 2019, sista säsongen 2026)
+    # skulle annars felaktigt sorteras bort som "för gammal". Recency
+    # kollas istället per kandidat mot seriens FAKTISKA senaste säsong,
+    # se get_tv_last_air_date().
     results = []
     for page in (1, 2):
-        data = tmdb_get("/discover/" + media_type, {
-            "watch_region": REGION,
-            "with_watch_providers": provider_id,
-            "with_watch_monetization_types": "flatrate",
-            date_field + ".gte": since,
-            "sort_by": "popularity.desc",
-            "language": "sv-SE",
-            "page": page,
-        })
+        params = dict(params_base)
+        params["page"] = page
+        data = tmdb_get("/discover/" + media_type, params)
         if not data:
             break
         results.extend(data.get("results", []))
         if page >= data.get("total_pages", 1):
             break
     return results
+
+
+_TV_LAST_AIR_CACHE = {}
+
+
+def get_tv_last_air_date(tv_id):
+    """Hämtar seriens FAKTISKA senaste sändningsdatum (senaste säsongen),
+    till skillnad från discover-sökningens first_air_date som bara är
+    säsong 1:s premiär. Cachas per körning så samma serie (kan dyka upp
+    via flera tjänster) bara slås upp en gång."""
+    if tv_id in _TV_LAST_AIR_CACHE:
+        return _TV_LAST_AIR_CACHE[tv_id]
+    data = tmdb_get("/tv/" + str(tv_id), {})
+    result = (data or {}).get("last_air_date") or (data or {}).get("first_air_date")
+    _TV_LAST_AIR_CACHE[tv_id] = result
+    return result
 
 
 def omdb_lookup(title, year):
@@ -200,9 +225,20 @@ def build_entry(item, media_type, service_name):
     date_str = item.get("release_date") or item.get("first_air_date")
     if not title or not date_str:
         return None
-    year = date_str[:4]
+    omdb_year = date_str[:4]  # OMDb indexerar TV-serier på ursprungsåret
 
-    omdb = omdb_lookup(title, year)
+    if media_type == "tv":
+        # Kolla mot seriens FAKTISKA senaste sändningsdatum - inte bara
+        # säsong 1:s premiär (se kommentar i discover_candidates ovan).
+        last_air = get_tv_last_air_date(item.get("id"))
+        if not last_air:
+            return None
+        cutoff = (date.today() - timedelta(days=365 * MAX_AGE_YEARS)).isoformat()
+        if last_air < cutoff:
+            return None
+        date_str = last_air  # visas/sorteras på senaste säsongen, inte premiären
+
+    omdb = omdb_lookup(title, omdb_year)
     time.sleep(0.15)  # skonsam mot OMDb:s gratisgräns
     if not omdb or omdb["imdb"] < MIN_IMDB:
         return None
