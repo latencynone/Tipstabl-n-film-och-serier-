@@ -211,9 +211,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .yr{font-size:15px;font-weight:700;line-height:1}
 .md{font-size:10px;color:var(--dim);letter-spacing:.08em;margin-top:4px}
 .body{flex:1;min-width:0}
-.head{display:flex;gap:10px;align-items:flex-start}
+.head{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
 .title{font-family:var(--display);font-size:21px;font-weight:600;line-height:1.15;
-  letter-spacing:.01em;margin:0;flex:1}
+  letter-spacing:.01em;margin:0;flex:1 1 150px;min-width:150px}
 .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
 .title a:hover{border-bottom-color:var(--film)}
 .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin:7px 0 0;
@@ -244,7 +244,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   margin:2px 0 4px;padding-top:8px;border-top:1px dashed var(--line)}
 .more-row[hidden]{display:none}
 .desc{font-size:14px;line-height:1.55;color:var(--desc);margin:8px 0 0}
-.actions{display:flex;gap:8px;flex-shrink:0}
+.actions{display:flex;gap:8px;flex-shrink:0;margin-left:auto}
 .heart,.watch,.trash,.star{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
   width:44px;height:44px;flex:0 0 44px;font-size:19px;line-height:1;transition:.16s;border-radius:var(--radius)}
 .heart[data-on="1"]{color:var(--fav);border-color:var(--fav);background:rgba(255,127,154,.12)}
