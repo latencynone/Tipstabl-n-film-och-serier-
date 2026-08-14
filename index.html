@@ -225,6 +225,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .rt:hover{text-decoration:underline}
 .mc{color:var(--mc);font-weight:700;text-decoration:none}
 .mc:hover{text-decoration:underline}
+.rate-row{display:flex;justify-content:flex-end;margin:4px 0 0}
 .rate-sel{background:transparent;border:1px solid var(--line);color:var(--mine);
   font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 18px 2px 6px;
   border-radius:calc(var(--radius) * .4);-webkit-appearance:none;appearance:none;cursor:pointer;
@@ -339,7 +340,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   padding:16px; margin-bottom:12px; box-shadow:var(--shadow);
 }
 [data-theme="modern"] .rail, [data-theme="soft"] .rail{
-  width:auto; flex:0 0 auto; padding-right:16px; text-align:left;
+  width:52px; flex:0 0 52px; text-align:left;
 }
 [data-theme="modern"] .heart[data-on="1"], [data-theme="soft"] .heart[data-on="1"]{background:color-mix(in srgb, var(--fav) 16%, transparent)}
 [data-theme="modern"] .watch[data-on="1"], [data-theme="soft"] .watch[data-on="1"]{background:color-mix(in srgb, var(--sett) 16%, transparent)}
@@ -1020,11 +1021,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>" +
       (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener noreferrer">RT ' + it.rt + "%</a>" : "") +
       (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener noreferrer">MC ' + it.mc + "</a>" : "") +
-      '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
-      '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       ((state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       "</div>" +
+      '<div class="rate-row"><select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
+      '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select></div>" +
       (state.tab === "villse"
         ? (function () {
             var whoOpt = myWho ? WHO_OPTIONS.filter(function (w) { return w.id === myWho; })[0] : null;
