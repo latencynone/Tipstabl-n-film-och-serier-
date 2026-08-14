@@ -217,6 +217,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .title a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
 .title a:hover{border-bottom-color:var(--film)}
 .meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin:7px 0 0;
+  letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.meta2{font-family:var(--mono);font-size:11px;color:var(--dim);margin:5px 0 0;
   letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .svc{color:var(--on-accent);background:var(--film);padding:2px 6px;font-weight:700;border-radius:calc(var(--radius) * .4)}
 .item[data-kind="serie"] .svc{background:var(--serie)}
@@ -225,12 +227,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .rt:hover{text-decoration:underline}
 .mc{color:var(--mc);font-weight:700;text-decoration:none}
 .mc:hover{text-decoration:underline}
-.rate-row{display:flex;justify-content:flex-end;margin:4px 0 0}
 .rate-sel{background:transparent;border:1px solid var(--line);color:var(--mine);
-  font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 18px 2px 6px;
+  font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 16px 2px 5px;margin-left:auto;
   border-radius:calc(var(--radius) * .4);-webkit-appearance:none;appearance:none;cursor:pointer;
   background-image:linear-gradient(45deg,transparent 50%,var(--mine) 50%),linear-gradient(135deg,var(--mine) 50%,transparent 50%);
-  background-position:calc(100% - 10px) 50%,calc(100% - 6px) 50%;background-size:4px 4px;background-repeat:no-repeat}
+  background-position:calc(100% - 9px) 50%,calc(100% - 5px) 50%;background-size:4px 4px;background-repeat:no-repeat}
 @media (hover: hover) and (pointer: fine){
   .rate-sel:hover{border-color:var(--mine)}
 }
@@ -981,7 +982,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var k = keyOf(it);
     var myRating = state.ratings[k] || "";
     var myWho = state.wantWho[k] || "";
-    var rateOpts = '<option value="">Betygsätt</option>';
+    var rateOpts = '<option value="">Betyg</option>';
     for (var r = 1; r <= 10; r++) {
       rateOpts += '<option value="' + r + '"' + (myRating === r ? ' selected' : '') + '>Du ' + r + '</option>';
     }
@@ -1021,11 +1022,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<span class="imdb">IMDb ' + it.imdb.toFixed(1) + "</span>" +
       (it.rt ? '<a class="rt" href="' + rtLink + '" target="_blank" rel="noopener noreferrer">RT ' + it.rt + "%</a>" : "") +
       (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener noreferrer">MC ' + it.mc + "</a>" : "") +
-      "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
+      '<select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
+      '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select>" +
+      "</div>" +
+      '<div class="meta2"><span>' + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       ((state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") ? "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span>" : "") +
       "</div>" +
-      '<div class="rate-row"><select class="rate-sel" data-rate="' + esc(k) + '" data-rated="' + (myRating ? 1 : 0) +
-      '" aria-label="Sätt ditt betyg för ' + esc(it.title) + '">' + rateOpts + "</select></div>" +
       (state.tab === "villse"
         ? (function () {
             var whoOpt = myWho ? WHO_OPTIONS.filter(function (w) { return w.id === myWho; })[0] : null;
