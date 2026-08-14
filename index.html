@@ -281,6 +281,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .empty{border:1px dashed var(--line);padding:28px 20px;text-align:center;border-radius:var(--radius)}
 .empty p{margin:0 0 6px;font-family:var(--display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
 .empty span{font-size:13px;color:var(--dim)}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 20px}
+.pager:empty{display:none}
+.pager-btn{background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  font-family:var(--mono);font-size:12px;font-weight:700;padding:11px 14px;min-height:44px;
+  border-radius:var(--radius);cursor:pointer}
+.pager-btn:disabled{opacity:.35;cursor:default}
+.pager-info{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.05em;white-space:nowrap}
 .foot{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;
   text-align:center;padding-top:26px;line-height:1.9}
 .foot-link{background:none;border:none;color:var(--dim);font-family:var(--mono);
@@ -486,7 +493,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
           <option value="mine">Ditt betyg (högst)</option>
         </select>
       </div>
-      <button class="btn" id="refresh"><span class="refresh-ic">⟳&#65038;</span> Hämta nya tips</button>
+      <button class="btn" id="refresh"><span class="refresh-ic">⟳&#65038;</span> Uppdatera titlar</button>
     </div>
     <p class="fetch-status" id="fetchStatus"></p>
   </div>
@@ -496,6 +503,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <div id="page"></div>
 
   <div id="list"></div>
+
+  <div class="pager" id="pager"></div>
 
   <p class="foot" id="foot"></p>
 </div>
@@ -522,13 +531,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var DEFAULT_PROFILE = "Jag";
 
   var BASE_FAV = "tipstablan:favoriter";
-  var BASE_SEEN = "tipstablan:visade";
   var BASE_WATCHED = "tipstablan:sett";
   var BASE_WANT = "tipstablan:vill-se";
   var BASE_WANTWHO = "tipstablan:vill-se-sallskap";
   var BASE_REMOVED = "tipstablan:borttagna";
   var BASE_RATING = "tipstablan:betyg";
-  var PROFILE_BASE_KEYS = [BASE_FAV, BASE_SEEN, BASE_WATCHED, BASE_WANT, BASE_WANTWHO, BASE_REMOVED, BASE_RATING];
+  var PROFILE_BASE_KEYS = [BASE_FAV, BASE_WATCHED, BASE_WANT, BASE_WANTWHO, BASE_REMOVED, BASE_RATING];
 
   // Körs en gång: om appen aldrig haft profiler men det finns gammal,
   // o-namnrymd data (från innan den här funktionen fanns), flyttas den
@@ -561,7 +569,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
   function nsKey(base) { return base + ":" + ACTIVE_PROFILE; }
   function FAV_KEY() { return nsKey(BASE_FAV); }
-  function SEEN_KEY() { return nsKey(BASE_SEEN); }
   function WATCHED_KEY() { return nsKey(BASE_WATCHED); }
   function WANT_KEY() { return nsKey(BASE_WANT); }
   function WANTWHO_KEY() { return nsKey(BASE_WANTWHO); }
@@ -675,6 +682,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     activeProfile: ACTIVE_PROFILE,
     profiles: ALL_PROFILES.slice(),
     compareA: "",
+    page: 1,
     compareB: "",
     theme: store.get(THEME_KEY) || "retro",
     active: SERVICES.slice(),
@@ -687,14 +695,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     sort: "datum",
     removed: normalizeKeys(store.get(REMOVED_KEY())),
     ratings: store.get(RATING_KEY()) || {},
-    seen: store.get(SEEN_KEY()) || [],
     returnTab: "film",
     expanded: {},
     search: "",
-    lastFetchedTitle: null,
-    lastFetchedKind: null,
-    fetchAdded: null,
-    fetchAddedCount: 0,
+    updateStatus: null,
+    updateAddedCount: 0,
     shown: { film: [], serie: [] }
   };
 
@@ -707,7 +712,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     state.wantWho = store.get(WANTWHO_KEY()) || {};
     state.removed = normalizeKeys(store.get(REMOVED_KEY()));
     state.ratings = store.get(RATING_KEY()) || {};
-    state.seen = store.get(SEEN_KEY()) || [];
   }
 
   function closeMenu() {
@@ -921,52 +925,46 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (state.wantToSee.indexOf(keyOf(it)) !== -1) return false;
       if (q && normSearch(it.title).indexOf(q) === -1) return false;
       return true;
-    }).sort(newestFirst);
-
-    // Vid aktiv sökning visas alla träffar direkt, ingen rotation.
-    if (q) return sortList(pool);
-
-    if (pool.length <= 10) return sortList(pool);
-
-    // De fyra färskaste följer alltid med, resten roteras.
-    var head = pool.slice(0, 4);
-    var tail = pool.slice(4);
-    var fresh = tail.filter(function (it) { return state.seen.indexOf(keyOf(it)) === -1; });
-    if (fresh.length < 6) fresh = tail.slice();
-
-    for (var i = fresh.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = fresh[i]; fresh[i] = fresh[j]; fresh[j] = t;
-    }
-    var picked = fresh.slice(0, 6);
-    state.seen = state.seen.concat(picked.map(keyOf)).slice(-34);
-    return sortList(head.concat(picked));
+    });
+    return sortList(pool);
   }
 
   function drawAll() {
     state.shown.film = draw("film");
     state.shown.serie = draw("serie");
-    store.set(SEEN_KEY(), state.seen);
   }
 
-  // Jämför vilka titlar som visades innan en hämtning mot vilka som visas
-  // efter, och avgör om något faktiskt nytt tillkom.
-  function checkFetchResult(prevKeys) {
-    var newKeys = state.shown.film.concat(state.shown.serie).map(keyOf);
-    var added = newKeys
-      .filter(function (k) { return prevKeys.indexOf(k) === -1; })
-      .map(function (k) { return BY_KEY[k]; })
-      .filter(Boolean)
-      .sort(newestFirst);
+  // Hämtar om titles.json (t.ex. efter att det schemalagda GitHub Actions-
+  // jobbet lagt till nya titlar) och jämför mot det som redan var inläst.
+  function checkForUpdates() {
+    var beforeKeys = {};
+    ALL_ITEMS.forEach(function (it) { beforeKeys[keyOf(it)] = true; });
 
-    if (added.length) {
-      state.lastFetchedTitle = added[0].title;
-      state.lastFetchedKind = added[0].kind;
-      state.fetchAdded = true;
-      state.fetchAddedCount = added.length;
-    } else {
-      state.fetchAdded = false;
-    }
+    state.updateStatus = "checking";
+    render();
+
+    fetch("titles.json?v=" + Date.now())
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var afterCount = (data.film || []).length + (data.serie || []).length;
+        var added = 0;
+        (data.film || []).concat(data.serie || []).forEach(function (it) {
+          if (!beforeKeys[it.kind + ":" + it.title + ":" + it.date]) added++;
+        });
+        populateFromData(data);
+        state.updateStatus = added > 0 ? "added" : "none";
+        state.updateAddedCount = added;
+        state.page = 1;
+        drawAll();
+        render();
+      })
+      .catch(function () {
+        state.updateStatus = "error";
+        render();
+      });
   }
 
   /* ============ rendering ============ */
@@ -1010,17 +1008,19 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     sel.value = state.genre;
 
     var fs = document.getElementById("fetchStatus");
-    if (state.lastFetchedTitle) {
-      var kindLabel = state.lastFetchedKind === "film" ? "film" : "serie";
-      if (state.fetchAdded) {
-        var extra = state.fetchAddedCount > 1 ? " (+" + (state.fetchAddedCount - 1) + " till)" : "";
-        fs.className = "fetch-status is-new";
-        fs.innerHTML = "* Nytt tips hämtat: <b>" + esc(state.lastFetchedTitle) + "</b> (" + kindLabel + ")" + extra;
-      } else {
-        fs.className = "fetch-status";
-        fs.innerHTML = "Inga nya tips hittades den här gången. Senast hämtat: <b>" +
-          esc(state.lastFetchedTitle) + "</b> (" + kindLabel + ")";
-      }
+    if (state.updateStatus === "checking") {
+      fs.className = "fetch-status";
+      fs.innerHTML = "Kontrollerar om nya titlar finns…";
+    } else if (state.updateStatus === "added") {
+      fs.className = "fetch-status is-new";
+      fs.innerHTML = "* " + state.updateAddedCount +
+        (state.updateAddedCount === 1 ? " ny titel hittad" : " nya titlar hittade") + "!";
+    } else if (state.updateStatus === "none") {
+      fs.className = "fetch-status";
+      fs.innerHTML = "Inga nya titlar sedan senast.";
+    } else if (state.updateStatus === "error") {
+      fs.className = "fetch-status";
+      fs.innerHTML = "Kunde inte kontrollera uppdateringar. Kolla anslutningen.";
     } else {
       fs.className = "fetch-status";
       fs.innerHTML = "";
@@ -1225,7 +1225,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       '<p class="info-p">Innehåller just nu ' + total + ' titlar (' + POOL.film.length + ' filmer, ' +
       POOL.serie.length + ' serier), alla max fem år gamla med IMDb-betyg 7,0 eller högre. ' +
       'Banken uppdateras automatiskt en gång i veckan med nya titlar som dyker upp på dina tjänster. ' +
-      'Knappen <b>⟳ Hämta nya tips</b> rullar fram nya urval ur den befintliga banken direkt, utan att vänta på nästa veckas uppdatering.</p>' +
+      'Knappen <b>⟳ Uppdatera titlar</b> kontrollerar direkt om något nytt redan lagts till, utan att vänta på nästa veckas uppdatering eller ladda om sidan. ' +
+      'Alla titlar som matchar dina filter visas, sorterade och uppdelade tio i taget.</p>' +
 
       '<h3 class="info-h">Ikonerna på varje kort</h3>' +
       '<div class="icon-guide">' +
@@ -1325,6 +1326,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.querySelector(".search-row").style.display = isPage ? "none" : "";
     document.querySelector(".ctrl").style.display = isPage ? "none" : "";
     document.getElementById("list").style.display = isPage ? "none" : "";
+    document.getElementById("pager").style.display = isPage ? "none" : "";
     document.getElementById("foot").style.display = isPage ? "none" : "";
     document.getElementById("whoRow").innerHTML = "";
     var menuCount = document.getElementById("menuRemovedCount");
@@ -1377,6 +1379,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       : "";
 
     var el = document.getElementById("list");
+    var pagerEl = document.getElementById("pager");
     if (!list.length) {
       var villseHint = state.whoFilter
         ? "Inget är märkt för det sällskapet än. Välj Alla, eller märk en titel nedan."
@@ -1397,8 +1400,23 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
                    favorit: "Tryck på hjärtat vid ett tips så hamnar det här." }[state.tab];
       }
       el.innerHTML = '<div class="empty"><p>' + esc(msg) + "</p><span>" + hint + "</span></div>";
+      pagerEl.innerHTML = "";
     } else {
-      el.innerHTML = list.map(card).join("");
+      var PAGE_SIZE = 10;
+      var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+      if (state.page > totalPages) state.page = totalPages;
+      if (state.page < 1) state.page = 1;
+      var pageList = list.slice((state.page - 1) * PAGE_SIZE, state.page * PAGE_SIZE);
+      el.innerHTML = pageList.map(card).join("");
+
+      if (totalPages <= 1) {
+        pagerEl.innerHTML = "";
+      } else {
+        pagerEl.innerHTML =
+          '<button class="pager-btn" id="pagerPrev"' + (state.page <= 1 ? " disabled" : "") + '>‹ Föregående</button>' +
+          '<span class="pager-info">Sida ' + state.page + " av " + totalPages + "</span>" +
+          '<button class="pager-btn" id="pagerNext"' + (state.page >= totalPages ? " disabled" : "") + ">Nästa ›</button>";
+      }
     }
   }
 
@@ -1422,7 +1440,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       t.blur();
     }
 
-    if (t.dataset.tab) { state.tab = t.dataset.tab; state.returnTab = t.dataset.tab; render(); return; }
+    if (t.dataset.tab) { state.tab = t.dataset.tab; state.returnTab = t.dataset.tab; state.page = 1; render(); return; }
 
     if (t.id === "menuBtn") {
       var dd = document.getElementById("menuDropdown");
@@ -1459,6 +1477,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var s = t.dataset.svc;
       var i = state.active.indexOf(s);
       if (i === -1) state.active.push(s); else state.active.splice(i, 1);
+      state.page = 1;
       drawAll(); render(); return;
     }
 
@@ -1495,6 +1514,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     if (t.dataset.who !== undefined && t.hasAttribute("data-who")) {
       state.whoFilter = t.dataset.who;
+      state.page = 1;
       render(); return;
     }
 
@@ -1521,14 +1541,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     }
 
     if (t.id === "refresh") {
-      var prevKeys = state.shown.film.concat(state.shown.serie).map(keyOf);
-      drawAll();
-      checkFetchResult(prevKeys);
-      if (state.tab === "favorit" || state.tab === "sett" || state.tab === "villse") state.tab = "film";
-      render();
+      checkForUpdates();
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+
+    if (t.id === "pagerPrev") { state.page--; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    if (t.id === "pagerNext") { state.page++; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
 
     if (t.id === "exportBtn") { exportBackupFile(); return; }
     if (t.id === "renameProfileBtn") {
@@ -1559,6 +1578,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   document.getElementById("searchInput").addEventListener("input", function (e) {
     state.search = e.target.value;
     document.getElementById("searchClear").hidden = !state.search;
+    state.page = 1;
     drawAll(); render();
   });
   document.getElementById("searchClear").addEventListener("click", function () {
@@ -1566,17 +1586,20 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var input = document.getElementById("searchInput");
     input.value = "";
     this.hidden = true;
+    state.page = 1;
     drawAll(); render();
     input.focus();
   });
 
   document.getElementById("genreSelect").addEventListener("change", function (e) {
     state.genre = e.target.value;
+    state.page = 1;
     drawAll(); render();
   });
 
   document.getElementById("sortSelect").addEventListener("change", function (e) {
     state.sort = e.target.value;
+    state.page = 1;
     drawAll(); render();
   });
 
@@ -1663,7 +1686,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     .then(function (data) {
       populateFromData(data);
       drawAll();
-      checkFetchResult([]);
       render();
     })
     .catch(function (err) {
