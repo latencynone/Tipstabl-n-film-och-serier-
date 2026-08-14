@@ -404,11 +404,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="soft"] .btn{
   border-radius:999px; font-weight:700; padding:13px 24px; box-shadow:var(--shadow);
 }
-[data-theme="soft"] .item{ border:none; padding:18px; }
+[data-theme="soft"] .item{ border:none; padding:18px; background:#EBEBF0; }
+[data-theme="soft"] .item .md,
+[data-theme="soft"] .item .meta,
+[data-theme="soft"] .item .meta2,
+[data-theme="soft"] .item .more-tog{ color:#5C5C61; }
 [data-theme="soft"] .title{ font-weight:600; }
 [data-theme="soft"] .heart,[data-theme="soft"] .watch,
 [data-theme="soft"] .trash,[data-theme="soft"] .star{
-  border-color:transparent; background:var(--panel);
+  border-color:#9C9CA2; background:var(--panel);
   font-size:19px; font-weight:700; border-radius:999px;
 }
 /* Omarkerat läge: dämpad variant av respektive färg i stället för grått,
@@ -455,8 +459,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   </button>
   <div class="theme-options" id="themeOptions" hidden>
     <button class="theme-option" data-theme-choice="retro">Text-TV</button>
-    <button class="theme-option" data-theme-choice="soft">Mjuk</button>
-    <button class="theme-option" data-theme-choice="modern">Modern</button>
+    <button class="theme-option" data-theme-choice="soft">Mjuk Ljus</button>
+    <button class="theme-option" data-theme-choice="modern">Modern Mörk</button>
   </div>
   <button data-page="backup">Profiler &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
