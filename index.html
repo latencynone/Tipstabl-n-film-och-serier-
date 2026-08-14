@@ -982,7 +982,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var k = keyOf(it);
     var myRating = state.ratings[k] || "";
     var myWho = state.wantWho[k] || "";
-    var rateOpts = '<option value="">Betyg</option>';
+    var rateOpts = '<option value="">Betygsätt</option>';
     for (var r = 1; r <= 10; r++) {
       rateOpts += '<option value="' + r + '"' + (myRating === r ? ' selected' : '') + '>Du ' + r + '</option>';
     }
