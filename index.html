@@ -281,6 +281,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .empty{border:1px dashed var(--line);padding:28px 20px;text-align:center;border-radius:var(--radius)}
 .empty p{margin:0 0 6px;font-family:var(--display);font-size:18px;letter-spacing:.05em;text-transform:uppercase}
 .empty span{font-size:13px;color:var(--dim)}
+.pager-top{text-align:right;margin:-4px 0 10px}
+.pager-top:empty{display:none}
+.pager-top .pager-info{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.05em}
 .pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 20px}
 .pager:empty{display:none}
 .pager-btn{background:var(--panel);border:1px solid var(--line);color:var(--txt);
@@ -530,6 +533,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   <div class="who-row" id="whoRow"></div>
 
   <div id="page"></div>
+
+  <div class="pager-top" id="pagerTop"></div>
 
   <div id="list"></div>
 
@@ -1301,11 +1306,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.querySelector(".ctrl").style.display = isPage ? "none" : "";
     document.getElementById("list").style.display = isPage ? "none" : "";
     document.getElementById("pager").style.display = isPage ? "none" : "";
+    document.getElementById("pagerTop").style.display = isPage ? "none" : "";
     document.getElementById("foot").style.display = isPage ? "none" : "";
     document.getElementById("whoRow").innerHTML = "";
     var menuCount = document.getElementById("menuRemovedCount");
     if (menuCount) menuCount.textContent = "(" + state.removed.length + ")";
     document.getElementById("foot").innerHTML =
+      '<button class="foot-link" data-tab="film">🏠 Till startsidan</button>' +
       '<button class="foot-link" data-page="info">ℹ Info &amp; förklaring</button>';
 
     if (isPage) {
@@ -1354,6 +1361,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     var el = document.getElementById("list");
     var pagerEl = document.getElementById("pager");
+    var pagerTopEl = document.getElementById("pagerTop");
     if (!list.length) {
       var villseHint = state.whoFilter
         ? "Inget är märkt för det sällskapet än. Välj Alla, eller märk en titel nedan."
@@ -1375,6 +1383,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       }
       el.innerHTML = '<div class="empty"><p>' + esc(msg) + "</p><span>" + hint + "</span></div>";
       pagerEl.innerHTML = "";
+      pagerTopEl.innerHTML = "";
     } else {
       var PAGE_SIZE = 10;
       var totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
@@ -1385,16 +1394,44 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
       if (totalPages <= 1) {
         pagerEl.innerHTML = "";
+        pagerTopEl.innerHTML = "";
       } else {
         pagerEl.innerHTML =
           '<button class="pager-btn" id="pagerPrev"' + (state.page <= 1 ? " disabled" : "") + '>‹ Föregående</button>' +
           '<span class="pager-info">Sida ' + state.page + " av " + totalPages + "</span>" +
           '<button class="pager-btn" id="pagerNext"' + (state.page >= totalPages ? " disabled" : "") + ">Nästa ›</button>";
+        pagerTopEl.innerHTML = '<span class="pager-info">Sida ' + state.page + " av " + totalPages + "</span>";
       }
     }
   }
 
   /* ============ händelser ============ */
+
+  (function () {
+    var startX = 0, startY = 0, tracking = false;
+    var listEl = document.getElementById("list");
+
+    listEl.addEventListener("touchstart", function (e) {
+      if (e.touches.length !== 1) { tracking = false; return; }
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+
+    listEl.addEventListener("touchend", function (e) {
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      // Kräver en tydlig, huvudsakligen horisontell rörelse - annars är
+      // det bara vanlig vertikal scroll och ska inte byta sida.
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+      state.page += dx < 0 ? 1 : -1; // render() klampar till giltigt intervall
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, { passive: true });
+  })();
 
   document.addEventListener("click", function (e) {
     // Stänger hamburgarmenyn vid klick utanför den. Måste köras innan
@@ -1414,7 +1451,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       t.blur();
     }
 
-    if (t.dataset.tab) { state.tab = t.dataset.tab; state.returnTab = t.dataset.tab; state.page = 1; render(); return; }
+    if (t.dataset.tab) {
+      state.tab = t.dataset.tab; state.returnTab = t.dataset.tab; state.page = 1;
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
 
     if (t.id === "menuBtn") {
       var dd = document.getElementById("menuDropdown");
@@ -1529,7 +1571,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   });
 
   document.getElementById("homeBtn").addEventListener("click", function () {
-    state.tab = "film"; state.returnTab = "film";
+    state.tab = "film"; state.returnTab = "film"; state.page = 1;
     render();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
