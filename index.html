@@ -210,6 +210,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .item[data-kind="serie"] .dot{background:var(--serie)}
 .yr{font-size:15px;font-weight:700;line-height:1}
 .md{font-size:10px;color:var(--dim);letter-spacing:.08em;margin-top:4px}
+.poster-thumb{display:block;width:44px;height:44px;margin-top:8px;padding:0;
+  border:1px solid var(--line);border-radius:6px;background:var(--panel);
+  overflow:hidden;cursor:pointer;flex-shrink:0}
+.poster-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.rail[data-poster-open="1"]{width:150px !important;flex:0 0 150px !important}
+.rail[data-poster-open="1"] .poster-thumb{width:100% !important;height:225px !important;
+  border-radius:8px;margin-top:10px}
+.poster-thumb-static{cursor:default}
+@media (hover: hover) and (pointer: fine){
+  .poster-thumb:hover{border-color:var(--dim)}
+}
 .body{flex:1;min-width:0}
 .head{display:flex}
 .title{font-family:var(--display);font-size:21px;font-weight:600;line-height:1.15;
@@ -310,7 +321,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 @media (prefers-reduced-motion:reduce){.fade{animation:none!important}}
 @media (max-width:520px){
   .title{font-size:18px}
-  .rail{width:44px;flex:0 0 44px;padding-right:11px}
+  .rail{width:52px;flex:0 0 52px;padding-right:8px}
   .bar h1{font-size:21px}
   .btn,.select-wrap{width:100%;flex:1 1 100%}
   .tab{font-size:11px;padding:9px 2px}
@@ -731,6 +742,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     ratings: store.get(RATING_KEY()) || {},
     returnTab: "film",
     expanded: {},
+    posterExpanded: {},
     search: "",
     shown: { film: [], serie: [] }
   };
@@ -1033,10 +1045,17 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var mcLink = it.mcId
       ? "https://www.metacritic.com/" + (it.kind === "film" ? "movie/" : "tv/") + it.mcId + "/"
       : "https://www.metacritic.com/search/all/" + encodeURIComponent(it.title) + "/results";
+    var posterOpen = !!state.posterExpanded[k];
     return '<article class="item fade" data-kind="' + it.kind + '" style="animation-delay:' +
       Math.min(i * 40, 400) + 'ms">' +
-      '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
-      '</div><div class="md">' + rest + "</div></div>" +
+      '<div class="rail"' + (posterOpen ? ' data-poster-open="1"' : "") + '><span class="dot"></span><div class="yr">' + d.getFullYear() +
+      '</div><div class="md">' + rest + "</div>" +
+      (it.poster
+        ? '<button class="poster-thumb" data-poster-toggle="' + esc(k) + '" aria-expanded="' + posterOpen +
+          '" aria-label="' + (posterOpen ? "Dölj" : "Visa") + " omslagsbild för " + esc(it.title) + '">' +
+          '<img src="' + esc(it.poster) + '" alt="" loading="lazy"></button>'
+        : "") +
+      "</div>" +
       '<div class="body"><div class="head"><h2 class="title">' +
       '<a href="' + link + '" target="_blank" rel="noopener noreferrer">' + esc(it.title) + "</a></h2></div>" +
       '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
@@ -1143,7 +1162,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       : "https://www.metacritic.com/search/all/" + encodeURIComponent(it.title) + "/results";
     return '<article class="item" data-kind="' + it.kind + '">' +
       '<div class="rail"><span class="dot"></span><div class="yr">' + d.getFullYear() +
-      '</div><div class="md">' + rest + "</div></div>" +
+      '</div><div class="md">' + rest + "</div>" +
+      (it.poster ? '<span class="poster-thumb poster-thumb-static"><img src="' + esc(it.poster) + '" alt="" loading="lazy"></span>' : "") +
+      "</div>" +
       '<div class="body"><div class="head"><h2 class="title">' +
       '<a href="' + link + '" target="_blank" rel="noopener noreferrer">' + esc(it.title) + "</a></h2></div>" +
       '<div class="meta"><span class="svc">' + esc(it.service) + "</span>" +
@@ -1447,7 +1468,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     // Kortknapparna byts ut när listan ritas om. Släpp fokus först, annars
     // kan markeringen se ut att hoppa till kortet som tar dess plats.
-    if (t.dataset.remove || t.dataset.watch || t.dataset.want || t.dataset.fav || t.dataset.more) {
+    if (t.dataset.remove || t.dataset.watch || t.dataset.want || t.dataset.fav || t.dataset.more || t.dataset.posterToggle) {
       t.blur();
     }
 
@@ -1485,6 +1506,13 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     if (t.dataset.more) {
       var mk = t.dataset.more;
       state.expanded[mk] = !state.expanded[mk];
+      render();
+      return;
+    }
+
+    if (t.dataset.posterToggle) {
+      var pk = t.dataset.posterToggle;
+      state.posterExpanded[pk] = !state.posterExpanded[pk];
       render();
       return;
     }
