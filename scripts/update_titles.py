@@ -153,7 +153,7 @@ def discover_candidates(media_type, provider_id):
     # sänder nya säsonger (t.ex. The Boys, premiär 2019, sista säsongen 2026)
     # skulle annars felaktigt sorteras bort som "för gammal". Recency
     # kollas istället per kandidat mot seriens FAKTISKA senaste säsong,
-    # se get_tv_last_air_date().
+    # se get_tv_details().
     results = []
     for page in (1, 2):
         params = dict(params_base)
@@ -170,17 +170,35 @@ def discover_candidates(media_type, provider_id):
 _TV_LAST_AIR_CACHE = {}
 
 
-def get_tv_last_air_date(tv_id):
+def get_tv_details(tv_id):
     """Hämtar seriens FAKTISKA senaste sändningsdatum (senaste säsongen),
     till skillnad från discover-sökningens first_air_date som bara är
-    säsong 1:s premiär. Cachas per körning så samma serie (kan dyka upp
+    säsong 1:s premiär, plus en engelsk beskrivning som reserv när TMDb
+    saknar svensk text. Cachas per körning så samma serie (kan dyka upp
     via flera tjänster) bara slås upp en gång."""
     if tv_id in _TV_LAST_AIR_CACHE:
         return _TV_LAST_AIR_CACHE[tv_id]
-    data = tmdb_get("/tv/" + str(tv_id), {})
-    result = (data or {}).get("last_air_date") or (data or {}).get("first_air_date")
+    data = tmdb_get("/tv/" + str(tv_id), {}) or {}
+    result = {
+        "last_air_date": data.get("last_air_date") or data.get("first_air_date"),
+        "overview_en": data.get("overview") or "",
+    }
     _TV_LAST_AIR_CACHE[tv_id] = result
     return result
+
+
+_MOVIE_DETAILS_CACHE = {}
+
+
+def get_movie_overview_en(movie_id):
+    """Engelsk beskrivning som reserv för filmer, av samma anledning som
+    get_tv_details ovan."""
+    if movie_id in _MOVIE_DETAILS_CACHE:
+        return _MOVIE_DETAILS_CACHE[movie_id]
+    data = tmdb_get("/movie/" + str(movie_id), {}) or {}
+    overview = data.get("overview") or ""
+    _MOVIE_DETAILS_CACHE[movie_id] = overview
+    return overview
 
 
 def omdb_lookup(title, year):
@@ -228,18 +246,41 @@ def build_entry(item, media_type, service_name):
     date_str = item.get("release_date") or item.get("first_air_date")
     if not title or not date_str:
         return None
+
+    # TV-genrer som brukar betyda "alltid färskt" veckoprogram utan en
+    # egentlig handling att beskriva (wrestling, pratshower, nyheter) -
+    # sorteras bort direkt, innan de dyra uppslagen görs.
+    EXCLUDED_TV_GENRES = {10764, 10767, 10763}  # Reality, Talk, News
+    if media_type == "tv" and EXCLUDED_TV_GENRES.intersection(item.get("genre_ids", [])):
+        return None
+
     omdb_year = date_str[:4]  # OMDb indexerar TV-serier på ursprungsåret
+    overview_sv = (item.get("overview") or "").strip()
+    overview_en = ""
 
     if media_type == "tv":
         # Kolla mot seriens FAKTISKA senaste sändningsdatum - inte bara
         # säsong 1:s premiär (se kommentar i discover_candidates ovan).
-        last_air = get_tv_last_air_date(item.get("id"))
-        if not last_air:
+        # Samma anrop ger också en engelsk beskrivning som reserv.
+        details = get_tv_details(item.get("id"))
+        if not details["last_air_date"]:
             return None
         cutoff = (date.today() - timedelta(days=365 * MAX_AGE_YEARS)).isoformat()
-        if last_air < cutoff:
+        if details["last_air_date"] < cutoff:
             return None
-        date_str = last_air  # visas/sorteras på senaste säsongen, inte premiären
+        date_str = details["last_air_date"]  # visas/sorteras på senaste säsongen, inte premiären
+        overview_en = details["overview_en"]
+    elif not overview_sv:
+        # Bara hämta den engelska beskrivningen separat om den svenska
+        # faktiskt saknas - sparar ett onödigt anrop i normalfallet.
+        overview_en = get_movie_overview_en(item.get("id"))
+
+    # TMDb saknar text på BÅDA språken -> troligen inte ett bra "tips" att
+    # rekommendera (t.ex. wrestling utan någon egentlig handling), till
+    # skillnad från kända serier som bara råkar sakna svensk översättning.
+    final_overview = overview_sv or overview_en
+    if not final_overview:
+        return None
 
     omdb = omdb_lookup(title, omdb_year)
     time.sleep(0.15)  # skonsam mot OMDb:s gratisgräns
@@ -263,7 +304,7 @@ def build_entry(item, media_type, service_name):
         "mc": omdb["mc"],
         "genre": genre,
         "length": normalize_length(omdb["runtime"], media_type, omdb["seasons"]),
-        "desc": (item.get("overview") or "")[:140] or "Ingen beskrivning tillgänglig.",
+        "desc": final_overview[:140],
         "id": omdb["imdbID"],
         "rtId": "",
         "mcId": "",
