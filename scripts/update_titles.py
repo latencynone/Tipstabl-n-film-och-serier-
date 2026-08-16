@@ -214,9 +214,12 @@ def omdb_lookup(title, year):
             seasons = int(data["totalSeasons"])
         except ValueError:
             pass
+    poster = data.get("Poster", "")
+    if not poster or poster == "N/A":
+        poster = ""
     return {
         "imdb": imdb, "rt": rt, "mc": mc, "imdbID": data.get("imdbID", ""),
-        "runtime": runtime_min, "seasons": seasons,
+        "runtime": runtime_min, "seasons": seasons, "poster": poster,
     }
 
 
@@ -264,8 +267,22 @@ def build_entry(item, media_type, service_name):
         "id": omdb["imdbID"],
         "rtId": "",
         "mcId": "",
+        "poster": omdb["poster"],
         "kind": kind,
     }
+
+
+def omdb_lookup_by_id(imdb_id):
+    """Exakt uppslag via IMDb-ID, utan titel/år-gissning - används för att
+    fylla i affischbilder på titlar som redan finns men saknar en."""
+    url = "https://www.omdbapi.com/?apikey=%s&i=%s" % (OMDB_KEY, imdb_id)
+    data = http_get_json(url)
+    if not data or data.get("Response") == "False":
+        return None
+    poster = data.get("Poster", "")
+    if not poster or poster == "N/A":
+        return None
+    return poster
 
 
 def entry_score(x):
@@ -298,6 +315,20 @@ def main():
     added = {"film": [], "serie": []}
     upgraded = 0
 
+    # Backfill: fyll i affischbilder på titlar som redan finns men lades in
+    # innan poster-fältet fanns. Exakt uppslag per IMDb-ID, skonsamt mot
+    # OMDb:s gratisgräns (163 titlar ryms gott och väl inom 1000/dag).
+    missing_poster = [it for it in by_id.values() if not it.get("poster")]
+    if missing_poster:
+        print("Fyller i affischbilder för %d titlar utan en sedan tidigare..." % len(missing_poster))
+        for it in missing_poster:
+            poster = omdb_lookup_by_id(it["id"])
+            time.sleep(0.15)
+            if poster:
+                it["poster"] = poster
+                upgraded += 1
+                print("  ~ affisch: %s" % it["title"])
+
     for media_type in ("movie", "tv"):
         print("== %s ==" % media_type)
         provider_ids = get_provider_ids(media_type)
@@ -320,6 +351,8 @@ def main():
                             old["length"] = entry["length"]
                         if len(entry["desc"]) > len(old.get("desc", "")):
                             old["desc"] = entry["desc"]
+                        if entry.get("poster") and not old.get("poster"):
+                            old["poster"] = entry["poster"]
                         upgraded += 1
                         print("  ~ uppdaterade %s med bättre data" % entry["title"])
                     continue
