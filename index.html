@@ -309,6 +309,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .foot-link:hover{color:var(--txt)}
 .info-h{font-family:var(--display);font-size:15px;margin:22px 0 6px;
   text-transform:none;letter-spacing:normal}
+.history-run{border-top:1px solid var(--line);padding:14px 0}
+.history-run:first-of-type{border-top:none;padding-top:0}
+.history-date{font-family:var(--display);font-size:15px;margin:0 0 6px;
+  text-transform:none;letter-spacing:normal;display:flex;align-items:baseline;gap:8px}
+.history-count{font-family:var(--mono);font-size:10px;color:var(--dim);
+  letter-spacing:.06em;text-transform:uppercase;font-weight:400}
+.history-list{list-style:none;margin:0;padding:0;font-size:13px;line-height:1.9}
+.history-kind{font-family:var(--mono);font-size:10px;color:var(--dim);
+  letter-spacing:.04em;margin-right:8px;display:inline-block;width:34px}
 .info-h:first-of-type{margin-top:18px}
 .info-p{font-size:13px;line-height:1.6;color:var(--dim);margin:0}
 .icon-guide{display:flex;flex-direction:column;gap:14px;margin-top:8px}
@@ -505,6 +514,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   </div>
   <button data-page="backup">Profiler &amp; Backup</button>
   <button data-page="removed">Borttagna <span id="menuRemovedCount"></span></button>
+  <button data-page="history">Historik &amp; Logg</button>
   <button data-page="info">Info &amp; förklaring</button>
 </div>
 
@@ -1216,6 +1226,53 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.getElementById("page").innerHTML = html;
   }
 
+  function renderHistoryPage() {
+    if (state.history === undefined) {
+      document.getElementById("page").innerHTML =
+        '<button class="page-back" id="pageBack">← Tillbaka</button>' +
+        '<h2 class="page-title">Historik &amp; Logg</h2>' +
+        '<p class="load" style="padding:20px 0">Läser in historik…</p>';
+      fetch("history.json?v=" + Date.now())
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (data) {
+          state.history = data.runs || [];
+          if (state.tab === "history") render();
+        })
+        .catch(function () {
+          state.history = null;
+          if (state.tab === "history") render();
+        });
+      return;
+    }
+
+    var html = '<button class="page-back" id="pageBack">← Tillbaka</button>' +
+      '<h2 class="page-title">Historik &amp; Logg</h2>' +
+      '<p style="color:var(--dim);font-size:13px;margin:0 0 16px">Vad det schemalagda jobbet (varje måndag) har hittat vid varje körning, senaste överst.</p>';
+
+    if (state.history === null) {
+      html += '<div class="empty"><p>Kunde inte läsa in historiken</p><span>Kontrollera att history.json finns i samma mapp som index.html.</span></div>';
+    } else if (!state.history.length) {
+      html += '<div class="empty"><p>Ingen historik än</p><span>Loggen fylls på nästa gång det schemalagda jobbet körs.</span></div>';
+    } else {
+      html += state.history.map(function (run) {
+        var d = new Date(run.date);
+        var dateLabel = String(d.getDate()).padStart(2, "0") + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+        var count = run.added.length;
+        var itemsHtml = count
+          ? '<ul class="history-list">' + run.added.map(function (a) {
+              return '<li><span class="history-kind">' + (a.kind === "film" ? "Film" : "Serie") + "</span>" + esc(a.title) + "</li>";
+            }).join("") + "</ul>"
+          : '<p style="color:var(--dim);font-size:13px;margin:4px 0 0">Inget nytt hittades den här gången.</p>';
+        return '<div class="history-run">' +
+          '<h3 class="history-date">' + dateLabel +
+          '<span class="history-count">' + count + (count === 1 ? " ny titel" : " nya titlar") + "</span></h3>" +
+          itemsHtml + "</div>";
+      }).join("");
+    }
+
+    document.getElementById("page").innerHTML = html;
+  }
+
   function renderInfoPage() {
     var total = POOL.film.length + POOL.serie.length;
     var html =
@@ -1321,7 +1378,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   }
 
   function render() {
-    var isPage = state.tab === "backup" || state.tab === "removed" || state.tab === "info" || state.tab === "compare";
+    var isPage = state.tab === "backup" || state.tab === "removed" || state.tab === "info" || state.tab === "compare" || state.tab === "history";
     document.getElementById("tabs").style.display = isPage ? "none" : "";
     document.querySelector(".search-row").style.display = isPage ? "none" : "";
     document.querySelector(".ctrl").style.display = isPage ? "none" : "";
@@ -1340,6 +1397,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       if (state.tab === "backup") renderBackupPage();
       else if (state.tab === "info") renderInfoPage();
       else if (state.tab === "compare") renderComparePage();
+      else if (state.tab === "history") renderHistoryPage();
       else renderRemovedPage();
       return;
     }
