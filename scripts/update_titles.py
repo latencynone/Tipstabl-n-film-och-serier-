@@ -203,6 +203,54 @@ def get_movie_overview_en(movie_id):
     return overview
 
 
+def tmdb_find_id(title, year, media_type):
+    """Söker upp en titels TMDb-ID via titel + år. Används bara för att
+    laga gamla poster i efterhand - vi har bara sparat IMDb-ID, inte
+    TMDb-ID, så den vägen måste gås för redan sparade titlar."""
+    path = "/search/movie" if media_type == "movie" else "/search/tv"
+    data = tmdb_get(path, {"query": title, "language": "sv-SE"})
+    if not data:
+        return None
+    date_field = "release_date" if media_type == "movie" else "first_air_date"
+    for r in data.get("results", []):
+        if (r.get(date_field) or "")[:4] == str(year):
+            return r.get("id")
+    results = data.get("results")
+    return results[0]["id"] if results else None
+
+
+def refetch_overview(title, year, kind):
+    """Hämtar en hel, korrekt beskrivning på nytt (svenska i första hand,
+    engelska som reserv) för en titel som bara finns sparad med IMDb-ID."""
+    media_type = "movie" if kind == "film" else "tv"
+    tmdb_id = tmdb_find_id(title, year, media_type)
+    if not tmdb_id:
+        return None
+    sv = tmdb_get(("/movie/" if media_type == "movie" else "/tv/") + str(tmdb_id), {"language": "sv-SE"}) or {}
+    overview = (sv.get("overview") or "").strip()
+    if not overview:
+        overview = (get_movie_overview_en(tmdb_id) if media_type == "movie"
+                    else get_tv_details(tmdb_id)["overview_en"])
+    return overview or None
+
+
+def truncate_to_sentence(text, max_len=140):
+    """Klipper till senaste HELA meningen inom max_len tecken, istället för
+    att klippa mitt i en mening. Om inte ens första meningen får plats tas
+    hela den ändå med - hellre lite för lång än avklippt mitt i."""
+    text = (text or "").strip()
+    if not text or len(text) <= max_len:
+        return text
+    cut = text[:max_len]
+    last_end = max(cut.rfind("."), cut.rfind("!"), cut.rfind("?"))
+    if last_end != -1:
+        return text[:last_end + 1]
+    for i, ch in enumerate(text):
+        if ch in ".!?":
+            return text[:i + 1]
+    return text  # ingen punkt alls i hela texten (ovanligt)
+
+
 def omdb_lookup(title, year):
     url = "https://www.omdbapi.com/?apikey=%s&t=%s&y=%s" % (
         OMDB_KEY, urllib.parse.quote(title), year or "")
@@ -306,7 +354,7 @@ def build_entry(item, media_type, service_name):
         "mc": omdb["mc"],
         "genre": genre,
         "length": normalize_length(omdb["runtime"], media_type, omdb["seasons"]),
-        "desc": final_overview[:140],
+        "desc": truncate_to_sentence(final_overview, 140),
         "id": omdb["imdbID"],
         "rtId": "",
         "mcId": "",
@@ -394,6 +442,23 @@ def main():
                 it["poster"] = poster
                 upgraded += 1
                 print("  ~ affisch: %s" % it["title"])
+
+    # Backfill: laga beskrivningar som klipptes av mitt i en mening av den
+    # gamla koden, innan truncate_to_sentence fanns. Går via en titel/år-
+    # sökning på TMDb eftersom bara IMDb-ID sparades från början.
+    broken_desc = [it for it in by_id.values()
+                   if it.get("desc") and not it["desc"].rstrip().endswith((".", "!", "?"))]
+    if broken_desc:
+        print("Lagar %d beskrivningar avklippta mitt i en mening..." % len(broken_desc))
+        for it in broken_desc:
+            fresh = refetch_overview(it["title"], it["date"][:4], it["kind"])
+            time.sleep(0.1)
+            if fresh:
+                new_desc = truncate_to_sentence(fresh, 140)
+                if new_desc.rstrip().endswith((".", "!", "?")):
+                    it["desc"] = new_desc
+                    upgraded += 1
+                    print("  ~ beskrivning: %s" % it["title"])
 
     for media_type in ("movie", "tv"):
         print("== %s ==" % media_type)
