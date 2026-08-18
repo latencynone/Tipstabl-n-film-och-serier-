@@ -551,6 +551,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     </div>
   </div>
 
+  <div class="who-row" id="kindRow"></div>
   <div class="who-row" id="whoRow"></div>
 
   <div id="page"></div>
@@ -747,6 +748,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     wantToSee: normalizeKeys(store.get(WANT_KEY())),
     wantWho: store.get(WANTWHO_KEY()) || {},
     whoFilter: "",
+    kindFilter: "",
     sort: "datum",
     removed: normalizeKeys(store.get(REMOVED_KEY())),
     ratings: store.get(RATING_KEY()) || {},
@@ -783,6 +785,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     loadProfileData();
     state.expanded = {};
     state.whoFilter = "";
+    state.kindFilter = "";
     state.search = "";
     if (!keepTab) {
       state.tab = "film";
@@ -1121,7 +1124,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var q = state.search ? normSearch(state.search) : "";
     var list = keys.map(function (k) { return BY_KEY[k]; })
       .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); })
-      .filter(function (it) { return !q || normSearch(it.title).indexOf(q) !== -1; });
+      .filter(function (it) { return !q || normSearch(it.title).indexOf(q) !== -1; })
+      .filter(function (it) { return !state.kindFilter || it.kind === state.kindFilter; });
     if (applyWhoFilter && state.whoFilter) {
       list = list.filter(function (it) {
         return (state.wantWho[keyOf(it)] || "") === state.whoFilter;
@@ -1387,6 +1391,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     document.getElementById("pagerTop").style.display = isPage ? "none" : "";
     document.getElementById("foot").style.display = isPage ? "none" : "";
     document.getElementById("whoRow").innerHTML = "";
+    document.getElementById("kindRow").innerHTML = "";
     var menuCount = document.getElementById("menuRemovedCount");
     if (menuCount) menuCount.textContent = "(" + state.removed.length + ")";
     document.getElementById("foot").innerHTML =
@@ -1405,6 +1410,27 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     renderTabs();
     renderChips();
+
+    // Film/serie-filter visas i Favorit-, Sett- och Vill se-flikarna.
+    var kindEl = document.getElementById("kindRow");
+    var kindSourceKeys = { favorit: state.favorites, sett: state.watched, villse: state.wantToSee }[state.tab];
+    if (kindSourceKeys) {
+      var q0 = state.search ? normSearch(state.search) : "";
+      var kindBase = kindSourceKeys.map(function (k) { return BY_KEY[k]; })
+        .filter(function (it) { return it && (!state.genre || genreBucket(it.genre) === state.genre); })
+        .filter(function (it) { return !q0 || normSearch(it.title).indexOf(q0) !== -1; });
+      var filmCount = kindBase.filter(function (it) { return it.kind === "film"; }).length;
+      var serieCount = kindBase.filter(function (it) { return it.kind === "serie"; }).length;
+      var kindRows = [["", "Alla", kindBase.length], ["film", "Film", filmCount], ["serie", "Serie", serieCount]];
+      kindEl.innerHTML = kindRows
+        .map(function (kv) {
+          return '<button class="chip" data-kindfilter="' + esc(kv[0]) + '" data-on="' +
+            (state.kindFilter === kv[0] ? 1 : 0) + '" aria-pressed="' +
+            (state.kindFilter === kv[0]) + '">' + esc(kv[1]) + " (" + kv[2] + ")</button>";
+        }).join("");
+    } else {
+      kindEl.innerHTML = "";
+    }
 
     // Sällskapsfilter visas bara i Vill se-fliken.
     var whoEl = document.getElementById("whoRow");
@@ -1616,6 +1642,12 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 
     if (t.dataset.who !== undefined && t.hasAttribute("data-who")) {
       state.whoFilter = t.dataset.who;
+      state.page = 1;
+      render(); return;
+    }
+
+    if (t.dataset.kindfilter !== undefined && t.hasAttribute("data-kindfilter")) {
+      state.kindFilter = t.dataset.kindfilter;
       state.page = 1;
       render(); return;
     }
