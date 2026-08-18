@@ -120,6 +120,11 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .who-row .chip{flex:0 0 auto;padding:6px 8px;letter-spacing:.02em;white-space:nowrap}
 .who-lbl{flex:0 0 auto;white-space:nowrap;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-right:2px}
+.kind-lbl{flex:0 0 auto;white-space:nowrap;font-family:var(--body);font-size:12px;
+  font-weight:700;color:var(--txt);margin-right:2px}
+.kind-row{background:var(--panel);border-radius:var(--radius);padding:8px 10px}
+.chip[data-kindfilter="film"][data-on="1"]{background:var(--film);border-color:var(--film);color:var(--on-accent)}
+.chip[data-kindfilter="serie"][data-on="1"]{background:var(--serie);border-color:var(--serie);color:var(--on-accent)}
 .who-sel{background:transparent;border:1px solid var(--line);color:var(--want);
   font-family:var(--mono);font-size:11px;font-weight:700;padding:10px 8px;min-height:44px;
   border-radius:var(--radius);-webkit-appearance:none;appearance:none;cursor:pointer}
@@ -551,7 +556,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     </div>
   </div>
 
-  <div class="who-row" id="kindRow"></div>
+  <div class="who-row kind-row" id="kindRow"></div>
   <div class="who-row" id="whoRow"></div>
 
   <div id="page"></div>
@@ -1422,7 +1427,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var filmCount = kindBase.filter(function (it) { return it.kind === "film"; }).length;
       var serieCount = kindBase.filter(function (it) { return it.kind === "serie"; }).length;
       var kindRows = [["", "Alla", kindBase.length], ["film", "Film", filmCount], ["serie", "Serie", serieCount]];
-      kindEl.innerHTML = '<span class="who-lbl">Sortera på:</span>' + kindRows
+      kindEl.innerHTML = '<span class="kind-lbl">Sortera på:</span>' + kindRows
         .map(function (kv) {
           return '<button class="chip" data-kindfilter="' + esc(kv[0]) + '" data-on="' +
             (state.kindFilter === kv[0] ? 1 : 0) + '" aria-pressed="' +
