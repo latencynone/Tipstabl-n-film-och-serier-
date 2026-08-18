@@ -1422,7 +1422,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var filmCount = kindBase.filter(function (it) { return it.kind === "film"; }).length;
       var serieCount = kindBase.filter(function (it) { return it.kind === "serie"; }).length;
       var kindRows = [["", "Alla", kindBase.length], ["film", "Film", filmCount], ["serie", "Serie", serieCount]];
-      kindEl.innerHTML = kindRows
+      kindEl.innerHTML = '<span class="who-lbl">Sortera på:</span>' + kindRows
         .map(function (kv) {
           return '<button class="chip" data-kindfilter="' + esc(kv[0]) + '" data-on="' +
             (state.kindFilter === kv[0] ? 1 : 0) + '" aria-pressed="' +
