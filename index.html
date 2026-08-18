@@ -118,9 +118,9 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .who-row::-webkit-scrollbar{display:none}
 .who-row:empty{display:none}
 .who-row .chip{flex:0 0 auto;padding:6px 8px;letter-spacing:.02em;white-space:nowrap}
-.who-lbl{flex:0 0 auto;white-space:nowrap;font-family:var(--mono);font-size:10px;
+.who-lbl{flex:0 0 70px;white-space:nowrap;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-right:2px}
-.kind-lbl{flex:0 0 auto;white-space:nowrap;font-family:var(--body);font-size:12px;
+.kind-lbl{flex:0 0 70px;white-space:nowrap;font-family:var(--body);font-size:12px;
   font-weight:700;color:var(--txt);margin-right:2px}
 .kind-row{background:var(--panel);border-radius:var(--radius);padding:8px 10px}
 .chip[data-kindfilter="film"][data-on="1"]{background:var(--film);border-color:var(--film);color:var(--on-accent)}
@@ -1427,7 +1427,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var filmCount = kindBase.filter(function (it) { return it.kind === "film"; }).length;
       var serieCount = kindBase.filter(function (it) { return it.kind === "serie"; }).length;
       var kindRows = [["", "Alla", kindBase.length], ["film", "Film", filmCount], ["serie", "Serie", serieCount]];
-      kindEl.innerHTML = '<span class="kind-lbl">Sortera på:</span>' + kindRows
+      kindEl.innerHTML = '<span class="kind-lbl">Sortera:</span>' + kindRows
         .map(function (kv) {
           return '<button class="chip" data-kindfilter="' + esc(kv[0]) + '" data-on="' +
             (state.kindFilter === kv[0] ? 1 : 0) + '" aria-pressed="' +
@@ -1449,7 +1449,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       var rows = [["", "Alla", state.wantToSee.length]].concat(
         WHO_OPTIONS.map(function (w) { return [w.id, w.label, counts[w.id]]; })
       );
-      whoEl.innerHTML = '<span class="who-lbl">Se med</span>' +
+      whoEl.innerHTML = '<span class="who-lbl">Se med:</span>' +
         rows
           .map(function (w) {
             return '<button class="chip" data-who="' + esc(w[0]) + '" data-on="' +
