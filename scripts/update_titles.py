@@ -37,6 +37,8 @@ REGION = "SE"
 MIN_IMDB = 7.0
 MAX_AGE_YEARS = 5
 DATA_FILE = os.path.join(os.path.dirname(__file__), "..", "titles.json")
+HISTORY_FILE = os.path.join(os.path.dirname(__file__), "..", "history.json")
+HISTORY_MAX_RUNS = 20
 
 # Namnen måste matcha hur tjänsterna heter i TMDb:s providerlista.
 WANTED_SERVICES = {
@@ -337,6 +339,29 @@ def entry_score(x):
     return s
 
 
+def log_history_run(added):
+    """Skriver dagens körning överst i historikloggen (senaste först),
+    och begränsar loggen till de senaste HISTORY_MAX_RUNS körningarna."""
+    try:
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            history = json.load(f)
+    except (IOError, ValueError):
+        history = {"runs": []}
+
+    entry = {
+        "date": date.today().isoformat(),
+        "added": [
+            {"title": it["title"], "kind": it["kind"], "date": it["date"]}
+            for it in added["film"] + added["serie"]
+        ],
+    }
+    history["runs"] = [entry] + history.get("runs", [])
+    history["runs"] = history["runs"][:HISTORY_MAX_RUNS]
+
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, separators=(",", ":"))
+
+
 def main():
     if not TMDB_KEY or not OMDB_KEY:
         print("TMDB_API_KEY eller OMDB_API_KEY saknas som miljövariabel/secret. Avbryter.", file=sys.stderr)
@@ -406,6 +431,8 @@ def main():
                 existing_keys.add(key)
                 added[entry["kind"]].append(entry)
                 print("  + %s (%s) IMDb %.1f" % (entry["title"], entry["date"][:4], entry["imdb"]))
+
+    log_history_run(added)
 
     if not added["film"] and not added["serie"] and not upgraded:
         print("Inga nya titlar eller uppdateringar den här veckan.")
