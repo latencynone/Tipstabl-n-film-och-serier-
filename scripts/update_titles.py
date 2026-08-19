@@ -179,25 +179,18 @@ def get_tv_details(tv_id):
     upcoming_season = None  # None = ingen kommande säsong känd
     if data.get("in_production"):
         today = date.today().isoformat()
-        found = False
         for s in data.get("seasons", []):
             if s.get("season_number", 0) == 0:
                 continue  # "specials", inte en riktig ny säsong
             air = s.get("air_date")
             if not air or air > today:
-                found = True
-                if air:
-                    upcoming_season = air
-                elif data.get("status") == "In Production":
-                    upcoming_season = "in_production"
-                else:
-                    upcoming_season = ""
+                upcoming_season = air or ""  # tom sträng = planerad, okänt datum
                 break
-        if not found:
+        else:
             # in_production är sant men TMDb har inte ens lagt till en post
             # för nästa säsong ännu - vanligt när den bara nyss bekräftats.
-            # Vi vet ändå att en till säsong är på gång.
-            upcoming_season = "in_production" if data.get("status") == "In Production" else ""
+            # Vi vet ändå att en till säsong är på gång, bara inte när.
+            upcoming_season = ""
 
     result = {
         "last_air_date": data.get("last_air_date") or data.get("first_air_date"),
