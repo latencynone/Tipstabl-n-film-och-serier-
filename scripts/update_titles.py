@@ -176,14 +176,28 @@ def get_tv_details(tv_id):
     """Hämtar seriens FAKTISKA senaste sändningsdatum (senaste säsongen),
     till skillnad från discover-sökningens first_air_date som bara är
     säsong 1:s premiär, plus en engelsk beskrivning som reserv när TMDb
-    saknar svensk text. Cachas per körning så samma serie (kan dyka upp
-    via flera tjänster) bara slås upp en gång."""
+    saknar svensk text, samt om det finns en kommande/planerad säsong.
+    Cachas per körning så samma serie (kan dyka upp via flera tjänster)
+    bara slås upp en gång."""
     if tv_id in _TV_LAST_AIR_CACHE:
         return _TV_LAST_AIR_CACHE[tv_id]
     data = tmdb_get("/tv/" + str(tv_id), {}) or {}
+
+    upcoming_season = None  # None = ingen kommande säsong känd
+    if data.get("in_production"):
+        today = date.today().isoformat()
+        for s in data.get("seasons", []):
+            if s.get("season_number", 0) == 0:
+                continue  # "specials", inte en riktig ny säsong
+            air = s.get("air_date")
+            if not air or air > today:
+                upcoming_season = air or ""  # tom sträng = planerad men okänt datum
+                break
+
     result = {
         "last_air_date": data.get("last_air_date") or data.get("first_air_date"),
         "overview_en": data.get("overview") or "",
+        "upcoming_season": upcoming_season,
     }
     _TV_LAST_AIR_CACHE[tv_id] = result
     return result
@@ -307,11 +321,13 @@ def build_entry(item, media_type, service_name):
     omdb_year = date_str[:4]  # OMDb indexerar TV-serier på ursprungsåret
     overview_sv = (item.get("overview") or "").strip()
     overview_en = ""
+    upcoming_season = None
 
     if media_type == "tv":
         # Kolla mot seriens FAKTISKA senaste sändningsdatum - inte bara
         # säsong 1:s premiär (se kommentar i discover_candidates ovan).
-        # Samma anrop ger också en engelsk beskrivning som reserv.
+        # Samma anrop ger också en engelsk beskrivning som reserv, samt
+        # om det finns en kommande/planerad säsong.
         details = get_tv_details(item.get("id"))
         if not details["last_air_date"]:
             return None
@@ -320,6 +336,7 @@ def build_entry(item, media_type, service_name):
             return None
         date_str = details["last_air_date"]  # visas/sorteras på senaste säsongen, inte premiären
         overview_en = details["overview_en"]
+        upcoming_season = details["upcoming_season"]
     elif not overview_sv:
         # Bara hämta den engelska beskrivningen separat om den svenska
         # faktiskt saknas - sparar ett onödigt anrop i normalfallet.
@@ -359,6 +376,7 @@ def build_entry(item, media_type, service_name):
         "rtId": "",
         "mcId": "",
         "poster": omdb["poster"],
+        "upcomingSeason": upcoming_season,
         "kind": kind,
     }
 
@@ -460,6 +478,24 @@ def main():
                     upgraded += 1
                     print("  ~ beskrivning: %s" % it["title"])
 
+    # Backfill: kolla om det finns en kommande/planerad säsong för serier
+    # som lades till innan upcomingSeason-fältet fanns.
+    missing_upcoming = [it for it in by_id.values()
+                         if it.get("kind") == "serie" and "upcomingSeason" not in it]
+    if missing_upcoming:
+        print("Kollar kommande säsonger för %d serier..." % len(missing_upcoming))
+        for it in missing_upcoming:
+            tmdb_id = tmdb_find_id(it["title"], it["date"][:4], "tv")
+            time.sleep(0.1)
+            if tmdb_id:
+                details = get_tv_details(tmdb_id)
+                it["upcomingSeason"] = details["upcoming_season"]
+                upgraded += 1
+                if details["upcoming_season"] is not None:
+                    print("  ~ kommande säsong: %s" % it["title"])
+            else:
+                it["upcomingSeason"] = None
+
     for media_type in ("movie", "tv"):
         print("== %s ==" % media_type)
         provider_ids = get_provider_ids(media_type)
@@ -484,6 +520,8 @@ def main():
                             old["desc"] = entry["desc"]
                         if entry.get("poster") and not old.get("poster"):
                             old["poster"] = entry["poster"]
+                        if "upcomingSeason" in entry:
+                            old["upcomingSeason"] = entry["upcomingSeason"]
                         upgraded += 1
                         print("  ~ uppdaterade %s med bättre data" % entry["title"])
                     continue
