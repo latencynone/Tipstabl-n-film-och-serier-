@@ -261,6 +261,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 .more-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
   margin:2px 0 4px;padding-top:8px;border-top:1px dashed var(--line)}
 .more-row[hidden]{display:none}
+.upcoming-season{font-family:var(--mono);font-size:12px;font-weight:700;
+  color:var(--sett);letter-spacing:.02em;margin:8px 0 0}
 .desc{font-size:14px;line-height:1.55;color:var(--desc);margin:8px 0 0}
 .actions{display:flex;gap:8px;flex-shrink:0}
 .heart,.watch,.trash,.star{background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
@@ -465,6 +467,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
 [data-theme="soft"] .item .meta,
 [data-theme="soft"] .item .meta2,
 [data-theme="soft"] .item .more-tog{ color:#5C5C61; }
+[data-theme="soft"] .upcoming-season{ color:#146B27; }
 [data-theme="soft"] .title{ font-weight:600; }
 [data-theme="soft"] .heart,[data-theme="soft"] .watch,
 [data-theme="soft"] .trash,[data-theme="soft"] .star{
@@ -576,6 +579,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   var SERVICES = ["Netflix", "Apple TV+", "HBO Max", "Prime Video", "Disney+"];
   var NOW = new Date();
   var MONTHS = ["JAN","FEB","MAR","APR","MAJ","JUN","JUL","AUG","SEP","OKT","NOV","DEC"];
+  var MONTHS_LONG = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
   var store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
@@ -1040,6 +1044,18 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     sel.value = state.genre;
   }
 
+  // Bygger "Ny säsong <månad år>" (grönt) för serier med en känd kommande
+  // säsong, eller "Ny säsong (okänt datum)" om den är planerad men utan
+  // datum än. Tom sträng om ingen kommande säsong är känd.
+  function upcomingSeasonHtml(it) {
+    if (it.kind !== "serie" || it.upcomingSeason === undefined || it.upcomingSeason === null) return "";
+    if (it.upcomingSeason) {
+      var ud = parseDate({ date: it.upcomingSeason });
+      return '<p class="upcoming-season">Ny säsong ' + MONTHS_LONG[ud.getMonth()] + " " + ud.getFullYear() + "</p>";
+    }
+    return '<p class="upcoming-season">Ny säsong (okänt datum)</p>';
+  }
+
   function card(it, i) {
     var d = parseDate(it);
     var hasDay = it.date.length >= 10;
@@ -1123,6 +1139,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
               "</div>";
           })()
         : "") +
+      upcomingSeasonHtml(it) +
       '<p class="desc">' + esc(it.desc) + "</p></div></article>";
   }
 
@@ -1193,6 +1210,7 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       (it.mc ? '<a class="mc" href="' + mcLink + '" target="_blank" rel="noopener noreferrer">MC ' + it.mc + "</a>" : "") +
       "<span>" + esc(it.genre) + "</span><span>" + esc(it.length) + "</span>" +
       "<span>" + (it.kind === "film" ? "Film" : "Serie") + "</span></div>" +
+      upcomingSeasonHtml(it) +
       '<p class="desc">' + esc(it.desc) + "</p></div></article>";
   }
 
