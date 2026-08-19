@@ -1628,6 +1628,15 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
       return;
     }
 
+    if (t.classList.contains("theme-option")) {
+      state.theme = t.dataset.themeChoice;
+      document.documentElement.setAttribute("data-theme", state.theme);
+      store.set(THEME_KEY, state.theme);
+      markCurrentTheme();
+      closeMenu();
+      return;
+    }
+
     if (t.dataset.svc) {
       var s = t.dataset.svc;
       var i = state.active.indexOf(s);
@@ -1802,16 +1811,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
     var willOpen = opts.hidden;
     opts.hidden = !willOpen;
     this.setAttribute("aria-expanded", willOpen);
-  });
-
-  document.addEventListener("click", function (e) {
-    var t = e.target.closest(".theme-option");
-    if (!t) return;
-    state.theme = t.dataset.themeChoice;
-    document.documentElement.setAttribute("data-theme", state.theme);
-    store.set(THEME_KEY, state.theme);
-    markCurrentTheme();
-    closeMenu();
   });
 
   markCurrentTheme();
