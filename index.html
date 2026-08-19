@@ -1049,9 +1049,6 @@ body{background:var(--ink);color:var(--txt);font-family:var(--body);
   // datum än. Tom sträng om ingen kommande säsong är känd.
   function upcomingSeasonHtml(it) {
     if (it.kind !== "serie" || it.upcomingSeason === undefined || it.upcomingSeason === null) return "";
-    if (it.upcomingSeason === "in_production") {
-      return '<p class="upcoming-season">Ny säsong spelas in (premiärdatum ej satt)</p>';
-    }
     if (it.upcomingSeason) {
       var ud = parseDate({ date: it.upcomingSeason });
       return '<p class="upcoming-season">Ny säsong ' + MONTHS_LONG[ud.getMonth()] + " " + ud.getFullYear() + "</p>";
