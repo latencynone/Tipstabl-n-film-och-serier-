@@ -25,7 +25,6 @@ import os
 import re
 import sys
 import time
-import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -132,12 +131,6 @@ def normalize_length(runtime_min, media_type, seasons=None):
     return "1 säsong"
 
 
-def slugify_fallback(title):
-    """Enkel, säker fallback-sökning (ingen gissad sid-ID) om vi inte har
-    ett verifierat RT/MC-ID."""
-    return ""
-
-
 def discover_candidates(media_type, provider_id):
     since = (date.today() - timedelta(days=365 * MAX_AGE_YEARS)).isoformat()
     params_base = {
@@ -186,20 +179,25 @@ def get_tv_details(tv_id):
     upcoming_season = None  # None = ingen kommande säsong känd
     if data.get("in_production"):
         today = date.today().isoformat()
+        found = False
         for s in data.get("seasons", []):
             if s.get("season_number", 0) == 0:
                 continue  # "specials", inte en riktig ny säsong
             air = s.get("air_date")
             if not air or air > today:
+                found = True
                 if air:
                     upcoming_season = air
                 elif data.get("status") == "In Production":
-                    # Filmas redan, men inget premiärdatum satt än - ett
-                    # genuint extra ledtråd (inte en gissning på år).
                     upcoming_season = "in_production"
                 else:
-                    upcoming_season = ""  # bara "planerad", inget mer känt
+                    upcoming_season = ""
                 break
+        if not found:
+            # in_production är sant men TMDb har inte ens lagt till en post
+            # för nästa säsong ännu - vanligt när den bara nyss bekräftats.
+            # Vi vet ändå att en till säsong är på gång.
+            upcoming_season = "in_production" if data.get("status") == "In Production" else ""
 
     result = {
         "last_air_date": data.get("last_air_date") or data.get("first_air_date"),
@@ -500,8 +498,10 @@ def main():
                 upgraded += 1
                 if details["upcoming_season"] is not None:
                     print("  ~ kommande säsong: %s" % it["title"])
-            else:
-                it["upcomingSeason"] = None
+            # Annars: lämna fältet osatt - annars skulle en TILLFÄLLIGT
+            # misslyckad sökning permanent stämplas som "ingen kommande
+            # säsong", och titeln skulle aldrig kollas igen. Nu försöker
+            # nästa körning på nytt istället.
 
     for media_type in ("movie", "tv"):
         print("== %s ==" % media_type)
@@ -519,18 +519,27 @@ def main():
                 # faktiskt dök upp på tjänsten, vilket annars gett dubbletter.
                 if entry["id"] and entry["id"] in by_id:
                     old = by_id[entry["id"]]
+                    # Poster och kommande säsong uppdateras oberoende av
+                    # betygsjämförelsen nedan - annars kunde en färskare
+                    # affisch eller nytt säsongsdatum tystas ner bara för
+                    # att RT/MC/beskrivning råkade vara oförändrade.
+                    refreshed = False
+                    if entry.get("poster") and entry["poster"] != old.get("poster"):
+                        old["poster"] = entry["poster"]
+                        refreshed = True
+                    if "upcomingSeason" in entry and entry["upcomingSeason"] != old.get("upcomingSeason"):
+                        old["upcomingSeason"] = entry["upcomingSeason"]
+                        refreshed = True
                     if entry_score(entry) > entry_score(old):
                         old["imdb"], old["rt"], old["mc"] = entry["imdb"], entry["rt"], entry["mc"]
                         if entry["length"]:
                             old["length"] = entry["length"]
                         if len(entry["desc"]) > len(old.get("desc", "")):
                             old["desc"] = entry["desc"]
-                        if entry.get("poster") and not old.get("poster"):
-                            old["poster"] = entry["poster"]
-                        if "upcomingSeason" in entry:
-                            old["upcomingSeason"] = entry["upcomingSeason"]
-                        upgraded += 1
+                        refreshed = True
                         print("  ~ uppdaterade %s med bättre data" % entry["title"])
+                    if refreshed:
+                        upgraded += 1
                     continue
 
                 key = entry["kind"] + ":" + entry["title"] + ":" + entry["date"]
