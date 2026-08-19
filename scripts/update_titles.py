@@ -191,7 +191,14 @@ def get_tv_details(tv_id):
                 continue  # "specials", inte en riktig ny säsong
             air = s.get("air_date")
             if not air or air > today:
-                upcoming_season = air or ""  # tom sträng = planerad men okänt datum
+                if air:
+                    upcoming_season = air
+                elif data.get("status") == "In Production":
+                    # Filmas redan, men inget premiärdatum satt än - ett
+                    # genuint extra ledtråd (inte en gissning på år).
+                    upcoming_season = "in_production"
+                else:
+                    upcoming_season = ""  # bara "planerad", inget mer känt
                 break
 
     result = {
